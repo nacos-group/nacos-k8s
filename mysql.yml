@@ -11,7 +11,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/home/pader/Downloads/nacos-docker/mysql"
+    path: "/root/nacos-k8s/mysql"
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -39,7 +39,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/home/pader/Downloads/nacos-docker/initdb"
+    path: "/root/nacos-k8s/initdb"
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
