@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: mysql-pv-volume
+  name: mysql-bak-pv-volume
   labels:
     type: local
 spec:
@@ -16,7 +16,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-pv-claim
+  name: mysql-bak-pv-claim
 spec:
   storageClassName: manual
   accessModes:
@@ -29,7 +29,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: mysql-init-pv-volume
+  name: mysql-bak-init-pv-volume
   labels:
     type: local
 spec:
@@ -44,7 +44,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-initdb-pv-claim
+  name: mysql-bak-initdb-pv-claim
 spec:
   storageClassName: initdb
   accessModes:
@@ -68,22 +68,22 @@ spec:
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
-  name: mysql
+  name: mysql-bak
 spec:
   selector:
     matchLabels:
-      app: mysql
+      app: mysql-bak
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: mysql
+        app: mysql-bak
     spec:
-      nodeName: node01
+      nodeName: node02
       containers:
       - image: mysql:5.7
-        name: mysql
+        name: mysql-bak
         env:
           # Use secret in real usage
         - name: MYSQL_ROOT_PASSWORD
@@ -98,14 +98,14 @@ spec:
         - containerPort: 3306
           name: mysql
         volumeMounts:
-        - name: mysql-persistent-storage
+        - name: mysql-bak-persistent-storage
           mountPath: /var/lib/mysql
-        - name: mysql-initdb-persistent-storage
+        - name: mysql-bak-initdb-persistent-storage
           mountPath: /docker-entrypoint-initdb.d
       volumes:
-      - name: mysql-persistent-storage
+      - name: mysql-bak-persistent-storage
         persistentVolumeClaim:
           claimName: mysql-pv-claim
-      - name: mysql-initdb-persistent-storage
+      - name: mysql-bak-initdb-persistent-storage
         persistentVolumeClaim:
-          claimName: mysql-initdb-pv-claim
+          claimName: mysql-bak-initdb-pv-claim
