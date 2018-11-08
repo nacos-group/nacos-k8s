@@ -1,0 +1,110 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nacos-svc
+  labels:
+    app: nacos-svc
+spec:
+  ports:
+  - port: 8848
+    name: server
+  clusterIP: None
+  selector:
+    app: nacos
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nacos-cm
+data:
+  db.host.zero: "1G"
+  db.name.zero: "nacos_devtest"
+  db.port.zero: "10"
+  db.host.one: "1G"
+  db.name.one: "nacos_devtest"
+  db.port.one: "10"
+  db.user: "nacos"
+  db.password: "nacos"
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: nacos
+spec:
+  serviceName: nacos-svc
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: nacos
+    spec:
+      containers:
+      - name: k8snacos
+        imagePullPolicy: Always
+        image: paderlol/nacos:k8s
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8848
+          name: client
+        env:
+        - name : NACOS_REPLICAS
+          value: "3"
+        - name : DB_HOST_ZERO
+          valueFrom:
+            configMapKeyRef:
+                name: nacos-cm
+                key: db.host.zero
+        - name : DB_NAME_ZERO
+          valueFrom:
+            configMapKeyRef:
+                name: nacos-cm
+                key: db.name.zero
+        - name : DB_PORT_ZERO
+          valueFrom:
+            configMapKeyRef:
+                name: nacos-cm
+                key: db.port.zero
+        - name : DB_HOST_ONE
+          valueFrom:
+            configMapKeyRef:
+                name: nacos-cm
+                key: db.host.one
+        - name : DB_NAME_ONE
+          valueFrom:
+            configMapKeyRef:
+                name: nacos-cm
+                key: db.name.one
+        - name : DB_PORT_ONE
+          valueFrom:
+            configMapKeyRef:
+                name: nacos-cm
+                key: db.port.one
+        - name : DB_USER
+          valueFrom:
+            configMapKeyRef:
+                name: nacos-cm
+                key: db.user
+        - name : DB_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+                name: nacos-cm
+                key: db.password
+        - name: NACOS_SERVER_PORT
+          value: "8848"
+        - name: PREFER_HOST_MODE
+          value: "hostname"
+        volumeMounts:
+        - name: logdir
+          mountPath: /home/nacos/logs
+  volumeClaimTemplates:
+  - metadata:
+      name: logdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 5Gi
