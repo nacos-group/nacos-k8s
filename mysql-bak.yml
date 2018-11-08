@@ -56,14 +56,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql
+  name: mysql-bak
 spec:
   type: NodePort
   ports:
   - port: 3306
     targetPort: 3306
   selector:
-    app: mysql
+    app: mysql-bak
 ---
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
