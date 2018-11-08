@@ -19,12 +19,12 @@ kind: ConfigMap
 metadata:
   name: nacos-cm
 data:
-  db.host.zero: "1G"
+  db.host.zero: "10.105.42.247"
   db.name.zero: "nacos_devtest"
-  db.port.zero: "10"
-  db.host.one: "1G"
+  db.port.zero: "3306"
+  db.host.one: "10.105.35.138"
   db.name.one: "nacos_devtest"
-  db.port.one: "10"
+  db.port.one: "3306"
   db.user: "nacos"
   db.password: "nacos"
 ---
