@@ -3,9 +3,9 @@
 HOST=`hostname -s`
 DOMAIN=`hostname -d`
 function print_servers(){
-    for(( i=1; i<$NACOS_REPLICAS; i++))
+    for(( i=0; i<$NACOS_REPLICAS; i++))
     do
-    echo "server.$i=$NAME-$((i-1)).$DOMAIN:$NACOS_SERVER_PORT"
+    echo "$NAME-$i.$DOMAIN:$NACOS_SERVER_PORT"
     done
 }
 
@@ -40,6 +40,7 @@ if [ ! -f "${CLUSTER_CONF}" ]; then
   touch "${CLUSTER_CONF}"
 fi
 if [[ "${MODE}" == "cluster" ]]; then
+  validate_env
 	create_config
 fi
 
