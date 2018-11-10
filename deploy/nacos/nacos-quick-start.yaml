@@ -64,48 +64,48 @@ spec:
         - containerPort: 8848
           name: client
         env:
-        - name : NACOS_REPLICAS
+        - name: NACOS_REPLICAS
           value: "3"
-        - name : DB_HOST_ZERO
+        - name: DB_HOST_ZERO
           valueFrom:
             configMapKeyRef:
-                name: nacos-cm
-                key: db.host.zero
-        - name : DB_NAME_ZERO
+              name: nacos-cm
+              key: db.host.zero
+        - name: DB_NAME_ZERO
           valueFrom:
             configMapKeyRef:
-                name: nacos-cm
-                key: db.name.zero
-        - name : DB_PORT_ZERO
+              name: nacos-cm
+              key: db.name.zero
+        - name: DB_PORT_ZERO
           valueFrom:
             configMapKeyRef:
-                name: nacos-cm
-                key: db.port.zero
-        - name : DB_HOST_ONE
+              name: nacos-cm
+              key: db.port.zero
+        - name: DB_HOST_ONE
           valueFrom:
             configMapKeyRef:
-                name: nacos-cm
-                key: db.host.one
-        - name : DB_NAME_ONE
+              name: nacos-cm
+              key: db.host.one
+        - name: DB_NAME_ONE
           valueFrom:
             configMapKeyRef:
-                name: nacos-cm
-                key: db.name.one
-        - name : DB_PORT_ONE
+              name: nacos-cm
+              key: db.name.one
+        - name: DB_PORT_ONE
           valueFrom:
             configMapKeyRef:
-                name: nacos-cm
-                key: db.port.one
-        - name : DB_USER
+              name: nacos-cm
+              key: db.port.one
+        - name: DB_USER
           valueFrom:
             configMapKeyRef:
-                name: nacos-cm
-                key: db.user
-        - name : DB_PASSWORD
+              name: nacos-cm
+              key: db.user
+        - name: DB_PASSWORD
           valueFrom:
             configMapKeyRef:
-                name: nacos-cm
-                key: db.password
+              name: nacos-cm
+              key: db.password
         - name: NACOS_SERVER_PORT
           value: "8848"
         - name: PREFER_HOST_MODE
