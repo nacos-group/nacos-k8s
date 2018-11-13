@@ -27,6 +27,37 @@
 
 
 
+# 配置属性
+
+* nacos-pvc-nfs.yaml 或者 nacos-quick-start.yaml 属性列表
+
+| 名称              | 是否必填 | 描述                                    |
+| ----------------- | -------- | --------------------------------------- |
+| db.host.zero      | 是       | 数据库主库地址                          |
+| db.name.zero      | 是       | 数据库主库名称                          |
+| db.port.zero      | 是       | 数据库主库端口                          |
+| db.host.one       | 是       | 数据库备库地址                          |
+| db.name.one       | 是       | 数据库备库名称                          |
+| db.port.one       | 是       | 数据库备库端口                          |
+| db.user           | 是       | 数据库账号                              |
+| db.password       | 是       | 数据库密码                              |
+| NACOS_REPLICAS    | 是       | 集群数量,必须和**replicas**属性保持一致 |
+| NACOS_SERVER_PORT | 否       | Nacos端口,不填写默认8848                |
+| PREFER_HOST_MODE  | 是       | 开启Nacos集群节点域名支持               |
+
+
+
+* **nfs**目录下deployment.yaml 属性列表
+
+| 名称       | 是否必填 | 描述                     |
+| ---------- | -------- | ------------------------ |
+| NFS_SERVER | 是       | NFS server地址           |
+| NFS_PATH   | 是       | NFS server配置的共享目录 |
+| server     | 是       | NFS server地址           |
+| path       | 是       | NFS server配置的共享目录 |
+
+
+
 # 使用指南
 
 
