@@ -23,7 +23,6 @@
 | ------ | ----------------------------------- |
 | build  | 构建Nacos镜像的项目包以及Dockerfile |
 | deploy | k8s部署yaml文件                     |
-| Initdb | Nacos 集群数据库初始化SQL脚本       |
 
 
 
@@ -31,19 +30,16 @@
 
 * nacos-pvc-nfs.yaml 或者 nacos-quick-start.yaml 属性列表
 
-| 名称              | 是否必填 | 描述                                    |
-| ----------------- | -------- | --------------------------------------- |
-| db.host.zero      | 是       | 数据库主库地址                          |
-| db.name.zero      | 是       | 数据库主库名称                          |
-| db.port.zero      | 是       | 数据库主库端口                          |
-| db.host.one       | 是       | 数据库备库地址                          |
-| db.name.one       | 是       | 数据库备库名称                          |
-| db.port.one       | 是       | 数据库备库端口                          |
-| db.user           | 是       | 数据库账号                              |
-| db.password       | 是       | 数据库密码                              |
-| NACOS_REPLICAS    | 是       | 集群数量,必须和**replicas**属性保持一致 |
-| NACOS_SERVER_PORT | 否       | Nacos端口,不填写默认8848                |
-| PREFER_HOST_MODE  | 是       | 开启Nacos集群节点域名支持               |
+| 名称                  | 是否必填 | 描述                                    |
+| --------------------- | -------- | --------------------------------------- |
+| mysql.master.db.name  | 是       | 数据库主库名称                          |
+| mysql.master.port     | 否       | 数据库主库端口                          |
+| mysql.slave.port      | 是       | 数据库从库端口                          |
+| mysql.master.user     | 是       | 数据库主库用户名                        |
+| mysql.master.password | 是       | 数据库主库密码                          |
+| NACOS_REPLICAS        | 是       | 集群数量,必须和**replicas**属性保持一致 |
+| NACOS_SERVER_PORT     | 否       | Nacos端口,不填写默认8848                |
+| PREFER_HOST_MODE      | 是       | 开启Nacos集群节点域名支持               |
 
 
 
@@ -55,6 +51,21 @@
 | NFS_PATH   | 是       | NFS server配置的共享目录 |
 | server     | 是       | NFS server地址           |
 | path       | 是       | NFS server配置的共享目录 |
+
+
+
+* mysql目录下yaml文件 属性列表
+
+| 名称                       | 是否必填 | 描述                                                        |
+| -------------------------- | -------- | ----------------------------------------------------------- |
+| MYSQL_ROOT_PASSWORD        | 否       | root密码                                                    |
+| MYSQL_DATABASE             | 是       | 数据库名称,从库无需配置                                     |
+| MYSQL_USER                 | 是       | 数据用户名,从库无需配置                                     |
+| MYSQL_PASSWORD             | 是       | 数据库用户密码,从库无需配置                                 |
+| MYSQL_REPLICATION_USER     | 是       | 从库复制用户名,主从库配置文件中需要配置相同                 |
+| MYSQL_REPLICATION_PASSWORD | 是       | 从库复制用户密码,主从库配置文件中需要配置相同               |
+| Nfs:server                 | 是       | 如果没有部署nfs,请使用mysql-master-local  mysql-slave-local |
+| Nfs:path                   | 是       | 如果没有部署nfs,请使用mysql-master-local  mysql-slave-local |
 
 
 
@@ -97,80 +108,7 @@ git clone https://github.com/paderlol/nacos-k8s.git
 
 
 
-### 部署数据库
 
-数据库是以指定节点的方式部署,主库部署在node01节点,从库部署在node02节点.
-
-* 部署主库
-
-```shell
-#进入clone下来的工程根目录
-cd nacos-k8s 
-# 在k8s上创建mysql主库
-kubectl create -f deploy/mysql/mysql.yml
-```
-
-
-
-* 部署备库
-
-```shell
-#进入clone下来的工程根目录
-cd nacos-k8s 
-# 在k8s上创建mysql备库
-kubectl create -f deploy/mysql/mysql-bak.yml
-```
-
-
-
-**注意**：如果工程不是导入机器的根目录,那么同样需要修改mysql.yaml和mysql-bak.yaml中挂载路径,因为数据库PVC使用的是本地卷,请注意更改配置中的**path**路径如下所示
-
-```yaml
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: mysql-pv-volume
-  labels:
-    type: local
-spec:
-  storageClassName: manual
-  capacity:
-    storage: 20Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/root/nacos-k8s/mysql"
----
-....其他配置
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: mysql-init-pv-volume
-  labels:
-    type: local
-spec:
-  storageClassName: initdb
-  capacity:
-    storage: 20Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/root/nacos-k8s/initdb"
-```
-
-
-
-* 部署后查看数据库是否已经正常运行
-
-```shell
-#查看主库是否正常运行
-kubectl get pod -l app=mysql
-NAME                         READY   STATUS    RESTARTS   AGE
-mysql-bak-5c5b5bd479-922zv   1/1     Running   0          2d23h
-#查看备库是否正常运行
-kubectl get pod -l app=mysql-bak
-```
 
 
 
@@ -218,6 +156,44 @@ kubectl get pod -l app=nfs-client-provisioner
 
 
 
+### 部署数据库
+
+数据库是以指定节点的方式部署,主库部署在node01节点,从库部署在node02节点.
+
+* 部署主库
+
+```shell
+#进入clone下来的工程根目录
+cd nacos-k8s 
+# 在k8s上创建mysql主库
+kubectl create -f deploy/mysql/mysql-master-nfs.yml
+```
+
+
+
+* 部署备库
+
+```shell
+#进入clone下来的工程根目录
+cd nacos-k8s 
+# 在k8s上创建mysql备库
+kubectl create -f deploy/mysql/mysql-slave-nfs.yml
+```
+
+
+
+* 部署后查看数据库是否已经正常运行
+
+```shell
+#查看主库是否正常运行
+kubectl get pod 
+NAME                         READY   STATUS    RESTARTS   AGE
+mysql-master-gf2vd                        1/1     Running   0          111m
+
+#查看备库是否正常运行
+kubectl get pod 
+mysql-slave-kf9cb                         1/1     Running   0          110m
+```
 
 
 ### 部署Nacos 
@@ -239,14 +215,12 @@ mysql-bak        NodePort    10.105.35.138   <none>        3306:31522/TCP   2d23
 * 修改配置文件**depoly/nacos/nacos-pvc-nfs.yaml**,找到如下配置,填入上一步查到的主库和从库地址
 
 ```yaml
-  db.host.zero: "主库地址"
-  db.name.zero: "nacos_devtest"
-  db.port.zero: "3306"
-  db.host.one: "备库地址"
-  db.name.one: "nacos_devtest"
-  db.port.one: "3306"
-  db.user: "nacos"
-  db.password: "nacos"
+data:
+  mysql.master.db.name: "数据库名称"
+  mysql.master.port: "主库端口"
+  mysql.slave.port: "从库端口"
+  mysql.master.user: "主库用户名"
+  mysql.master.password: "主库用户密码"
 ```
 
 
@@ -319,5 +293,16 @@ Q:如果不想搭建NFS,并且想体验nacos-k8s?
 
 ```shell
 kubectl create -f nacos-k8s/deploy/nacos/nacos-quick-start.yaml
+```
+
+
+
+Q:如果未搭建NFS,数据库怎么部署？
+
+A:可以使用本地持久方式部署,如下
+
+```shell
+kubectl create -f nacos-k8s/deploy/mysql/nacos-master-local.yaml
+kubectl create -f nacos-k8s/deploy/mysql/nacos-master-local.yaml
 ```
 

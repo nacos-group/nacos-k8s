@@ -18,14 +18,11 @@ kind: ConfigMap
 metadata:
   name: nacos-cm
 data:
-  db.host.zero: "10.105.42.247"
-  db.name.zero: "nacos_devtest"
-  db.port.zero: "3306"
-  db.host.one: "10.105.35.138"
-  db.name.one: "nacos_devtest"
-  db.port.one: "3306"
-  db.user: "nacos"
-  db.password: "nacos"
+  mysql.master.db.name: "nacos_devtest"
+  mysql.master.port: "3306"
+  mysql.slave.port: "3306"
+  mysql.master.user: "nacos"
+  mysql.master.password: "nacos"
 ---
 apiVersion: apps/v1beta1
 kind: StatefulSet
@@ -55,7 +52,7 @@ spec:
       containers:
       - name: k8snacos
         imagePullPolicy: Always
-        image: paderlol/nacos:k8s
+        image: paderlol/nacos:k8s-0.2.0
         resources:
           requests:
             memory: "2Gi"
@@ -66,46 +63,31 @@ spec:
         env:
         - name: NACOS_REPLICAS
           value: "3"
-        - name: DB_HOST_ZERO
+        - name: MYSQL_MASTER_SERVICE_DB_NAME
           valueFrom:
             configMapKeyRef:
               name: nacos-cm
-              key: db.host.zero
-        - name: DB_NAME_ZERO
+              key: mysql.master.db.name
+        - name: MYSQL_MASTER_SERVICE_PORT
           valueFrom:
             configMapKeyRef:
               name: nacos-cm
-              key: db.name.zero
-        - name: DB_PORT_ZERO
+              key: mysql.master.port
+        - name: MYSQL_SLAVE_SERVICE_PORT
           valueFrom:
             configMapKeyRef:
               name: nacos-cm
-              key: db.port.zero
-        - name: DB_HOST_ONE
+              key: mysql.slave.port
+        - name: MYSQL_MASTER_SERVICE_USER
           valueFrom:
             configMapKeyRef:
               name: nacos-cm
-              key: db.host.one
-        - name: DB_NAME_ONE
+              key: mysql.master.user
+        - name: MYSQL_MASTER_SERVICE_PASSWORD
           valueFrom:
             configMapKeyRef:
               name: nacos-cm
-              key: db.name.one
-        - name: DB_PORT_ONE
-          valueFrom:
-            configMapKeyRef:
-              name: nacos-cm
-              key: db.port.one
-        - name: DB_USER
-          valueFrom:
-            configMapKeyRef:
-              name: nacos-cm
-              key: db.user
-        - name: DB_PASSWORD
-          valueFrom:
-            configMapKeyRef:
-              name: nacos-cm
-              key: db.password
+              key: mysql.master.password
         - name: NACOS_SERVER_PORT
           value: "8848"
         - name: PREFER_HOST_MODE

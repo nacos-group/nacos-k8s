@@ -26,7 +26,7 @@ COPY nacos $BASE_DIR
 
 
 # set startup log dir
-RUN mkdir logs \
+RUN mkdir -p logs \
 	&& cd logs \
 	&& touch start.log \
 	&& ln -sf /dev/stdout $BASE_DIR/logs/start.log \
