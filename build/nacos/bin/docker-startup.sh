@@ -13,7 +13,7 @@ function validate_env(){
 echo "Validating environment"
 
 if [ -z $NACOS_REPLICAS ]; then
-    echo "ZK_REPLICAS is a mandatory environment variable"
+    echo "NACOS_REPLICAS is a mandatory environment variable"
      exit 1
 fi
 
