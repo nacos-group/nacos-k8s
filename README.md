@@ -14,7 +14,7 @@ This project contains a Nacos Docker image meant to facilitate the deployment of
 
 
 # Docker Image
-Image build source code in  [build](https://github.com/paderlol/nacos-k8s/tree/master/build) directory,It's comprised of a base Ubuntu 16.04 image using the latest release of the OpenJDK JRE based on the 1.8 JVM (JDK 8u111) and the latest stable release of Nacos,0.5.0,
+Image build source code in  [build](https://github.com/nacos-group/nacos-k8s/tree/master/build) directory,It's comprised of a base Ubuntu 16.04 image using the latest release of the OpenJDK JRE based on the 1.8 JVM (JDK 8u111) and the latest stable release of Nacos,0.5.0,
 And already pushed into [Docker Hub](https://hub.docker.com/)
 
 
