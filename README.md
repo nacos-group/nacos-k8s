@@ -1,7 +1,7 @@
 # Kubernetes Nacos K8SNacos
 
 
-This project contains a Nacos Docker image meant to facilitate the deployment of [Nacos](https://nacos.io) on [Kubernetes](https://kubernetes.io/) using StatefulSets.
+This project contains a Nacos Docker image meant to facilitate the deployment of [Nacos](https://nacos.io) on [Kubernetes](https://kubernetes.io/) via StatefulSets.
 
 
 
@@ -9,7 +9,7 @@ This project contains a Nacos Docker image meant to facilitate the deployment of
 # Limitations
 
 * Scaling is not currently supported
-* Persistent Volumes must be used. emptyDirs will likely result in a loss of data
+* Persistent Volumes must be used. emptyDirs will possibly result in a loss of data
 
 
 
@@ -64,10 +64,10 @@ And already pushed into [Docker Hub](https://hub.docker.com/)
 | MYSQL_DATABASE             | Y       | Database Name                                     |
 | MYSQL_USER                 | Y       | Database Username                                     |
 | MYSQL_PASSWORD             | Y       | Database Password                                |
-| MYSQL_REPLICATION_USER     | Y       | master-slave replication username                |
-| MYSQL_REPLICATION_PASSWORD | Y       | master-slave replication password                 |
-| Nfs:server                 | Y       | 如果没有部署nfs,请使用mysql-master-local  mysql-slave-local |
-| Nfs:path                   | Y       | 如果没有部署nfs,请使用mysql-master-local  mysql-slave-local |
+| MYSQL_REPLICATION_USER     | Y       | Master-slave replication username                |
+| MYSQL_REPLICATION_PASSWORD | Y       | Master-slave replication password                 |
+| Nfs:server                 | Y       | NFS server address |
+| Nfs:path                   | Y       | NFS server shared path |
 
 
 
@@ -294,7 +294,6 @@ Q:If NFS is not deployed, how is the database deployed？
 A:You can deploy in a local persistent, as follows：
 
 ```shell
-kubectl create -f nacos-k8s/deploy/mysql/nacos-master-local.yaml
 kubectl create -f nacos-k8s/deploy/mysql/nacos-master-local.yaml
 ```
 
