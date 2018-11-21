@@ -7,7 +7,6 @@ ENV MODE="cluster" \
     BASE_DIR="/home/nacos" \
     CLASSPATH=".:/home/nacos/conf:$CLASSPATH" \
     CLUSTER_CONF="/home/nacos/conf/cluster.conf" \
-    CUSTOM_SEARCH_LOCATIONS="/home/nacos/conf/application.properties" \
     JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 \
     JAVA="/usr/lib/jvm/java-8-openjdk-amd64/bin/java"
 
@@ -28,9 +27,9 @@ COPY nacos $BASE_DIR
 # set startup log dir
 RUN mkdir -p logs \
 	&& cd logs \
-	&& touch start.log \
-	&& ln -sf /dev/stdout $BASE_DIR/logs/start.log \
-	&& ln -sf /dev/stderr $BASE_DIR/logs/start.log
+	&& touch start.out \
+	&& ln -sf /dev/stdout $BASE_DIR/logs/start.out \
+	&& ln -sf /dev/stderr $BASE_DIR/logs/start.out
 RUN chmod +x bin/docker-startup.sh
 
 EXPOSE 8848

@@ -51,7 +51,7 @@ spec:
       containers:
       - name: k8snacos
         imagePullPolicy: Always
-        image: paderlol/nacos:k8s-0.2.0
+        image: paderlol/nacos:k8s-0.3.0
         resources:
           requests:
             memory: "2Gi"
