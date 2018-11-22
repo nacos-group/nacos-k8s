@@ -94,7 +94,7 @@ And already pushed into [Docker Hub](https://hub.docker.com/)
 
 
 ```shell
-git clone https://github.com/paderlol/nacos-k8s.git
+git clone https://github.com/nacos-group/nacos-k8s.git
 ```
 
 
@@ -157,7 +157,7 @@ kubectl get pod -l app=nfs-client-provisioner
 
 cd nacos-k8s
 
-kubectl create -f deploy/mysql/mysql-master-nfs.yml
+kubectl create -f deploy/mysql/mysql-master-nfs.yaml
 ```
 
 
@@ -168,7 +168,7 @@ kubectl create -f deploy/mysql/mysql-master-nfs.yml
 
 cd nacos-k8s 
 
-kubectl create -f deploy/mysql/mysql-slave-nfs.yml
+kubectl create -f deploy/mysql/mysql-slave-nfs.yaml
 ```
 
 
