@@ -12,11 +12,12 @@ ENV MODE="cluster" \
 
 RUN set -x \
     && apt-get update \
-    && apt-get install -y openjdk-8-jre-headless wget netcat-openbsd \
+    && apt-get install -y openjdk-8-jre-headless wget netcat-openbsd bash\
     && apt-get autoremove -y wget \
     && apt-get install -y tzdata \
     && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
     && rm -rf /var/lib/apt/lists/*
+
 
 WORKDIR /home/nacos
 
@@ -25,12 +26,15 @@ COPY nacos $BASE_DIR
 
 
 # set startup log dir
-RUN mkdir -p logs \
+RUN chmod +x bin/docker-startup.sh \
+  && chmod +x bin/peer-finder \
+  && chmod +x bin/on-change.sh \
+  && mkdir -p logs \
 	&& cd logs \
 	&& touch start.out \
 	&& ln -sf /dev/stdout $BASE_DIR/logs/start.out \
 	&& ln -sf /dev/stderr $BASE_DIR/logs/start.out
-RUN chmod +x bin/docker-startup.sh
+
 
 EXPOSE 8848
 ENTRYPOINT ["bin/docker-startup.sh"]

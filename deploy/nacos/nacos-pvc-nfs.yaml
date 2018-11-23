@@ -5,6 +5,8 @@ metadata:
   name: nacos-headless
   labels:
     app: nacos-headless
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
 spec:
   ports:
   - port: 8848
