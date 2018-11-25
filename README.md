@@ -5,72 +5,6 @@ This project contains a Nacos Docker image meant to facilitate the deployment of
 
 
 
-
-# Limitations
-
-* Scaling is not currently supported
-* Persistent Volumes must be used. emptyDirs will possibly result in a loss of data
-
-
-
-# Docker Image
-Image build source code in  [build](https://github.com/nacos-group/nacos-k8s/tree/master/build) directory,It's comprised of a base Ubuntu 16.04 image using the latest release of the OpenJDK JRE based on the 1.8 JVM (JDK 8u111) and the latest stable release of Nacos,0.5.0,
-And already pushed into [Docker Hub](https://hub.docker.com/)
-
-
-
-# Project directory
-
-| Directory Name   | Description                                |
-| ------ | ----------------------------------- |
-| build  | Image build source code |
-| deploy | Deploy the required files                     |
-
-
-
-# Configuration properties
-
-* nacos-pvc-nfs.yaml or nacos-quick-start.yaml 
-
-| Name                  | Required | Description                                    |
-| --------------------- | -------- | --------------------------------------- |
-| mysql.master.db.name  | Y       | Master database name                          |
-| mysql.master.port     | N       | Master database port                          |
-| mysql.slave.port      | N       | Slave database port                         |
-| mysql.master.user     | Y       | Master database username                        |
-| mysql.master.password | Y       | Master database password                       |
-| NACOS_REPLICAS        | Y       | The number of clusters must be consistent with the value of the replicas attribute |
-| NACOS_SERVER_PORT     | N       | Nacos port,default:8848                |
-| PREFER_HOST_MODE      | Y       | Enable Nacos cluster node domain name support               |
-
-
-
-* **nfs** deployment.yaml 
-
-| Name       | Required | Description                     |
-| ---------- | -------- | ------------------------ |
-| NFS_SERVER | Y       | NFS server address           |
-| NFS_PATH   | Y       | NFS server shared directory |
-| server     | Y       | NFS server address           |
-| path       | Y       | NFS server shared directory |
-
-
-
-* mysql yaml 
-
-| Name                       | Required | Description                                                        |
-| -------------------------- | -------- | ----------------------------------------------------------- |
-| MYSQL_ROOT_PASSWORD        | N       | Root password                                                    |
-| MYSQL_DATABASE             | Y       | Database Name                                     |
-| MYSQL_USER                 | Y       | Database Username                                     |
-| MYSQL_PASSWORD             | Y       | Database Password                                |
-| MYSQL_REPLICATION_USER     | Y       | Master-slave replication username                |
-| MYSQL_REPLICATION_PASSWORD | Y       | Master-slave replication password                 |
-| Nfs:server                 | Y       | NFS server address |
-| Nfs:path                   | Y       | NFS server shared path |
-
-
-
 # Quick Start
 
 
@@ -236,6 +170,69 @@ nacos-1   1/1     Running   0          19h
 nacos-2   1/1     Running   0          19h
 ```
 
+
+# Limitations
+
+* Scaling is not currently supported
+* Persistent Volumes must be used. emptyDirs will possibly result in a loss of data
+
+
+
+# Docker Image
+Image build source code in  [build](https://github.com/nacos-group/nacos-k8s/tree/master/build) directory,It's comprised of a base Ubuntu 16.04 image using the latest release of the OpenJDK JRE based on the 1.8 JVM (JDK 8u111) and the latest stable release of Nacos,0.5.0,
+And already pushed into [Docker Hub](https://hub.docker.com/)
+
+
+
+# Project directory
+
+| Directory Name   | Description                                |
+| ------ | ----------------------------------- |
+| build  | Image build source code |
+| deploy | Deploy the required files                     |
+
+
+
+# Configuration properties
+
+* nacos-pvc-nfs.yaml or nacos-quick-start.yaml 
+
+| Name                  | Required | Description                                    |
+| --------------------- | -------- | --------------------------------------- |
+| mysql.master.db.name  | Y       | Master database name                          |
+| mysql.master.port     | N       | Master database port                          |
+| mysql.slave.port      | N       | Slave database port                         |
+| mysql.master.user     | Y       | Master database username                        |
+| mysql.master.password | Y       | Master database password                       |
+| NACOS_REPLICAS        | Y       | The number of clusters must be consistent with the value of the replicas attribute |
+| NACOS_SERVER_PORT     | N       | Nacos port,default:8848                |
+| PREFER_HOST_MODE      | Y       | Enable Nacos cluster node domain name support               |
+
+
+
+* **nfs** deployment.yaml 
+
+| Name       | Required | Description                     |
+| ---------- | -------- | ------------------------ |
+| NFS_SERVER | Y       | NFS server address           |
+| NFS_PATH   | Y       | NFS server shared directory |
+| server     | Y       | NFS server address           |
+| path       | Y       | NFS server shared directory |
+
+
+
+* mysql yaml 
+
+| Name                       | Required | Description                                                        |
+| -------------------------- | -------- | ----------------------------------------------------------- |
+| MYSQL_ROOT_PASSWORD        | N       | Root password                                                    |
+| MYSQL_DATABASE             | Y       | Database Name                                     |
+| MYSQL_USER                 | Y       | Database Username                                     |
+| MYSQL_PASSWORD             | Y       | Database Password                                |
+| MYSQL_REPLICATION_USER     | Y       | Master-slave replication username                |
+| MYSQL_REPLICATION_PASSWORD | Y       | Master-slave replication password                 |
+| Nfs:server                 | Y       | NFS server address |
+| Nfs:path                   | Y       | NFS server shared path |
 
 
 
