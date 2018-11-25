@@ -17,8 +17,3 @@ for peer in "${PEERS[@]}"; do
 done
 
 echo "on change write peers:"${PEERS}
-curl -X PUT 'http://localhost:8848/nacos/v1/ns/instance?serviceName=nacos.naming.serviceName&ip=20.18.7.2&port=8888'
-
-curl -X GET 'http://localhost:8848/nacos/v1/ns/instances?serviceName=nacos.naming.serviceName' | python -m json.tool
-
-curl -X GET "http://localhost:8848/nacos/v1/ns/raft/state" | python -m json.tool
