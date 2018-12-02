@@ -27,7 +27,7 @@ data:
   mysql.master.user: "nacos"
   mysql.master.password: "nacos"
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: nacos
@@ -51,7 +51,7 @@ spec:
                 values:
                 - nacos
             topologyKey: "kubernetes.io/hostname"
-      serviceAccount: nfs-client-provisioner
+      serviceAccountName: nfs-client-provisioner
       containers:
       - name: nacos
         imagePullPolicy: Always
@@ -66,6 +66,13 @@ spec:
         env:
         - name: NACOS_REPLICAS
           value: "3"
+        - name: SERVICE_NAME
+          value: "nacos-headless"
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
         - name: MYSQL_MASTER_SERVICE_DB_NAME
           valueFrom:
             configMapKeyRef:
@@ -100,6 +107,7 @@ spec:
           mountPath: /home/nacos/data
         - name: logdir
           mountPath: /home/nacos/logs
+
   volumeClaimTemplates:
   - metadata:
       name: datadir
@@ -119,3 +127,6 @@ spec:
       resources:
         requests:
           storage: 2Gi
+  selector:
+    matchLabels:
+      app: nacos

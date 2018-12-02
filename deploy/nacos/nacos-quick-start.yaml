@@ -7,9 +7,9 @@ metadata:
     app: nacos-headless
 spec:
   ports:
-  - port: 8848
-    name: server
-    targetPort: 8848
+    - port: 8848
+      name: server
+      targetPort: 8848
   selector:
     app: nacos
 ---
@@ -24,7 +24,7 @@ data:
   mysql.master.user: "nacos"
   mysql.master.password: "nacos"
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: nacos
@@ -41,53 +41,56 @@ spec:
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: "app"
-                operator: In
-                values:
-                - nacos-headless
-            topologyKey: "kubernetes.io/hostname"
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                      - nacos-headless
+              topologyKey: "kubernetes.io/hostname"
       containers:
-      - name: k8snacos
-        imagePullPolicy: Always
-        image: paderlol/nacos:k8s-0.3.0
-        resources:
-          requests:
-            memory: "2Gi"
-            cpu: "500m"
-        ports:
-        - containerPort: 8848
-          name: client
-        env:
-        - name: NACOS_REPLICAS
-          value: "3"
-        - name: MYSQL_MASTER_SERVICE_DB_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: nacos-cm
-              key: mysql.master.db.name
-        - name: MYSQL_MASTER_SERVICE_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: nacos-cm
-              key: mysql.master.port
-        - name: MYSQL_SLAVE_SERVICE_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: nacos-cm
-              key: mysql.slave.port
-        - name: MYSQL_MASTER_SERVICE_USER
-          valueFrom:
-            configMapKeyRef:
-              name: nacos-cm
-              key: mysql.master.user
-        - name: MYSQL_MASTER_SERVICE_PASSWORD
-          valueFrom:
-            configMapKeyRef:
-              name: nacos-cm
-              key: mysql.master.password
-        - name: NACOS_SERVER_PORT
-          value: "8848"
-        - name: PREFER_HOST_MODE
-          value: "hostname"
+        - name: k8snacos
+          imagePullPolicy: Always
+          image: paderlol/nacos:k8s-0.3.0
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "500m"
+          ports:
+            - containerPort: 8848
+              name: client
+          env:
+            - name: NACOS_REPLICAS
+              value: "3"
+            - name: MYSQL_MASTER_SERVICE_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.master.db.name
+            - name: MYSQL_MASTER_SERVICE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.master.port
+            - name: MYSQL_SLAVE_SERVICE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.slave.port
+            - name: MYSQL_MASTER_SERVICE_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.master.user
+            - name: MYSQL_MASTER_SERVICE_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.master.password
+            - name: NACOS_SERVER_PORT
+              value: "8848"
+            - name: PREFER_HOST_MODE
+              value: "hostname"
+  selector:
+    matchLabels:
+      app: nacos

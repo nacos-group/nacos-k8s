@@ -51,7 +51,9 @@ JAVA_OPT="${JAVA_OPT} ${JAVA_OPT_EXT}"
 JAVA_OPT="${JAVA_OPT} --spring.config.location=${CUSTOM_SEARCH_LOCATIONS}"
 JAVA_OPT="${JAVA_OPT} --logging.config=${BASE_DIR}/conf/nacos-logback.xml"
 
+echo " Wait 30 seconds for other Nacos to read the cluster.conf file"
+sleep 31s
 echo "nacos is starting,you can check the ${BASE_DIR}/logs/start.out"
 echo "$JAVA ${JAVA_OPT}" > ${BASE_DIR}/logs/start.out 2>&1 &
-nohup $JAVA ${JAVA_OPT} > ${BASE_DIR}/logs/start.out 2>&1 &
+nohup $JAVA ${JAVA_OPT} >> ${BASE_DIR}/logs/start.out 2>&1 &
 
