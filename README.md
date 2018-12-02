@@ -33,11 +33,20 @@ git clone https://github.com/nacos-group/nacos-k8s.git
 
 
 
+### Simple
+
+> If you want to start Nacos without NFS, but **emptyDirs will possibly result in a loss of data**. as follows:
+
+```shell
+chmod +x quick-startup.sh
+./quick-startup.sh
+```
 
 
 
+### Advanced
 
-### Deploy NFS
+#### Deploy NFS
 
 * Create Role 
 
@@ -46,7 +55,7 @@ kubectl create -f deploy/nfs/rbac.yaml
 ```
 
 > If your K8S namespace is not default, execute the following script before creating RBAC
-  
+
 
 ```shell
 # Set the subject of the RBAC objects to the current namespace where the provisioner is being deployed
@@ -80,9 +89,7 @@ kubectl create -f deploy/nfs/class.yaml
 kubectl get pod -l app=nfs-client-provisioner
 ```
 
-
-
-### Deploy database
+#### Deploy database
 
 
 * Deploy master
@@ -120,8 +127,7 @@ kubectl get pod
 mysql-slave-kf9cb                         1/1     Running   0          110m
 ```
 
-
-### Deploy Nacos 
+#### Deploy Nacos 
 
 
 
@@ -169,6 +175,7 @@ nacos-0   1/1     Running   0          19h
 nacos-1   1/1     Running   0          19h
 nacos-2   1/1     Running   0          19h
 ```
+
 
 
 # Limitations
