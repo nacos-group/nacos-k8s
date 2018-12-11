@@ -9,9 +9,9 @@ metadata:
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
 spec:
   ports:
-  - port: 8848
-    name: server
-    targetPort: 8848
+    - port: 8848
+      name: server
+      targetPort: 8848
   clusterIP: None
   selector:
     app: nacos
@@ -44,89 +44,118 @@ spec:
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: "app"
-                operator: In
-                values:
-                - nacos
-            topologyKey: "kubernetes.io/hostname"
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                      - nacos
+              topologyKey: "kubernetes.io/hostname"
       serviceAccountName: nfs-client-provisioner
+      initContainers:
+        - name: peer-finder-plugin-install
+          image: paderlol/nacos-peer-finder-plugin:latest
+          imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: "/home/nacos/plugins/peer-finder"
+              name: plguindir
       containers:
-      - name: nacos
-        imagePullPolicy: Always
-        image: paderlol/nacos:k8s-0.4.0
+        - name: nacos
+          imagePullPolicy: Always
+          image: nacos/nacos-server:latest
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "500m"
+          ports:
+            - containerPort: 8848
+              name: client-port
+          env:
+            - name: NACOS_REPLICAS
+              value: "3"
+            - name: SERVICE_NAME
+              value: "nacos-headless"
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: MYSQL_MASTER_SERVICE_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.master.db.name
+            - name: MYSQL_MASTER_SERVICE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.master.port
+            - name: MYSQL_SLAVE_SERVICE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.slave.port
+            - name: MYSQL_MASTER_SERVICE_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.master.user
+            - name: MYSQL_MASTER_SERVICE_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.master.password
+            - name: NACOS_SERVER_PORT
+              value: "8848"
+            - name: PREFER_HOST_MODE
+              value: "hostname"
+          readinessProbe:
+            httpGet:
+              port: client-port
+              path: /nacos/v1/console/health/readiness
+            initialDelaySeconds: 60
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              port: client-port
+              path: /nacos/v1/console/health/liveness
+            initialDelaySeconds: 60
+            timeoutSeconds: 3
+          volumeMounts:
+            - name: plguindir
+              mountPath: /home/nacos/plugins/peer-finder
+            - name: datadir
+              mountPath: /home/nacos/data
+            - name: logdir
+              mountPath: /home/nacos/logs
+  volumeClaimTemplates:
+    - metadata:
+        name: plguindir
+        annotations:
+          volume.beta.kubernetes.io/storage-class: "managed-nfs-storage"
+      spec:
+        accessModes: [ "ReadWriteMany" ]
         resources:
           requests:
-            memory: "2Gi"
-            cpu: "500m"
-        ports:
-        - containerPort: 8848
-          name: client
-        env:
-        - name: NACOS_REPLICAS
-          value: "3"
-        - name: SERVICE_NAME
-          value: "nacos-headless"
-        - name: POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: metadata.namespace
-        - name: MYSQL_MASTER_SERVICE_DB_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: nacos-cm
-              key: mysql.master.db.name
-        - name: MYSQL_MASTER_SERVICE_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: nacos-cm
-              key: mysql.master.port
-        - name: MYSQL_SLAVE_SERVICE_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: nacos-cm
-              key: mysql.slave.port
-        - name: MYSQL_MASTER_SERVICE_USER
-          valueFrom:
-            configMapKeyRef:
-              name: nacos-cm
-              key: mysql.master.user
-        - name: MYSQL_MASTER_SERVICE_PASSWORD
-          valueFrom:
-            configMapKeyRef:
-              name: nacos-cm
-              key: mysql.master.password
-        - name: NACOS_SERVER_PORT
-          value: "8848"
-        - name: PREFER_HOST_MODE
-          value: "hostname"
-        volumeMounts:
-        - name: datadir
-          mountPath: /home/nacos/data
-        - name: logdir
-          mountPath: /home/nacos/logs
-
-  volumeClaimTemplates:
-  - metadata:
-      name: datadir
-      annotations:
-        volume.beta.kubernetes.io/storage-class: "managed-nfs-storage"
-    spec:
-      accessModes: [ "ReadWriteMany" ]
-      resources:
-        requests:
-          storage: 2Gi
-  - metadata:
-      name: logdir
-      annotations:
-        volume.beta.kubernetes.io/storage-class: managed-nfs-storage
-    spec:
-      accessModes: [ "ReadWriteMany" ]
-      resources:
-        requests:
-          storage: 2Gi
+            storage: 5Gi
+    - metadata:
+        name: datadir
+        annotations:
+          volume.beta.kubernetes.io/storage-class: "managed-nfs-storage"
+      spec:
+        accessModes: [ "ReadWriteMany" ]
+        resources:
+          requests:
+            storage: 5Gi
+    - metadata:
+        name: logdir
+        annotations:
+          volume.beta.kubernetes.io/storage-class: "managed-nfs-storage"
+      spec:
+        accessModes: [ "ReadWriteMany" ]
+        resources:
+          requests:
+            storage: 5Gi
   selector:
     matchLabels:
       app: nacos
