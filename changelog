@@ -1,3 +1,3 @@
-version:0.3.0
-1.重新优化docker startup 脚本,与startup.sh脚本保持一致
-2.重新构建0.5.0版本docker image
+version:0.6.0
+1.保持naocs镜像统一,兼容k8s部署
+2.重构peer-finder为镜像,以插件方式为nacos扩容服务
