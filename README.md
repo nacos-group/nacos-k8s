@@ -180,7 +180,6 @@ nacos-2   1/1     Running   0          19h
 
 # Limitations
 
-* Scaling is not currently supported
 * Persistent Volumes must be used. emptyDirs will possibly result in a loss of data
 
 
