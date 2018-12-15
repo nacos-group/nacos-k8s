@@ -3,7 +3,7 @@
 
 This project contains a Nacos Docker image meant to facilitate the deployment of [Nacos](https://nacos.io) on [Kubernetes](https://kubernetes.io/) via StatefulSets.
 
-
+[中文文档](https://github.com/nacos-group/nacos-k8s/blob/master/README-CN.md)
 
 # Quick Start
 
@@ -158,16 +158,6 @@ mysql-slave-kf9cb                         1/1     Running   0          110m
 ## Deploy Nacos 
 
 
-
-* Get master-slave database cluster IP
-
-```shell
-# Get master-slave database cluster IP
-kubectl get svc
-
-mysql            NodePort    10.105.42.247   <none>        3306:31833/TCP   2d23h
-mysql-bak        NodePort    10.105.35.138   <none>        3306:31522/TCP   2d23h
-```
 
 
 
@@ -326,27 +316,4 @@ You can find that the new node has joined the cluster
 | Nfs:server                 | Y       | NFS server address |
 | Nfs:path                   | Y       | NFS server shared path |
 
-
-
-
-
-# FAQ
-
-Q:If you don't want to build NFS, and you want to experience the nacos-k8s?
-
- A:You can skip deploying NFS and use the following script to create Nacos
-
-```shell
-kubectl create -f nacos-k8s/deploy/nacos/nacos-quick-start.yaml
-```
-
-
-
-Q:If NFS is not deployed, how is the database deployed？
-
-A:You can deploy in a local persistent, as follows：
-
-```shell
-kubectl create -f nacos-k8s/deploy/mysql/nacos-master-local.yaml
-```
 
