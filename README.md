@@ -1,4 +1,4 @@
-# Kubernetes Nacos K8SNacos
+# Kubernetes Nacos
 
 
 This project contains a Nacos Docker image meant to facilitate the deployment of [Nacos](https://nacos.io) on [Kubernetes](https://kubernetes.io/) via StatefulSets.
@@ -7,24 +7,7 @@ This project contains a Nacos Docker image meant to facilitate the deployment of
 
 # Quick Start
 
-
-## Environment
-
-* Machine configuration
-
-| Intranet IP  | Hostname     | Configuration                                                    |
-| ----------- | ---------- | ------------------------------------------------------------ |
-| 172.17.79.3 | k8s-master | CentOS Linux release 7.4.1708 (Core) Single-core processor Mem 4G Cloud disk 40G |
-| 172.17.79.4 | node01     | CentOS Linux release 7.4.1708 (Core) Single-core processor Mem 4G Cloud disk 40G |
-| 172.17.79.5 | node02     | CentOS Linux release 7.4.1708 (Core) Single-core processor Mem 4G Cloud disk 40G |
-
-* Kubernetes 版本：**1.12.2** （如果你和我一样只使用了三台机器,那么记得开启master节点的部署功能）
-* NFS 版本：**4.1** 在k8s-master进行安装Server端,并且指定共享目录,本项目指定的**/data/nfs-share**
-* Git
-
- 
-
-## Clone Project
+* **Clone Project**
 
 
 ```shell
@@ -33,20 +16,61 @@ git clone https://github.com/nacos-group/nacos-k8s.git
 
 
 
-### Simple
+* **Simple Start**
 
 > If you want to start Nacos without NFS, but **emptyDirs will possibly result in a loss of data**. as follows:
 
 ```shell
+cd nacos-k8s
 chmod +x quick-startup.sh
 ./quick-startup.sh
 ```
 
 
 
-### Advanced
+* **Testing**
 
-#### Deploy NFS
+  * **Service registration**
+
+  ```powershell
+  curl -X PUT 'http://cluster-ip:8848/nacos/v1/ns/instance?serviceName=nacos.naming.serviceName&ip=20.18.7.10&port=8080'
+  ```
+
+
+
+  * **Service discovery**
+
+  ```powershell
+  curl -X GET 'http://cluster-ip:8848/nacos/v1/ns/instances?serviceName=nacos.naming.serviceName'
+  ```
+
+
+
+  * **Publish config**
+
+  ```powershell
+  curl -X POST "http://cluster-ip:8848/nacos/v1/cs/configs?dataId=nacos.cfg.dataId&group=test&content=helloWorld"
+  ```
+
+
+
+  * **Get config**
+
+  ```powershell
+  curl -X GET "http://cluster-ip:8848/nacos/v1/cs/configs?dataId=nacos.cfg.dataId&group=test"
+  ```
+
+
+
+
+# Advanced
+
+> In advanced use, the cluster is automatically scaled and data is persisted, but [PersistentVolumeClaims](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) must be deployed. In this example, NFS is used.
+>
+
+
+
+## Deploy NFS
 
 * Create Role 
 
@@ -67,7 +91,7 @@ $ sed -i'' "s/namespace:.*/namespace: $NAMESPACE/g" ./deploy/nfs/rbac.yaml
 
 
 
-* Create ServiceAccount And deploy NFS-Client Provisioner
+* Create `ServiceAccount` And deploy `NFS-Client Provisioner`
 
 ```shell
 kubectl create -f deploy/nfs/deployment.yaml
@@ -89,7 +113,9 @@ kubectl create -f deploy/nfs/class.yaml
 kubectl get pod -l app=nfs-client-provisioner
 ```
 
-#### Deploy database
+
+
+## Deploy database
 
 
 * Deploy master
@@ -127,7 +153,9 @@ kubectl get pod
 mysql-slave-kf9cb                         1/1     Running   0          110m
 ```
 
-#### Deploy Nacos 
+
+
+## Deploy Nacos 
 
 
 
@@ -170,11 +198,73 @@ kubectl create -f nacos-k8s/deploy/nacos/nacos-pvc-nfs.yaml
 kubectl get pod -l app=nacos
 
 
-AME      READY   STATUS    RESTARTS   AGE
+NAME      READY   STATUS    RESTARTS   AGE
 nacos-0   1/1     Running   0          19h
 nacos-1   1/1     Running   0          19h
 nacos-2   1/1     Running   0          19h
 ```
+
+
+
+
+
+## Scale Testing
+
+* Use [`kubectl exec`](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands/#exec) to get the cluster config of the Pods in the `nacos` StatefulSet.
+
+```powershell
+for i in 0 1; do echo nacos-$i; kubectl exec nacos-$i cat conf/cluster.conf; done
+```
+
+The StatefulSet controller provides each Pod with a unique hostname based on its ordinal index. The hostnames take the form of `<statefulset name>-<ordinal index>`. Because the `replicas` field of the `nacos` StatefulSet is set to `2`, In the cluster file only two nacos address
+
+
+
+![k8s](/images/k8s.gif)
+
+
+
+* Use kubectl to scale StatefulSets
+
+```bash
+kubectl scale sts nacos --replicas=3
+```
+
+![scale](/images/scale.gif)
+
+
+
+* Use [`kubectl exec`](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands/#exec) to get the cluster config of the Pods in the `nacos` StatefulSet after scale StatefulSets
+
+```bash
+for i in 0 1 2; do echo nacos-$i; kubectl exec nacos-$i cat conf/cluster.conf; done
+```
+
+![get_cluster_after](/images/get_cluster_after.gif)
+
+
+
+* Use [`kubectl exec`](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands/#exec) to get the **Leader** of the Pods in the `nacos` StatefulSet after scale StatefulSets
+
+```bash
+for i in 0 1 2; do echo nacos-$i; kubectl exec nacos-$i curl GET "http://localhost:8848/nacos/v1/ns/raft/state"; done
+```
+
+You can find that the new node has joined the cluster
+
+# Environment
+
+- Machine configuration
+
+| Intranet IP | Hostname   | Configuration                                                |
+| ----------- | ---------- | ------------------------------------------------------------ |
+| 172.17.79.3 | k8s-master | CentOS Linux release 7.4.1708 (Core) Single-core processor Mem 4G Cloud disk 40G |
+| 172.17.79.4 | node01     | CentOS Linux release 7.4.1708 (Core) Single-core processor Mem 4G Cloud disk 40G |
+| 172.17.79.5 | node02     | CentOS Linux release 7.4.1708 (Core) Single-core processor Mem 4G Cloud disk 40G |
+
+- Kubernetes 版本：**1.12.2** （如果你和我一样只使用了三台机器,那么记得开启master节点的部署功能）
+- NFS 版本：**4.1** 在k8s-master进行安装Server端,并且指定共享目录,本项目指定的**/data/nfs-share**
+- Git
 
 
 
@@ -184,17 +274,13 @@ nacos-2   1/1     Running   0          19h
 
 
 
-# Docker Image
-Image build source code in  [build](https://github.com/nacos-group/nacos-k8s/tree/master/build) directory,It's comprised of a base Ubuntu 16.04 image using the latest release of the OpenJDK JRE based on the 1.8 JVM (JDK 8u111) and the latest stable release of Nacos,0.5.0,
-And already pushed into [Docker Hub](https://hub.docker.com/)
-
 
 
 # Project directory
 
 | Directory Name   | Description                                |
 | ------ | ----------------------------------- |
-| build  | Image build source code |
+| plugin | Help Nacos cluster achieve automatic scaling in K8s |
 | deploy | Deploy the required files                     |
 
 
@@ -244,43 +330,7 @@ And already pushed into [Docker Hub](https://hub.docker.com/)
 
 
 
-
-## Test
-
-### Service registration
-
-
-```shell
-curl -X PUT 'http://cluster-ip:8848/nacos/v1/ns/instance?serviceName=nacos.naming.serviceName&ip=20.18.7.10&port=8080'
-```
-
-
-
-### Service discovery
-
-```shell
-curl -X GET 'http://cluster-ip:8848/nacos/v1/ns/instances?serviceName=nacos.naming.serviceName'
-```
-
-
-
-### Publish config
-
-```shell
-curl -X POST "http://cluster-ip:8848/nacos/v1/cs/configs?dataId=nacos.cfg.dataId&group=test&content=helloWorld"
-```
-
-
-
-### Get config
-
-```shell
-curl -X GET "http://集群地址:8848/nacos/v1/cs/configs?dataId=nacos.cfg.dataId&group=test"
-```
-
-
-
-## FAQ
+# FAQ
 
 Q:If you don't want to build NFS, and you want to experience the nacos-k8s?
 
