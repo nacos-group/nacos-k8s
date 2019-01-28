@@ -14,4 +14,3 @@ spec:
         backend:
           serviceName: nacos-headless
           servicePort: 8848
-  host
