@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: mysql-slave
+  labels:
+    name: mysql-slave
+spec:
+  replicas: 1
+  selector:
+    name: mysql-slave
+  template:
+    metadata:
+      labels:
+        name: mysql-slave
+    spec:
+      containers:
+      - name: slave
+        image: nacos/nacos-mysql-slave:latest
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysql-slave-data
+          mountPath: /var/lib/mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root"
+        - name: MYSQL_REPLICATION_USER
+          value: 'nacos_ru'
+        - name: MYSQL_REPLICATION_PASSWORD
+          value: 'nacos_ru'
+        volumeMounts:
+        - name: mysql-slave-persistent-storage
+          mountPath: /var/lib/mysql
+          subPath: mysql
+          readOnly: false
+      volumes:
+      - name: mysql-slave-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-slave-dynamic-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-slave
+  labels:
+    name: mysql-slave
+spec:
+  ports:
+  - port: 3306
+    targetPort: 3306
+  selector:
+    name: mysql-slave
