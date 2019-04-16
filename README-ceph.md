@@ -1,3 +1,6 @@
+## 使用ceph存储部署nacos
+======
+
 ### 下载external-storage
 ```shell
 git clone https://github.com/kubernetes-incubator/external-storage.git
@@ -13,7 +16,7 @@ kubectl -n $NAMESPACE apply -f ./rbac
 ```
 
 如遇到问题，rbd挂载后报错`Input/output`，需要添加参数 `- '-disable-ceph-namespace-isolation=true'`
-(问题链接)[https://github.com/kubernetes-incubator/external-storage/issues/345#issuecomment-414892515]
+[问题链接](https://github.com/kubernetes-incubator/external-storage/issues/345#issuecomment-414892515)
 
 ### 安装ceph rbd-provisioner
 ```shell
