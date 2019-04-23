@@ -130,7 +130,7 @@ spec:
               mountPath: /home/nacos/logs
   volumeClaimTemplates:
     - metadata:
-        name: plguindir
+        name: plugindir
         annotations:
           volume.beta.kubernetes.io/storage-class: "managed-nfs-storage"
       spec:
