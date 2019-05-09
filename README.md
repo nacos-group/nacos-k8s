@@ -242,19 +242,19 @@ for i in 0 1 2; do echo nacos-$i; kubectl exec nacos-$i curl GET "http://localho
 
 You can find that the new node has joined the cluster
 
-# Environment
+# Prerequisites
 
-- Machine configuration
+- Kubernetes Node configuration(for reference only)
 
-| Intranet IP | Hostname   | Configuration                                                |
-| ----------- | ---------- | ------------------------------------------------------------ |
-| 172.17.79.3 | k8s-master | CentOS Linux release 7.4.1708 (Core) Single-core processor Mem 4G Cloud disk 40G |
-| 172.17.79.4 | node01     | CentOS Linux release 7.4.1708 (Core) Single-core processor Mem 4G Cloud disk 40G |
-| 172.17.79.5 | node02     | CentOS Linux release 7.4.1708 (Core) Single-core processor Mem 4G Cloud disk 40G |
+| Hostname   | Configuration                                                                    |
+| ---------- | -------------------------------------------------------------------------------- |                    
+| k8s-master | CentOS Linux release 7.4.1708 (Core) Single-core processor Mem 4G Cloud disk 40G |
+| node01     | CentOS Linux release 7.4.1708 (Core) Single-core processor Mem 4G Cloud disk 40G |
+| node02     | CentOS Linux release 7.4.1708 (Core) Single-core processor Mem 4G Cloud disk 40G |
 
-- Kubernetes 版本：**1.12.2** （如果你和我一样只使用了三台机器,那么记得开启master节点的部署功能）
-- NFS 版本：**4.1** 在k8s-master进行安装Server端,并且指定共享目录,本项目指定的**/data/nfs-share**
-- Git
+- Kubernetes version：**1.12.2+** 
+- NFS version：**4.1+** 
+
 
 
 
