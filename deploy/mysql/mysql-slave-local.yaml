@@ -31,7 +31,7 @@ spec:
       volumes:
       - name: mysql-slave-data
         hostPath:
-          path: /var/lib/mysql
+          path: /var/lib/mysql-slave
 ---
 apiVersion: v1
 kind: Service
