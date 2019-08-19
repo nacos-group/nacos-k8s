@@ -18,9 +18,6 @@ spec:
         image: nacos/nacos-mysql-master:latest
         ports:
         - containerPort: 3306
-        volumeMounts:
-        - name: mysql-master-data
-          mountPath: /var/lib/mysql
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: "root"
