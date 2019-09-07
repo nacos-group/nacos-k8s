@@ -18,9 +18,6 @@ spec:
         image: nacos/nacos-mysql-slave:latest
         ports:
         - containerPort: 3306
-        volumeMounts:
-        - name: mysql-slave-data
-          mountPath: /var/lib/mysql
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: "root"
@@ -28,10 +25,15 @@ spec:
           value: 'nacos_ru'
         - name: MYSQL_REPLICATION_PASSWORD
           value: 'nacos_ru'
+        volumeMounts:
+        - name: mysql-slave-persistent-storage
+          mountPath: /var/lib/mysql
+          subPath: mysql
+          readOnly: false
       volumes:
-      - name: mysql-slave-data
-        hostPath:
-          path: /var/lib/mysql-slave
+      - name: mysql-slave-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-slave-dynamic-pvc
 ---
 apiVersion: v1
 kind: Service

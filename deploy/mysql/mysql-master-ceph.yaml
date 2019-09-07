@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: mysql-master
+  labels:
+    name: mysql-master
+spec:
+  replicas: 1
+  selector:
+    name: mysql-master
+  template:
+    metadata:
+      labels:
+        name: mysql-master
+    spec:
+      containers:
+      - name: master
+        image: nacos/nacos-mysql-master:latest
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root"
+        - name: MYSQL_DATABASE
+          value: "nacos_devtest"
+        - name: MYSQL_USER
+          value: "nacos"
+        - name: MYSQL_PASSWORD
+          value: "nacos"
+        - name: MYSQL_REPLICATION_USER
+          value: 'nacos_ru'
+        - name: MYSQL_REPLICATION_PASSWORD
+          value: 'nacos_ru'
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+          subPath: mysql
+          readOnly: false
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-dynamic-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-master
+  labels:
+    name: mysql-master
+spec:
+  ports:
+  - port: 3306
+    targetPort: 3306
+  selector:
+    name: mysql-master
