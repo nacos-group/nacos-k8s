@@ -1,0 +1,10 @@
+{{- if and .Values.persistence.enabled .Values.persistence.storageClass -}}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+   name: {{ .Values.persistence.storageClassName }}
+provisioner: 
+{{ toYaml .Values.global.storageClass.provisioner | indent 2 }}
+parameters:
+{{ toYaml .Values.persistence.classParameters | indent 2 }}    
+{{- end }}

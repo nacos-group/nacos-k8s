@@ -1,0 +1,199 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "nacos.fullname" . }}
+  annotations: 
+  {{- toYaml .Values.annotations | indent 4 }}
+spec:
+{{- if eq .Values.global.mode "cluster" }}
+  serviceName: nacos-hs
+{{- else }}
+  serviceName: nacos-cs
+{{- end }}  
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "nacos.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "nacos.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+{{- if eq .Values.global.mode "cluster" }}
+      initContainers:
+        - name: peer-finder-plugin-install
+          image: nacos/nacos-peer-finder-plugin:latest
+          imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: /home/nacos/plugins/peer-finder
+              name: plugindir
+{{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.env.serverPort }}
+              protocol: TCP
+{{- if .Values.health.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /nacos/v1/console/health/readiness
+              port: http
+            initialDelaySeconds: 60
+            timeoutSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /nacos/v1/console/health/readiness
+              port: http
+            initialDelaySeconds: 60
+            timeoutSeconds: 3
+{{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+{{- if eq .Values.global.mode "quickstart" }}
+          env:
+          - name: PREFER_HOST_MODE
+            value: {{ .Values.env.preferhostmode | quote }}
+          - name: MODE
+            value: "standalone"
+{{- else if eq .Values.global.mode "standalone" }}
+          env:
+          - name: PREFER_HOST_MODE
+            value: {{ .Values.env.preferhostmode | quote }}
+          - name: MODE
+            value: "standalone"
+          - name: SPRING_DATASOURCE_PLATFORM
+            value: "mysql"
+          - name: MYSQL_MASTER_SERVICE_DB_NAME
+            valueFrom:
+               configMapKeyRef:
+                 name: nacos-cm
+                 key: mysql.master.db.name
+          - name: MYSQL_MASTER_SERVICE_PORT
+            valueFrom:
+              configMapKeyRef:
+                 name: nacos-cm
+                 key: mysql.master.port
+          - name: MYSQL_SLAVE_SERVICE_PORT
+            valueFrom:
+              configMapKeyRef:
+                 name: nacos-cm
+                 key: mysql.slave.port
+          - name: MYSQL_MASTER_SERVICE_USER
+            valueFrom:
+              configMapKeyRef:
+                 name: nacos-cm
+                 key: mysql.master.user
+          - name: MYSQL_MASTER_SERVICE_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                 name: nacos-cm
+                 key: mysql.master.password
+          - name: NACOS_SERVER_PORT
+            value: {{ .Values.env.serverPort | quote }}
+          volumeMounts:
+          - name: datadir
+            mountPath: /home/nacos/data
+{{- if not .Values.persistence.enabled  }} 
+      volumes:
+      - name: datadir
+        emptyDir: {}
+{{- end }}   
+{{- else if eq .Values.global.mode "cluster" }}
+          env:
+          - name: NACOS_REPLICAS
+            value: "3"
+          - name: SERVICE_NAME
+            value: "nacos-hs"
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          - name: PREFER_HOST_MODE
+            value: {{ .Values.env.preferhostmode | quote }}
+          - name: MYSQL_MASTER_SERVICE_DB_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: nacos-cm
+                key: mysql.master.db.name
+          - name: MYSQL_MASTER_SERVICE_PORT
+            valueFrom:
+              configMapKeyRef:
+                 name: nacos-cm
+                 key: mysql.master.port
+          - name: MYSQL_SLAVE_SERVICE_PORT
+            valueFrom:
+              configMapKeyRef:
+                 name: nacos-cm
+                 key: mysql.slave.port
+          - name: MYSQL_MASTER_SERVICE_USER
+            valueFrom:
+              configMapKeyRef:
+                 name: nacos-cm
+                 key: mysql.master.user
+          - name: MYSQL_MASTER_SERVICE_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                 name: nacos-cm
+                 key: mysql.master.password
+          - name: NACOS_SERVER_PORT
+            value: {{ .Values.env.serverPort | quote }}
+          volumeMounts:
+            - name: plugindir
+              mountPath: /home/nacos/plugins/peer-finder
+            - name: datadir
+              mountPath: /home/nacos/data
+            - name: logdir
+              mountPath: /home/nacos/logs
+{{- if not .Values.persistence.enabled  }} 
+      volumes:
+      - name: plugindir
+        emptyDir: {}
+      - name: datadir
+        emptyDir: {}
+      - name: logdir
+        emptyDir: {}
+       
+{{- end }}   
+
+{{- end }}   
+{{- if and .Values.persistence.enabled (eq .Values.global.mode "standalone") }} 
+  volumeClaimTemplates:
+  - metadata:
+      name: datadir
+    spec:
+    {{- toYaml .Values.persistence.data | nindent 6 }} 
+{{- end }} 
+{{- if and .Values.persistence.enabled (eq .Values.global.mode "cluster") }} 
+  volumeClaimTemplates:
+  - metadata:
+      name: datadir
+    spec:
+    {{- toYaml .Values.persistence.data | nindent 6 }} 
+  - metadata:
+      name: plugindir
+    spec:
+    {{- toYaml .Values.persistence.plugin | nindent 6 }} 
+  - metadata:
+      name: logdir
+    spec:
+    {{- toYaml .Values.persistence.log| nindent 6 }} 
+{{- end }} 
+
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
