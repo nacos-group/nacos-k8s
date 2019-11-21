@@ -113,13 +113,13 @@ spec:
             httpGet:
               port: client-port
               path: /nacos/v1/console/health/readiness
-            initialDelaySeconds: 60
+            initialDelaySeconds: 120
             timeoutSeconds: 3
           livenessProbe:
             httpGet:
               port: client-port
               path: /nacos/v1/console/health/liveness
-            initialDelaySeconds: 60
+            initialDelaySeconds: 120
             timeoutSeconds: 3
           volumeMounts:
             - name: plugindir
