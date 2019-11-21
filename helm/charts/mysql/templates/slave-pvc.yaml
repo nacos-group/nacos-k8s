@@ -1,0 +1,11 @@
+{{- if ne .Values.global.mode "quickstart" }}
+{{- if and .Values.slave.persistence.enabled (not .Values.slave.persistence.existingClaim) -}}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ .Values.slave.persistence.claim.name }}
+spec:
+  {{ toYaml .Values.master.persistence.claim.spec | indent 2 }} 
+{{- end }}
+{{- end }}
+

@@ -1,0 +1,16 @@
+{{- if ne .Values.global.mode "quickstart" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-master
+  labels:
+    name: mysql-master
+spec:
+  ports:
+    - port: {{ .Values.master.service.port }}
+      targetPort: mysql
+      protocol: TCP
+      name: mysql
+  selector:
+    name: mysql-master
+{{- end }}

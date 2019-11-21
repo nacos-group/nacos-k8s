@@ -1,0 +1,21 @@
+{{- if and .Values.master.persistence.enabled (not .Values.master.persistence.existingClaim) -}}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+   name: {{ .Values.master.persistence.claim.spec.storageClassName }}
+provisioner: 
+{{ toYaml .Values.global.storageClass.provisioner | indent 2 }}
+parameters:
+{{ toYaml .Values.master.classParameters | indent 2 }}    
+{{- end }}
+---
+{{- if and .Values.slave.persistence.enabled (not .Values.slave.persistence.existingClaim) -}}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+   name: {{ .Values.slave.persistence.claim.spec.storageClassName }}
+provisioner: 
+{{ toYaml .Values.global.storageClass.provisioner | indent 2 }}
+parameters:
+{{ toYaml .Values.slave.classParameters | indent 2 }}    
+{{- end }}

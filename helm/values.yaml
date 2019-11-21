@@ -1,0 +1,206 @@
+# Default values for nacos.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+ mode: quickstart
+ #mode: standalone
+ #mode: cluster 
+ storageClass: 
+   provisioner: 
+ #nfs
+ # provisioner: fuseim.pri/ifs
+ ###ceph
+ #  provisioner: ceph.com/rbd
+
+############################mysql###########################
+mysql: 
+ resources: {}
+ nodeSelector: {}
+ affinity: {}
+ tolerations: {}
+
+ replication:
+   user: nacos_ru
+   password: nacos_ru
+
+ image:
+   pullPolicy: IfNotPresent
+ #####master#####
+ master:
+  annotations: {}
+
+  image:
+    repository: nacos/nacos-mysql-master
+    tag: latest
+
+  rootPassword: root
+  
+  database: nacos_devtest
+  user: nacos
+  password: nacos
+
+  classParameters: {}
+
+######nfs
+#    archiveOnDelete: "false"
+
+######ceph
+#    monitors: 10.144.131.48:6789
+#    adminId: admin
+#    adminSecretName: ceph-secret-admin
+#    adminSecretNamespace: nacos
+#    pool: nacos-mysql-data
+#    userId: mysql
+#    userSecretName: ceph-secret-mysql
+#    userSecretNamespace: nacos
+#    fsType: ext4
+#    imageFormat: "2"
+#    imageFeatures: "layering"
+
+  persistence:
+    enabled: false
+    existingClaim: mysql-master-data
+    #existingClaim:
+    claim: 
+      name: mysql-master-data
+      spec: 
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5G
+        storageClassName: sc-mysql-master
+
+  service:
+    port: 3306
+
+ #####slave#####
+
+ slave:
+  annotations: {}
+
+  image:
+    repository: nacos/nacos-mysql-slave
+    tag: latest
+
+  rootPassword: root
+
+  classParameters: {}
+
+######nfs
+#     archiveOnDelete: "false"
+
+######ceph
+#    monitors: 10.144.131.48:6789
+#    adminId: admin
+#    adminSecretName: ceph-secret-admin
+#    adminSecretNamespace: nacos
+#    pool: nacos-mysql-slave-data
+#    userId: mysql-slave
+#    userSecretName: ceph-secret-mysql-slave
+#    userSecretNamespace: nacos
+#    fsType: ext4
+#    imageFormat: "2"
+#    imageFeatures: "layering"
+
+  persistence:
+    enabled: false
+    existingClaim: mysql-slave-data
+    #existingClaim:
+    claim: 
+      name: mysql-slave-data
+      spec: 
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5G
+        storageClassName: sc-mysql-slave
+
+  service:
+    port: 3306
+############################mysql###########################
+
+############################nacos###########################
+replicaCount: 1
+
+image:
+  repository: nacos/nacos-server
+  tag: 0.9.0
+  pullPolicy: IfNotPresent
+
+health:
+  enabled: false
+
+env:
+  preferhostmode: hostname
+  serverPort: 8848
+
+persistence:
+  enabled: false
+  storageClassName: sc-nacos
+  classParameters: {}
+  data:
+    accessModes: 
+    - ReadWriteOnce
+    storageClassName: manual
+    resources:
+      requests:
+        storage: 5Gi
+  plugin:
+    accessModes: 
+    - ReadWriteOnce
+    storageClassName: manual
+    resources:
+      requests:
+        storage: 5Gi
+  log:
+    accessModes: 
+    - ReadWriteOnce
+    storageClassName: manual
+    resources:
+      requests:
+        storage: 5Gi
+
+service:
+  #type: ClusterIP
+  type: NodePort
+  port: 8848
+  nodePort: 30000
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: nacos.example.com
+      paths: []
+
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: 
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  requests:
+     cpu: 500m
+     memory: 2Gi
+annotations: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+
+
