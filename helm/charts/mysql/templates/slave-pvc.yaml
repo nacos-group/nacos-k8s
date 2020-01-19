@@ -5,7 +5,7 @@ apiVersion: v1
 metadata:
   name: {{ .Values.slave.persistence.claim.name }}
 spec:
-  {{ toYaml .Values.master.persistence.claim.spec | indent 2 }} 
+  {{ toYaml .Values.slave.persistence.claim.spec | indent 2 }}
 {{- end }}
 {{- end }}
 

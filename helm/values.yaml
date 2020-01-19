@@ -127,7 +127,7 @@ replicaCount: 1
 
 image:
   repository: nacos/nacos-server
-  tag: 0.9.0
+  tag: 1.1.4
   pullPolicy: IfNotPresent
 
 health:
