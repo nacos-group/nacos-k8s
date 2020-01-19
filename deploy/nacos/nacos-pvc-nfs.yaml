@@ -109,18 +109,6 @@ spec:
               value: "8848"
             - name: PREFER_HOST_MODE
               value: "hostname"
-          readinessProbe:
-            httpGet:
-              port: client-port
-              path: /nacos/v1/console/health/readiness
-            initialDelaySeconds: 60
-            timeoutSeconds: 3
-          livenessProbe:
-            httpGet:
-              port: client-port
-              path: /nacos/v1/console/health/liveness
-            initialDelaySeconds: 60
-            timeoutSeconds: 3
           volumeMounts:
             - name: plugindir
               mountPath: /home/nacos/plugins/peer-finder
