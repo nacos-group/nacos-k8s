@@ -11,15 +11,4 @@ spec:
     requests:
       storage: 5Gi
 
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mysql-slave-dynamic-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: sc-mysql-slave
-  resources:
-    requests:
-      storage: 5Gi
+

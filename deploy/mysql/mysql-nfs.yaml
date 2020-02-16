@@ -1,25 +1,25 @@
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: mysql-master
+  name: mysql
   labels:
-    name: mysql-master
+    name: mysql
 spec:
   replicas: 1
   selector:
-    name: mysql-master
+    name: mysql
   template:
     metadata:
       labels:
-        name: mysql-master
+        name: mysql
     spec:
       containers:
-      - name: master
-        image: nacos/nacos-mysql-master:latest
+      - name: mysql
+        image: nacos/nacos-mysql:5.7
         ports:
         - containerPort: 3306
         volumeMounts:
-        - name: mysql-master-data
+        - name: mysql-data
           mountPath: /var/lib/mysql
         env:
         - name: MYSQL_ROOT_PASSWORD
@@ -30,25 +30,21 @@ spec:
           value: "nacos"
         - name: MYSQL_PASSWORD
           value: "nacos"
-        - name: MYSQL_REPLICATION_USER
-          value: 'nacos_ru'
-        - name: MYSQL_REPLICATION_PASSWORD
-          value: 'nacos_ru'
       volumes:
-      - name: mysql-master-data
+      - name: mysql-data
         nfs:
           server: 172.17.79.3
-          path: /data/mysql-master
+          path: /data/mysql
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-master
+  name: mysql
   labels:
-    name: mysql-master
+    name: mysql
 spec:
   ports:
   - port: 3306
     targetPort: 3306
   selector:
-    name: mysql-master
+    name: mysql

@@ -68,31 +68,31 @@ spec:
             value: "standalone"
           - name: SPRING_DATASOURCE_PLATFORM
             value: "mysql"
-          - name: MYSQL_MASTER_SERVICE_DB_NAME
+          - name: MYSQL_SERVICE_DB_NAME
             valueFrom:
                configMapKeyRef:
                  name: nacos-cm
-                 key: mysql.master.db.name
-          - name: MYSQL_MASTER_SERVICE_PORT
+                 key: mysql.db.name
+          - name: MYSQL_SERVICE_PORT
             valueFrom:
               configMapKeyRef:
                  name: nacos-cm
-                 key: mysql.master.port
+                 key: mysql.port
           - name: MYSQL_SLAVE_SERVICE_PORT
             valueFrom:
               configMapKeyRef:
                  name: nacos-cm
                  key: mysql.slave.port
-          - name: MYSQL_MASTER_SERVICE_USER
+          - name: MYSQL_SERVICE_USER
             valueFrom:
               configMapKeyRef:
                  name: nacos-cm
-                 key: mysql.master.user
-          - name: MYSQL_MASTER_SERVICE_PASSWORD
+                 key: mysql.user
+          - name: MYSQL_SERVICE_PASSWORD
             valueFrom:
               configMapKeyRef:
                  name: nacos-cm
-                 key: mysql.master.password
+                 key: mysql.password
           - name: NACOS_SERVER_PORT
             value: {{ .Values.env.serverPort | quote }}
           volumeMounts:
@@ -116,31 +116,26 @@ spec:
                 fieldPath: metadata.namespace
           - name: PREFER_HOST_MODE
             value: {{ .Values.env.preferhostmode | quote }}
-          - name: MYSQL_MASTER_SERVICE_DB_NAME
+          - name: MYSQL_SERVICE_DB_NAME
             valueFrom:
               configMapKeyRef:
                 name: nacos-cm
-                key: mysql.master.db.name
-          - name: MYSQL_MASTER_SERVICE_PORT
+                key: mysql.db.name
+          - name: MYSQL_SERVICE_PORT
             valueFrom:
               configMapKeyRef:
                  name: nacos-cm
-                 key: mysql.master.port
-          - name: MYSQL_SLAVE_SERVICE_PORT
+                 key: mysql.port
+          - name: MYSQL_SERVICE_USER
             valueFrom:
               configMapKeyRef:
                  name: nacos-cm
-                 key: mysql.slave.port
-          - name: MYSQL_MASTER_SERVICE_USER
+                 key: mysql.user
+          - name: MYSQL_SERVICE_PASSWORD
             valueFrom:
               configMapKeyRef:
                  name: nacos-cm
-                 key: mysql.master.user
-          - name: MYSQL_MASTER_SERVICE_PASSWORD
-            valueFrom:
-              configMapKeyRef:
-                 name: nacos-cm
-                 key: mysql.master.password
+                 key: mysql.password
           - name: NACOS_SERVER_PORT
             value: {{ .Values.env.serverPort | quote }}
           volumeMounts:

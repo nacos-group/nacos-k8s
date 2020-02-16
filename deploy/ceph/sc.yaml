@@ -29,21 +29,3 @@ parameters:
     imageFormat: "2"
     imageFeatures: "layering"
 
----
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-   name: sc-mysql-slave
-provisioner: ceph.com/rbd
-parameters:
-    monitors: 10.144.131.48:6789
-    adminId: admin
-    adminSecretName: ceph-secret-admin
-    adminSecretNamespace: nacos
-    pool: nacos-mysql-slave-data
-    userId: mysql-slave
-    userSecretName: ceph-secret-mysql-slave
-    userSecretNamespace: nacos
-    fsType: ext4
-    imageFormat: "2"
-    imageFeatures: "layering"

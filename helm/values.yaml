@@ -14,33 +14,39 @@ global:
  #  provisioner: ceph.com/rbd
 
 ############################mysql###########################
-mysql: 
+mysql:
+ annotations: {}
  resources: {}
  nodeSelector: {}
  affinity: {}
  tolerations: {}
-
- replication:
-   user: nacos_ru
-   password: nacos_ru
-
+ service:
+   port: 3306
+ rootPassword: root
+ database: nacos_devtest
+ user: nacos
+ password: nacos
  image:
    pullPolicy: IfNotPresent
- #####master#####
- master:
-  annotations: {}
+   repository: nacos/nacos-mysql
+   tag: 5.7
+ classParameters: {}
+ persistence:
+   enabled: false
+   existingClaim: mysql-data
+   #existingClaim:
+   claim:
+     name: mysql-data
+     spec:
+       accessModes:
+         - ReadWriteOnce
+       resources:
+         requests:
+           storage: 5G
+       storageClassName: sc-mysql
 
-  image:
-    repository: nacos/nacos-mysql-master
-    tag: latest
 
-  rootPassword: root
-  
-  database: nacos_devtest
-  user: nacos
-  password: nacos
 
-  classParameters: {}
 
 ######nfs
 #    archiveOnDelete: "false"
@@ -58,68 +64,10 @@ mysql:
 #    imageFormat: "2"
 #    imageFeatures: "layering"
 
-  persistence:
-    enabled: false
-    existingClaim: mysql-master-data
-    #existingClaim:
-    claim: 
-      name: mysql-master-data
-      spec: 
-        accessModes:
-        - ReadWriteOnce
-        resources:
-          requests:
-            storage: 5G
-        storageClassName: sc-mysql-master
 
-  service:
-    port: 3306
 
- #####slave#####
 
- slave:
-  annotations: {}
 
-  image:
-    repository: nacos/nacos-mysql-slave
-    tag: latest
-
-  rootPassword: root
-
-  classParameters: {}
-
-######nfs
-#     archiveOnDelete: "false"
-
-######ceph
-#    monitors: 10.144.131.48:6789
-#    adminId: admin
-#    adminSecretName: ceph-secret-admin
-#    adminSecretNamespace: nacos
-#    pool: nacos-mysql-slave-data
-#    userId: mysql-slave
-#    userSecretName: ceph-secret-mysql-slave
-#    userSecretNamespace: nacos
-#    fsType: ext4
-#    imageFormat: "2"
-#    imageFeatures: "layering"
-
-  persistence:
-    enabled: false
-    existingClaim: mysql-slave-data
-    #existingClaim:
-    claim: 
-      name: mysql-slave-data
-      spec: 
-        accessModes:
-        - ReadWriteOnce
-        resources:
-          requests:
-            storage: 5G
-        storageClassName: sc-mysql-slave
-
-  service:
-    port: 3306
 ############################mysql###########################
 
 ############################nacos###########################

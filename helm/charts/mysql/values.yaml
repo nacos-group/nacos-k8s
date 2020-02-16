@@ -1,0 +1,47 @@
+## Default values for nacos.
+## This is a YAML-formatted file.
+## Declare variables to be passed into your templates.
+#
+#global:
+#  mode: quickstart
+#  #mode: standalone
+#  #mode: cluster
+#  storageClass:
+#    provisioner:
+#  #nfs
+#  # provisioner: fuseim.pri/ifs
+#  ###ceph
+#  #  provisioner: ceph.com/rbd
+#
+#############################mysql###########################
+#mysql:
+#  annotations: {}
+#  resources: {}
+#  nodeSelector: {}
+#  affinity: {}
+#  tolerations: {}
+#  service:
+#    port: 3306
+#  rootPassword: root
+#  database: nacos_devtest
+#  user: nacos
+#  password: nacos
+#  image:
+#    pullPolicy: IfNotPresent
+#    repository: nacos/nacos-mysql
+#    tag: 5.7
+#  classParameters: {}
+#  persistence:
+#    enabled: false
+#    existingClaim: mysql-data
+#    #existingClaim:
+#    claim:
+#      name: mysql-data
+#      spec:
+#        accessModes:
+#          - ReadWriteOnce
+#        resources:
+#          requests:
+#            storage: 5G
+#        storageClassName: sc-mysql
+#

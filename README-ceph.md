@@ -42,10 +42,9 @@ kubectl -n nacos apply -f deploy/ceph/sc.yaml
 kubectl -n nacos apply -f deploy/ceph/pvc.yaml
 ```
 
-### 安装mysql,mysql-slave
+### 安装mysql
 ```shell
-kubectl -n nacos apply -f deploy/mysql/mysql-master-ceph.yaml
-kubectl -n nacos apply -f deploy/mysql/mysql-slave-ceph.yaml
+kubectl -n nacos apply -f deploy/mysql/mysql-ceph.yaml
 ```
 
 ### 安装nacos

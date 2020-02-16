@@ -2,63 +2,59 @@
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: mysql-master
+  name: mysql-
   labels:
-    name: mysql-master
-  {{- if .Values.master.annotations }}
+    name: mysql
+  {{- if .Values.mysql.annotations }}
   annotations:
-{{ toYaml .Values.master.annotations | indent 4 }}
+{{ toYaml .Values.mysql.annotations | indent 4 }}
   {{- end }}
 spec:
   replicas: 1
   selector:
-    name: mysql-master
+    name: mysql
   template:
     metadata:
       labels:
-        name: mysql-master
+        name: mysql
     spec:
       containers:
-        - name: master
-          image: "{{ .Values.master.image.repository }}:{{ .Values.master.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+        - name: mysql
+          image: "{{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}"
+          imagePullPolicy: {{ .Values.mysql.image.pullPolicy }}
           ports:
             - name: mysql
               containerPort: 3306
               protocol: TCP
           volumeMounts:
-          - name: mysql-master-data
+          - name: mysql-data
             mountPath: /var/lib/mysql
           env:
           - name: MYSQL_ROOT_PASSWORD
-            value: {{ .Values.master.rootPassword | quote }}
+            value: {{ .Values.mysql.rootPassword | quote }}
           - name: MYSQL_DATABASE
-            value: {{ .Values.master.database | quote }}
+            value: {{ .Values.mysql.database | quote }}
           - name: MYSQL_USER
-            value: {{ .Values.master.user | quote }}
+            value: {{ .Values.mysql.user | quote }}
           - name: MYSQL_PASSWORD
-            value: {{ .Values.master.password | quote }}
-          - name: MYSQL_REPLICATION_USER
-            value: {{ .Values.replication.user | quote }}
-          - name: MYSQL_REPLICATION_PASSWORD
-            value: {{ .Values.replication.password | quote }}
+            value: {{ .Values.mysql.password | quote }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      {{- if not .Values.master.persistence.enabled }}
+      {{- if not .Values.mysql.persistence.enabled }}
       volumes:
-      - name: mysql-master-data
+      - name: mysql-data
         emptyDir: {}
-      {{- else if .Values.master.persistence.existingClaim }}
+      {{- else if .Values.mysql.persistence.existingClaim }}
       volumes:
-      - name: mysql-master-data
+      - name: mysql-data
         persistentVolumeClaim:
-          claimName: {{ .Values.master.persistence.existingClaim }}
+          claimName: {{ .Values.mysql.persistence.existingClaim }}
       {{- end }}
-      {{- if and .Values.master.persistence.enabled (not .Values.master.persistence.existingClaim) }}
+      {{- if and .Values.mysql.persistence.enabled (not .Values.mysql.persistence.existingClaim) }}
       volumes:
-      - name: mysql-master-data
+      - name: mysql-data
         persistentVolumeClaim:
-          claimName: {{ .Values.master.persistence.claim}}
+          claimName: {{ .Values.mysql.persistence.claim}}
       {{- end}}
       {{- with .Values.nodeSelector }}
       nodeSelector:

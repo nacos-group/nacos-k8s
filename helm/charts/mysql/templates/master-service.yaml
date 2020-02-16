@@ -2,15 +2,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-master
+  name: mysql
   labels:
-    name: mysql-master
+    name: mysql
 spec:
   ports:
-    - port: {{ .Values.master.service.port }}
+    - port: {{ .Values.mysql.service.port }}
       targetPort: mysql
       protocol: TCP
       name: mysql
   selector:
-    name: mysql-master
+    name: mysql
 {{- end }}

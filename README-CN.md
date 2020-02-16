@@ -117,39 +117,26 @@ kubectl get pod -l app=nfs-client-provisioner
 ## 部署数据库
 
 
-* 部署主库
+
 
 ```shell
 
 cd nacos-k8s
 
-kubectl create -f deploy/mysql/mysql-master-nfs.yaml
+kubectl create -f deploy/mysql/mysql-nfs.yaml
 ```
 
-
-
-* 部署从库
-
-```shell
-
-cd nacos-k8s 
-
-kubectl create -f deploy/mysql/mysql-slave-nfs.yaml
-```
 
 
 
 * 验证数据库是否正常工作
 
 ```shell
-# master
+
 kubectl get pod 
 NAME                         READY   STATUS    RESTARTS   AGE
-mysql-master-gf2vd                        1/1     Running   0          111m
+mysql-gf2vd                        1/1     Running   0          111m
 
-# slave
-kubectl get pod 
-mysql-slave-kf9cb                         1/1     Running   0          110m
 ```
 
 
@@ -162,11 +149,10 @@ mysql-slave-kf9cb                         1/1     Running   0          110m
 
 ```yaml
 data:
-  mysql.master.db.name: "主库名称"
-  mysql.master.port: "主库端口"
-  mysql.slave.port: "从库端口"
-  mysql.master.user: "主库用户名"
-  mysql.master.password: "主库密码"
+  mysql.db.name: "数据库名称"
+  mysql.port: "端口"
+  mysql.user: "用户名"
+  mysql.password: "密码"
 ```
 
 
@@ -278,11 +264,10 @@ for i in 0 1 2; do echo nacos-$i; kubectl exec nacos-$i curl GET "http://localho
 
 | 名称                  | 必要 | 描述                                    |
 | --------------------- | -------- | --------------------------------------- |
-| mysql.master.db.name  | Y       | 主库名称                      |
-| mysql.master.port     | N       | 主库端口                        |
-| mysql.slave.port      | N       | 从库端口                       |
-| mysql.master.user     | Y       | 主库用户名                     |
-| mysql.master.password | Y       | 主库密码                     |
+| mysql.db.name  | Y       | 数据库名称                      |
+| mysql.port     | N       | 端口                        |
+| mysql.user     | Y       | 用户名                     |
+| mysql.password | Y       | 密码                     |
 | NACOS_REPLICAS        | N      | 确定执行Nacos启动节点数量,如果不适用动态扩容插件,就必须配置这个属性，否则使用扩容插件后不会生效 |
 | NACOS_SERVER_PORT     | N       | Nacos 端口             |
 | PREFER_HOST_MODE      | Y       | 启动Nacos集群按域名解析 |
@@ -308,8 +293,6 @@ for i in 0 1 2; do echo nacos-$i; kubectl exec nacos-$i curl GET "http://localho
 | MYSQL_DATABASE             | Y       | 数据库名称                                   |
 | MYSQL_USER                 | Y       | 数据库用户名                                  |
 | MYSQL_PASSWORD             | Y       | 数据库密码                              |
-| MYSQL_REPLICATION_USER     | Y       | 数据库复制用户            |
-| MYSQL_REPLICATION_PASSWORD | Y       | 数据库复制用户密码      |
 | Nfs:server                 | N      | NFS 服务端地址，如果使用本地部署不需要配置 |
 | Nfs:path                   | N     | NFS 共享目录，如果使用本地部署不需要配置 |
 

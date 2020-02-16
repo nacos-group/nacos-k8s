@@ -18,11 +18,10 @@ kind: ConfigMap
 metadata:
   name: nacos-cm
 data:
-  mysql.master.db.name: "nacos_devtest"
-  mysql.master.port: "3306"
-  mysql.slave.port: "3306"
-  mysql.master.user: "nacos"
-  mysql.master.password: "nacos"
+  mysql.db.name: "nacos_devtest"
+  mysql.port: "3306"
+  mysql.user: "nacos"
+  mysql.password: "nacos"
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -62,31 +61,26 @@ spec:
           env:
             - name: NACOS_REPLICAS
               value: "3"
-            - name: MYSQL_MASTER_SERVICE_DB_NAME
+            - name: MYSQL_SERVICE_DB_NAME
               valueFrom:
                 configMapKeyRef:
                   name: nacos-cm
-                  key: mysql.master.db.name
-            - name: MYSQL_MASTER_SERVICE_PORT
+                  key: mysql.db.name
+            - name: MYSQL_SERVICE_PORT
               valueFrom:
                 configMapKeyRef:
                   name: nacos-cm
-                  key: mysql.master.port
-            - name: MYSQL_SLAVE_SERVICE_PORT
+                  key: mysql.port
+            - name: MYSQL_SERVICE_USER
               valueFrom:
                 configMapKeyRef:
                   name: nacos-cm
-                  key: mysql.slave.port
-            - name: MYSQL_MASTER_SERVICE_USER
+                  key: mysql.user
+            - name: MYSQL_SERVICE_PASSWORD
               valueFrom:
                 configMapKeyRef:
                   name: nacos-cm
-                  key: mysql.master.user
-            - name: MYSQL_MASTER_SERVICE_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  name: nacos-cm
-                  key: mysql.master.password
+                  key: mysql.password
             - name: NACOS_SERVER_PORT
               value: "8848"
             - name: PREFER_HOST_MODE

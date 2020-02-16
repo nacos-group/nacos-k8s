@@ -118,39 +118,29 @@ kubectl get pod -l app=nfs-client-provisioner
 ## Deploy database
 
 
-* Deploy master
+* Deploy mysql
 
 ```shell
 
 cd nacos-k8s
 
-kubectl create -f deploy/mysql/mysql-master-nfs.yaml
+kubectl create -f deploy/mysql/mysql-nfs.yaml
 ```
 
 
 
-* Deploy slave
 
-```shell
-
-cd nacos-k8s 
-
-kubectl create -f deploy/mysql/mysql-slave-nfs.yaml
-```
 
 
 
 * Verify that Database is working
 
 ```shell
-# master
+
 kubectl get pod 
 NAME                         READY   STATUS    RESTARTS   AGE
-mysql-master-gf2vd                        1/1     Running   0          111m
+mysql-gf2vd                        1/1     Running   0          111m
 
-# slave
-kubectl get pod 
-mysql-slave-kf9cb                         1/1     Running   0          110m
 ```
 
 
@@ -165,11 +155,10 @@ mysql-slave-kf9cb                         1/1     Running   0          110m
 
 ```yaml
 data:
-  mysql.master.db.name: "db name"
-  mysql.master.port: "master db port"
-  mysql.slave.port: "slave db port"
-  mysql.master.user: "master db username"
-  mysql.master.password: "master db password"
+  mysql.db.name: "db name"
+  mysql.port: " db port"
+  mysql.user: " db username"
+  mysql.password: " db password"
 ```
 
 
@@ -281,11 +270,10 @@ You can find that the new node has joined the cluster
 
 | Name                  | Required | Description                                    |
 | --------------------- | -------- | --------------------------------------- |
-| mysql.master.db.name  | Y       | Master database name                          |
-| mysql.master.port     | N       | Master database port                          |
-| mysql.slave.port      | N       | Slave database port                         |
-| mysql.master.user     | Y       | Master database username                        |
-| mysql.master.password | Y       | Master database password                       |
+| mysql.db.name  | Y       | database name                          |
+| mysql.port     | N       | database port                          |
+| mysql.user     | Y       | database username                        |
+| mysql.password | Y       | database password                       |
 | NACOS_REPLICAS        | Y       | The number of clusters must be consistent with the value of the replicas attribute |
 | NACOS_SERVER_PORT     | N       | Nacos port,default:8848                |
 | PREFER_HOST_MODE      | Y       | Enable Nacos cluster node domain name support               |
@@ -311,8 +299,6 @@ You can find that the new node has joined the cluster
 | MYSQL_DATABASE             | Y       | Database Name                                     |
 | MYSQL_USER                 | Y       | Database Username                                     |
 | MYSQL_PASSWORD             | Y       | Database Password                                |
-| MYSQL_REPLICATION_USER     | Y       | Master-slave replication username                |
-| MYSQL_REPLICATION_PASSWORD | Y       | Master-slave replication password                 |
 | Nfs:server                 | Y       | NFS server address |
 | Nfs:path                   | Y       | NFS server shared path |
 

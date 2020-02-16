@@ -4,11 +4,10 @@ kind: ConfigMap
 metadata:
   name: nacos-cm
 data:
-  {{- with .Values.mysql.master }}
-  mysql.master.db.name: {{ .database }}
-  mysql.master.port: "3306"
-  mysql.slave.port: "3306"
-  mysql.master.user: {{ .user }}
-  mysql.master.password: {{ .password }}
+  {{- with .Values.mysql }}
+  mysql.db.name: {{ .database }}
+  mysql.port: "3306"
+  mysql.user: {{ .user }}
+  mysql.password: {{ .password }}
   {{- end }}
 {{- end }}
