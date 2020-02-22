@@ -53,7 +53,7 @@ spec:
       serviceAccountName: nfs-client-provisioner
       initContainers:
         - name: peer-finder-plugin-install
-          image: nacos/nacos-peer-finder-plugin:latest
+          image: nacos/nacos-peer-finder-plugin:1.0
           imagePullPolicy: Always
           volumeMounts:
             - mountPath: "/home/nacos/plugins/peer-finder"
@@ -74,6 +74,8 @@ spec:
               value: "3"
             - name: SERVICE_NAME
               value: "nacos-headless"
+            - name: DOMAIN_NAME
+              value: "cluster.local"
             - name: POD_NAMESPACE
               valueFrom:
                 fieldRef:

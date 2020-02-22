@@ -24,7 +24,7 @@ spec:
 {{- if eq .Values.global.mode "cluster" }}
       initContainers:
         - name: peer-finder-plugin-install
-          image: nacos/nacos-peer-finder-plugin:latest
+          image: nacos/nacos-peer-finder-plugin:1.0
           imagePullPolicy: Always
           volumeMounts:
             - mountPath: /home/nacos/plugins/peer-finder
@@ -78,11 +78,6 @@ spec:
               configMapKeyRef:
                  name: nacos-cm
                  key: mysql.port
-          - name: MYSQL_SLAVE_SERVICE_PORT
-            valueFrom:
-              configMapKeyRef:
-                 name: nacos-cm
-                 key: mysql.slave.port
           - name: MYSQL_SERVICE_USER
             valueFrom:
               configMapKeyRef:
@@ -109,6 +104,8 @@ spec:
             value: "3"
           - name: SERVICE_NAME
             value: "nacos-hs"
+          - name: DOMAIN_NAME
+            value: {{ .Values.env.domainNmae | quote }}
           - name: POD_NAMESPACE
             valueFrom:
               fieldRef:

@@ -75,13 +75,14 @@ replicaCount: 1
 
 image:
   repository: nacos/nacos-server
-  tag: 1.1.4
+  tag: latest
   pullPolicy: IfNotPresent
 
 health:
   enabled: false
 
 env:
+  domainName: cluster.local
   preferhostmode: hostname
   serverPort: 8848
 
