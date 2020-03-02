@@ -38,20 +38,6 @@ spec:
             - name: http
               containerPort: {{ .Values.env.serverPort }}
               protocol: TCP
-{{- if .Values.health.enabled }}
-          livenessProbe:
-            httpGet:
-              path: /nacos/v1/console/health/readiness
-              port: http
-            initialDelaySeconds: 60
-            timeoutSeconds: 3
-          readinessProbe:
-            httpGet:
-              path: /nacos/v1/console/health/readiness
-              port: http
-            initialDelaySeconds: 60
-            timeoutSeconds: 3
-{{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
 {{- if eq .Values.global.mode "quickstart" }}
