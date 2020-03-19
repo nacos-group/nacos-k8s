@@ -32,7 +32,7 @@ metadata:
   name: nacos
 spec:
   serviceName: nacos-headless
-  replicas: 2
+  replicas: 3
   template:
     metadata:
       labels:
