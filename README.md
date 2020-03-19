@@ -5,6 +5,9 @@ This project contains a Nacos Docker image meant to facilitate the deployment of
 
 [中文文档](https://github.com/nacos-group/nacos-k8s/blob/master/README-CN.md)
 
+# Tips
+If you are using **Nacos** version 1.1.4 or lower,, please refer to this [Tag](https://github.com/nacos-group/nacos-k8s/tree/v1.1.4)
+
 # Quick Start
 
 * **Clone Project**
