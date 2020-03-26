@@ -99,7 +99,7 @@ spec:
                 fieldPath: metadata.namespace
           - name: PREFER_HOST_MODE
             value: {{ .Values.env.preferhostmode | quote }}
-            {{- if not .Values.env.dbHost  }}
+            {{- if .Values.env.dbHost  }}
           - name: MYSQL_SERVICE_HOST
             value: {{ .Values.env.dbHost | quote }}
             {{- end }}
