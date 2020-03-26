@@ -91,7 +91,7 @@ spec:
           - name: SERVICE_NAME
             value: "nacos-hs"
           - name: DOMAIN_NAME
-            value: {{ .Values.env.domainNmae | quote }}
+            value: {{ .Values.env.domainName | quote }}
           - name: POD_NAMESPACE
             valueFrom:
               fieldRef:
