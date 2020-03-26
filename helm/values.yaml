@@ -85,6 +85,7 @@ env:
   domainName: cluster.local
   preferhostmode: hostname
   serverPort: 8848
+#  dbHost: 127.0.0.1
 
 persistence:
   enabled: false
