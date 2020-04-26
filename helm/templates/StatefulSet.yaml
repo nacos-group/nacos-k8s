@@ -24,8 +24,8 @@ spec:
 {{- if eq .Values.global.mode "cluster" }}
       initContainers:
         - name: peer-finder-plugin-install
-          image: nacos/nacos-peer-finder-plugin:1.0
-          imagePullPolicy: Always
+          image: "{{ .Values.plugins.repository }}:{{ .Values.plugins.tag}}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
             - mountPath: /home/nacos/plugins/peer-finder
               name: plugindir
@@ -91,7 +91,7 @@ spec:
           - name: SERVICE_NAME
             value: "nacos-hs"
           - name: DOMAIN_NAME
-            value: {{ .Values.env.domainNmae | quote }}
+            value: {{ .Values.env.domainName | quote }}
           - name: POD_NAMESPACE
             valueFrom:
               fieldRef:

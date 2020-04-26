@@ -1,7 +1,12 @@
 apiVersion: v1
 appVersion: "1.0"
-description: A Helm chart for Kubernetes
-name: nacos
-version: 0.1.0
+description: use helm to deloy nacos cluster.
+home: https://nacos.io/en-us/
+icon: https://nacos.io/img/nacos.png
 maintainers:
-- name: arrowfeng
+- email: huangmnlove@163.com
+  name: arrowfeng
+name: nacos
+sources:
+- https://github.com/nacos-group/nacos-k8s
+version: 0.1.1

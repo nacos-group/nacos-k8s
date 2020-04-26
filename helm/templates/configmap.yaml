@@ -5,9 +5,9 @@ metadata:
   name: nacos-cm
 data:
   {{- with .Values.mysql }}
-  mysql.db.name: {{ .database }}
+  mysql.db.name: {{ .mysqlDatabase }}
   mysql.port: "3306"
-  mysql.user: {{ .user }}
-  mysql.password: {{ .password }}
+  mysql.user: {{ .mysqlUser }}
+  mysql.password: {{ .mysqlPassword }}
   {{- end }}
 {{- end }}

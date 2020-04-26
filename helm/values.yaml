@@ -3,79 +3,80 @@
 # Declare variables to be passed into your templates.
 
 global:
- mode: quickstart
+ #mode: quickstart
  #mode: standalone
- #mode: cluster 
- storageClass: 
-   provisioner: 
- #nfs
- # provisioner: fuseim.pri/ifs
- ###ceph
- #  provisioner: ceph.com/rbd
+ mode: cluster 
 
 ############################mysql###########################
 mysql:
- annotations: {}
- resources: {}
- nodeSelector: {}
- affinity: {}
- tolerations: {}
- service:
-   port: 3306
- rootPassword: root
- database: nacos_devtest
- user: nacos
- password: nacos
- image:
-   pullPolicy: IfNotPresent
-   repository: nacos/nacos-mysql
-   tag: 5.7
- classParameters: {}
+ image: "nacos/nacos-mysq"
+ imageTag: "5.7"
+
+ strategy:
+  type: Recreate
+
+ busybox:
+  image: "busybox"
+  tag: "1.29.3"
+
+ ## Specify password for root user
+ ##
+ ## Default: random 10 character string
+ mysqlRootPassword: root
+ 
+ ## Create a database user
+ ##
+ mysqlUser: nacos
+ ## Default: random 10 character string
+ mysqlPassword: nacos
+ 
+ ## Allow unauthenticated access, uncomment to enable
+ ##
+ # mysqlAllowEmptyPassword: true
+ 
+ ## Create a database
+ mysqlDatabase: nacos_devtest
+ 
+ # Optionally specify an array of imagePullSecrets.
+ # Secrets must be manually created in the namespace.
+ # ref: https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
+ # imagePullSecrets:
+   # - name: myRegistryKeySecretName
+ 
+ ## Persist data to a persistent volume
  persistence:
+   enabled: true
+   ## database data Persistent Volume Storage Class
+   ## If defined, storageClassName: <storageClass>
+   ## If set to "-", storageClassName: "", which disables dynamic provisioning
+   ## If undefined (the default) or set to null, no storageClassName spec is
+   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+   ##   GKE, AWS & OpenStack)
+   ##
+   # storageClass: "-"
+   storageClass: "nfs"
+   accessMode: ReadWriteOnce
+   size: 8Gi
+   annotations: {}
+ 
+ metrics:
    enabled: false
-   existingClaim: mysql-data
-   #existingClaim:
-   claim:
-     name: mysql-data
-     spec:
-       accessModes:
-         - ReadWriteOnce
-       resources:
-         requests:
-           storage: 5G
-       storageClassName: sc-mysql
-
-
-
-
-######nfs
-#    archiveOnDelete: "false"
-
-######ceph
-#    monitors: 10.144.131.48:6789
-#    adminId: admin
-#    adminSecretName: ceph-secret-admin
-#    adminSecretNamespace: nacos
-#    pool: nacos-mysql-data
-#    userId: mysql
-#    userSecretName: ceph-secret-mysql
-#    userSecretNamespace: nacos
-#    fsType: ext4
-#    imageFormat: "2"
-#    imageFeatures: "layering"
-
-
-
-
-
-############################mysql###########################
-
+   image: prom/mysqld-exporter
+   imageTag: v0.10.0
+   imagePullPolicy: IfNotPresent
+   resources: {}
 ############################nacos###########################
+
 replicaCount: 1
 
 image:
   repository: nacos/nacos-server
-  tag: latest
+  tag: 1.2.1
+  pullPolicy: IfNotPresent
+
+plugins:
+  repository: nacos/nacos-peer-finder-plugin
+  tag: "1.0"
   pullPolicy: IfNotPresent
 
 health:
@@ -85,30 +86,29 @@ env:
   domainName: cluster.local
   preferhostmode: hostname
   serverPort: 8848
-#  dbHost: 127.0.0.1
+  dbHost: nacos-mysql
 
 persistence:
-  enabled: false
-  storageClassName: sc-nacos
+  enabled: true
   classParameters: {}
   data:
     accessModes: 
     - ReadWriteOnce
-    storageClassName: manual
+    storageClassName: nfs
     resources:
       requests:
         storage: 5Gi
   plugin:
     accessModes: 
     - ReadWriteOnce
-    storageClassName: manual
+    storageClassName: nfs
     resources:
       requests:
         storage: 5Gi
   log:
     accessModes: 
     - ReadWriteOnce
-    storageClassName: manual
+    storageClassName: nfs
     resources:
       requests:
         storage: 5Gi
@@ -119,22 +119,22 @@ service:
   port: 8848
   nodePort: 30000
 
-
 ingress:
-  enabled: false
+  enabled: true
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: nacos.example.com
-      paths: []
+    - host: chart-example.local
+      paths: 
+       - /nacos
 
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
 
-resources: 
+resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -142,16 +142,12 @@ resources:
   # limits:
   #   cpu: 100m
   #   memory: 128Mi
-  requests:
-     cpu: 500m
-     memory: 2Gi
-annotations: {}
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
 
 nodeSelector: {}
 
 tolerations: []
 
 affinity: {}
-
-
-
