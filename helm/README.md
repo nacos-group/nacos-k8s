@@ -9,18 +9,43 @@ This project is based on the Helm Chart packaged by [nacos-k8s](https://github.c
 ## Prerequisites
 
  - Kubernetes 1.10+ 
- - Helm v3 
+ - Helm v2+ 
  - PV provisioner support in the underlying infrastructure
 
 ## Installing the Chart
 
+To install nfs-client-provisioner,Must have NFS server first:
+
+```shell
+$ helm repo add stable https://kubernetes-charts.storage.googleapis.com
+$ helm repo update
+$ helm install --namespace kube-system  \
+--set nfs.server=192.168.1.2 --set nfs.path=/k8s-data --set storageClass.reclaimPolicy=Retain \
+--set storageClass.defaultClass=true,storageClass.name=nfs \
+--name nfs-client-provisioner stable/nfs-client-provisioner --version=1.2.8
+```
+
+
+
 To install the chart with `release name`:
 
 ```shell
-$ helm install `release name` ./nacos
+$ helm repo update
+$ helm dependency update
+$ helm install --namespace `name` --set global.mode=cluster --name `release name` ./nacos
 ```
 
 The command deploys Nacos on the Kubernetes cluster in the default configuration. It will run without a mysql chart and persistent volume. The [configuration](#configuration) section lists the parameters that can be configured during installation. 
+
+Update nacos to the latest version
+
+```shell
+$ helm upgrade `release name` \
+--set mysql.image=nacos/nacos-mysq,mysql.imageTag=latest \
+--set image.repository=nacos/nacos-server,image.tag=latest \
+--set plugins.repository=nacos/nacos-peer-finder-plugin,plugins.tag=latest \
+./nacos
+```
 
 ### Service & Configuration Management
 
@@ -145,5 +170,5 @@ $ kubectl scale sts `release name`-nacos --replicas=3
 ![img](../images/cluster2.png)
 
  * Use kubectl exec to get the cluster config of the Pods in the nacos StatefulSet after scale StatefulSets
- 
+
 ![img](../images/cluster3.png)

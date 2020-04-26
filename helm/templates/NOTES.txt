@@ -23,4 +23,4 @@
 2. MODE: 
    quickstart: you need to modify replicaCount in the values.yaml, .Values.replicaCount=1
    standalone: you need to modify replicaCount in the values.yaml, .Values.replicaCount=1
-   cluster: kubectl scale sts {{ .Release.Namespace }}-nacos --replicas=3
+   cluster: kubectl -n {{ .Release.Namespace }} scale sts {{ include "nacos.fullname" . }} --replicas=3
