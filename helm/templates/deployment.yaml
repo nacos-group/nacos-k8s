@@ -76,6 +76,8 @@ spec:
                  key: mysql.password
           - name: NACOS_SERVER_PORT
             value: {{ .Values.env.serverPort | quote }}
+          - name: NACOS_APPLICATION_PORT
+            value: {{ .Values.env.serverPort | quote }}
           volumeMounts:
           - name: datadir
             mountPath: /home/nacos/data

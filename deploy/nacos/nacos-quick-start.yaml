@@ -83,6 +83,8 @@ spec:
                   key: mysql.password
             - name: NACOS_SERVER_PORT
               value: "8848"
+            - name: NACOS_APPLICATION_PORT
+              value: "8848"
             - name: PREFER_HOST_MODE
               value: "hostname"
             - name: NACOS_SERVERS
