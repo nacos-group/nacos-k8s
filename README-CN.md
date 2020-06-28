@@ -273,7 +273,8 @@ for i in 0 1 2; do echo nacos-$i; kubectl exec nacos-$i curl GET "http://localho
 | mysql.user     | Y       | 用户名                     |
 | mysql.password | Y       | 密码                     |
 | NACOS_REPLICAS        | N      | 确定执行Nacos启动节点数量,如果不适用动态扩容插件,就必须配置这个属性，否则使用扩容插件后不会生效 |
-| NACOS_SERVER_PORT     | N       | Nacos 端口             |
+| NACOS_SERVER_PORT     | N       | Nacos 端口  为peer_finder插件提供端口          |
+| NACOS_APPLICATION_PORT     | N       | Nacos 端口             |
 | PREFER_HOST_MODE      | Y       | 启动Nacos集群按域名解析 |
 
 

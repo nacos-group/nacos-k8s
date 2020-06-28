@@ -278,7 +278,8 @@ You can find that the new node has joined the cluster
 | mysql.user     | Y       | database username                        |
 | mysql.password | Y       | database password                       |
 | NACOS_REPLICAS        | Y       | The number of clusters must be consistent with the value of the replicas attribute |
-| NACOS_SERVER_PORT     | N       | Nacos port,default:8848                |
+| NACOS_SERVER_PORT     | N       | Nacos port,default:8848 for Peer-finder plugin               |
+| NACOS_APPLICATION_PORT     | N       | Nacos port， default:8848           |
 | PREFER_HOST_MODE      | Y       | Enable Nacos cluster node domain name support               |
 
 
