@@ -1,0 +1,407 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: nacos-template
+  annotations:
+    description: nacos-template
+parameters:
+- name: NAMESPACE
+  value: midware
+- name: STORAGECLASS
+  value: nfs-storage
+objects:
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    namespace: ${NAMESPACE}
+    name: nacos-ipaas
+    annotations:
+      serviceaccounts.openshift.io/oauth-redirectreference.primary: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"nacos-proxy"}}'
+- apiVersion: v1
+  kind: Route
+  metadata:
+    annotations:
+      service.alpha.openshift.io/serving-cert-secret-name: secret-nacos-ipaas-tls
+    name: nacos-proxy
+    namespace: ${NAMESPACE}
+  spec:
+    to:
+      kind: Service
+      name: nacos-proxy
+    tls:
+      termination: Reencrypt
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: nacos-proxy
+    namespace: ${NAMESPACE}
+    annotations:
+      service.alpha.openshift.io/serving-cert-secret-name: secret-nacos-ipaas-tls
+  spec:
+    ports:
+    - name: nacos
+      port: 8443
+      targetPort: 8443
+    selector:
+      app: nacos
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    name: nacos
+    namespace: ${NAMESPACE}
+  spec:
+    podManagementPolicy: OrderedReady
+    replicas: 3
+    revisionHistoryLimit: 3
+    selector:
+      matchLabels:
+        app: nacos
+    serviceName: nacos-headless
+    template:
+      metadata:
+        annotations:
+          pod.alpha.kubernetes.io/initialized: 'true'
+        creationTimestamp: null
+        labels:
+          app: nacos
+      spec:
+        serviceAccount: nacos-ipaas
+        serviceAccountName: nacos-ipaas
+        
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - nacos
+                topologyKey: kubernetes.io/hostname
+        volumes:
+            - name: secret-nacos-ipaas-tls
+              secret:
+                secretName: secret-nacos-ipaas-tls
+        containers:
+          - args:
+              - '-provider=openshift'
+              - '-https-address=:8443'
+              - '-http-address='
+              - '-email-domain=*'
+              - '-upstream=http://localhost:8848'
+              - '-openshift-service-account=nacos-ipaas'
+              - '-openshift-sar={"resource": "namespaces", "verb": "get"}'
+              - >-
+                -openshift-delegate-urls={"/": {"resource": "namespaces", "verb":
+                "get"}}
+              - '-tls-cert=/etc/tls/private/tls.crt'
+              - '-tls-key=/etc/tls/private/tls.key'
+              - >-
+                -client-secret-file=/var/run/secrets/kubernetes.io/serviceaccount/token
+              - '-cookie-secret=SECRET'
+              - '-openshift-ca=/etc/pki/tls/cert.pem'
+              - '-openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'
+              - '-skip-auth-regex=^/metrics'
+            image: 'openshift/origin-oauth-proxy:4.5.0'
+            imagePullPolicy: IfNotPresent
+            name: nacos-ipaas-proxy
+            ports:
+              - containerPort: 8443
+                name: https-8443
+                protocol: TCP
+              - containerPort: 8888
+                name: http-8888
+                protocol: TCP
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+            volumeMounts:
+              - mountPath: /etc/tls/private
+                name: secret-nacos-ipaas-tls
+          - env:
+              - name: NACOS_REPLICAS
+                value: '3'
+              - name: SERVICE_NAME
+                value: nacos-headless
+              - name: DOMAIN_NAME
+                value: cluster.local
+              - name: POD_NAMESPACE
+                valueFrom:
+                  fieldRef:
+                    apiVersion: v1
+                    fieldPath: metadata.namespace
+              - name: MYSQL_SERVICE_DB_NAME
+                value: nacos_devtest
+              - name: MYSQL_SERVICE_PORT
+                value: '3306'
+              - name: MYSQL_SERVICE_USER
+                value: nacos
+              - name: MYSQL_SERVICE_PASSWORD
+                value: nacos
+              - name: NACOS_SERVER_PORT
+                value: '8848'
+              - name: PREFER_HOST_MODE
+                value: hostname
+            image: 'nacos/nacos-server:latest'
+            imagePullPolicy: Always
+            name: nacos
+            
+            ports:
+              - containerPort: 8848
+                name: client-port
+                protocol: TCP
+            resources:
+              requests:
+                cpu: 500m
+                memory: 2Gi
+              limits:
+                cpu: 2
+                memory: 4Gi
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+            volumeMounts:
+              - mountPath: /home/nacos/plugins/peer-finder
+                name: plugindir
+              - mountPath: /home/nacos/data
+                name: datadir
+              - mountPath: /home/nacos/logs
+                name: logdir
+        dnsPolicy: ClusterFirst
+        
+        initContainers:
+          - image: 'nacos/nacos-peer-finder-plugin:1.0'
+            imagePullPolicy: Always
+            name: peer-finder-plugin-install
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+            volumeMounts:
+              - mountPath: /home/nacos/plugins/peer-finder
+                name: plugindir
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    updateStrategy:
+      rollingUpdate:
+        partition: 0
+      type: RollingUpdate
+    volumeClaimTemplates:
+      - metadata:
+          annotations:
+            volume.beta.kubernetes.io/storage-class: ${STORAGECLASS}
+          creationTimestamp: null
+          name: plugindir
+        spec:
+          accessModes:
+            - ReadWriteMany
+          resources:
+            requests:
+              storage: 5Gi
+        status:
+          phase: Pending
+      - metadata:
+          annotations:
+            volume.beta.kubernetes.io/storage-class: ${STORAGECLASS}
+          creationTimestamp: null
+          name: datadir
+        spec:
+          accessModes:
+            - ReadWriteMany
+          resources:
+            requests:
+              storage: 5Gi
+        status:
+          phase: Pending
+      - metadata:
+          annotations:
+            volume.beta.kubernetes.io/storage-class: ${STORAGECLASS}
+          creationTimestamp: null
+          name: logdir
+        spec:
+          accessModes:
+            - ReadWriteMany
+          resources:
+            requests:
+              storage: 5Gi
+        status:
+          phase: Pending
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    namespace: ${NAMESPACE}
+    annotations:
+      deployment.kubernetes.io/revision: '2'
+    labels:
+      name: mysql
+    name: mysql
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 3
+    selector:
+      matchLabels:
+        name: mysql
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          name: mysql
+      spec:
+        containers:
+          - env:
+              - name: MYSQL_ROOT_PASSWORD
+                value: root
+              - name: MYSQL_DATABASE
+                value: nacos_devtest
+              - name: MYSQL_USER
+                value: nacos
+              - name: MYSQL_PASSWORD
+                value: nacos
+            image: 'nacos/nacos-mysql:5.7'
+            imagePullPolicy: IfNotPresent
+            name: mysql
+            ports:
+              - containerPort: 3306
+                protocol: TCP
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+            volumeMounts:
+              - mountPath: /var/lib/mysql
+                name: mysql-data
+                subPath: mount
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+          - name: mysql-data
+            persistentVolumeClaim:
+              claimName: mysql-data-pvc
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    namespace: ${NAMESPACE}
+
+    annotations:
+      service.alpha.kubernetes.io/tolerate-unready-endpoints: 'true'
+    labels:
+      app: nacos
+    name: nacos-headless
+  spec:
+    clusterIP: None
+    ports:
+      - name: server
+        port: 8848
+        protocol: TCP
+        targetPort: 8848
+    selector:
+      app: nacos
+    sessionAffinity: None
+    type: ClusterIP
+ 
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: ClusterRoleBinding
+  metadata:
+    labels:
+      app: nacos-ipaas
+    name: nacos-ipaas
+    namespace: ${NAMESPACE}
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: nacos-ipaas
+  subjects:
+  - kind: ServiceAccount
+    name: nacos-ipaas
+    namespace: ${NAMESPACE}
+
+
+- apiVersion: rbac.authorization.k8s.io/v1beta1
+  kind: ClusterRole
+  metadata:
+    name: nacos-ipaas
+  rules:
+    - apiGroups:
+      - authorization.k8s.io
+      resources:
+      - subjectaccessreviews
+      verbs:
+      - create
+    - apiGroups:
+      - authentication.k8s.io
+      resources:
+      - tokenreviews
+      verbs:
+      - create
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    namespace: ${NAMESPACE}
+    labels:
+      name: mysql
+    name: mysql
+  spec:
+    ports:
+      - port: 3306
+        protocol: TCP
+        targetPort: 3306
+    selector:
+      name: mysql
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    namespace: ${NAMESPACE}
+    name: mysql-data-pvc
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 20Gi
+    storageClassName: ${STORAGECLASS}
+
+- allowHostDirVolumePlugin: true
+  allowHostIPC: false
+  allowHostNetwork: false
+  allowHostPID: false
+  allowHostPorts: false
+  allowPrivilegeEscalation: true
+  allowPrivilegedContainer: true
+  allowedCapabilities: null
+  apiVersion: security.openshift.io/v1
+  defaultAddCapabilities: null
+  fsGroup:
+    type: RunAsAny
+  groups: []
+  kind: SecurityContextConstraints
+  metadata:
+    name: nacos-ipaas
+  priority: null
+  readOnlyRootFilesystem: false
+  requiredDropCapabilities: null
+  runAsUser:
+    type: RunAsAny
+  seLinuxContext:
+    type: RunAsAny
+  supplementalGroups:
+    type: RunAsAny
+  users:
+  - system:serviceaccount:midware:nacos-ipaas
+  volumes:
+  - '*'
+
