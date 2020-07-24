@@ -1,0 +1,141 @@
+###使用自建数据库；使用Ingress发布配置后台###
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nacos-headless
+  labels:
+    app: nacos-headless
+spec:
+  ports:
+    - port: 8848
+      name: server
+      targetPort: 8848
+  selector:
+    app: nacos
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nacos-cm
+data:
+  mysql.host: "10.127.1.12"
+  mysql.db.name: "nacos_devtest"
+  mysql.port: "3306"
+  mysql.user: "nacos"
+  mysql.password: "passwd"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nacos
+spec:
+  serviceName: nacos-headless
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: nacos
+      annotations:
+        pod.alpha.kubernetes.io/initialized: "true"
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                      - nacos-headless
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: k8snacos
+          imagePullPolicy: Always
+          image: nacos/nacos-server:latest
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "500m"
+          ports:
+            - containerPort: 8848
+              name: client
+          env:
+            - name: NACOS_REPLICAS
+              value: "3"
+            - name: MYSQL_SERVICE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.host
+            - name: MYSQL_SERVICE_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.db.name
+            - name: MYSQL_SERVICE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.port
+            - name: MYSQL_SERVICE_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.user
+            - name: MYSQL_SERVICE_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.password
+            - name: MODE
+              value: "cluster"
+            - name: NACOS_SERVER_PORT
+              value: "8848"
+            - name: PREFER_HOST_MODE
+              value: "hostname"
+            - name: NACOS_SERVERS
+              value: "nacos-0.nacos-headless.default.svc.cluster.local:8848 nacos-1.nacos-headless.default.svc.cluster.local:8848 nacos-2.nacos-headless.default.svc.cluster.local:8848"
+  selector:
+    matchLabels:
+      app: nacos
+
+
+
+---
+# ------------------- App Service ------------------- #
+apiVersion: v1
+kind: Service
+metadata:
+  name: nacos-service
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/affinity: "true"
+    nginx.ingress.kubernetes.io/session-cookie-name: backend
+    nginx.ingress.kubernetes.io/load-balancer-method: drr
+
+
+spec:
+  selector:
+    app: nacos
+  ports:
+  - name: web
+    port: 80
+    targetPort: 8848
+---
+# ------------------- App Ingress ------------------- #
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nacos-web
+  namespace: default
+
+spec:
+  rules:
+  - host: nacos-web.nacos-demo.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: nacos-service
+          servicePort: web
