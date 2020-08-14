@@ -154,7 +154,7 @@ mysql-gf2vd                        1/1     Running   0          111m
 
 
 
-* Modify  **depoly/nacos/nacos-pvc-nfs.yaml**
+* Modify  **deploy/nacos/nacos-pvc-nfs.yaml**
 
 ```yaml
 data:
