@@ -142,6 +142,9 @@ NAME                         READY   STATUS    RESTARTS   AGE
 mysql-gf2vd                        1/1     Running   0          111m
 
 ```
+## 执行数据库初始化语句
+
+数据库初始化语句位置 ./mysql/init.sql
 
 
 
@@ -181,6 +184,12 @@ nacos-1   1/1     Running   0          19h
 nacos-2   1/1     Running   0          19h
 ```
 
+
+## 访问后台管理ui 界面
+
+nacos 部署方式中支持部署ingress，浏览器访问 http://nacos-web.nacos-demo.com/nacos/index.html ，默认用户名密码nacos\nacos进行管理后台的访问
+
+注：访问ingress 需要对 nacos-web.nacos-demo.com 进行dns解析，解析ip 为 slave 节点ip，您的集群需要提前安装ingress controller
 
 
 
@@ -264,10 +273,11 @@ for i in 0 1 2; do echo nacos-$i; kubectl exec nacos-$i curl GET "http://localho
 
 # 配置属性
 
-* nacos-pvc-nfs.yaml or nacos-quick-start.yaml 
+* nacos-pvc-nfs.yaml or nacos-quick-start.yaml or nacos-no-pvc.yaml
 
 | 名称                  | 必要 | 描述                                    |
 | --------------------- | -------- | --------------------------------------- |
+| mysql.host|N|自建数据库地址 issue #124|
 | mysql.db.name  | Y       | 数据库名称                      |
 | mysql.port     | N       | 端口                        |
 | mysql.user     | Y       | 用户名                     |

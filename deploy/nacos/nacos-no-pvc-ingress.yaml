@@ -7,6 +7,8 @@ metadata:
   labels:
     app: nacos-headless
 spec:
+  type: ClusterIP
+  clusterIP: None
   ports:
     - port: 8848
       name: server
@@ -47,7 +49,7 @@ spec:
                   - key: "app"
                     operator: In
                     values:
-                      - nacos-headless
+                      - nacos
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: k8snacos
@@ -102,32 +104,13 @@ spec:
 
 
 
----
-# ------------------- App Service ------------------- #
-apiVersion: v1
-kind: Service
-metadata:
-  name: nacos-service
-  namespace: default
-  annotations:
-    nginx.ingress.kubernetes.io/affinity: "true"
-    nginx.ingress.kubernetes.io/session-cookie-name: backend
-    nginx.ingress.kubernetes.io/load-balancer-method: drr
 
-
-spec:
-  selector:
-    app: nacos
-  ports:
-  - name: web
-    port: 80
-    targetPort: 8848
 ---
 # ------------------- App Ingress ------------------- #
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: nacos-web
+  name: nacos-headless
   namespace: default
 
 spec:
@@ -137,5 +120,5 @@ spec:
       paths:
       - path: /
         backend:
-          serviceName: nacos-service
-          servicePort: web
+          serviceName: nacos-headless
+          servicePort: server
