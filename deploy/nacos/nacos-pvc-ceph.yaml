@@ -12,6 +12,9 @@ spec:
     - port: 8848
       name: server
       targetPort: 8848
+    - port: 7848
+      name: rpc
+      targetPort: 7848
   clusterIP: None
   selector:
     app: nacos
@@ -69,6 +72,8 @@ spec:
           ports:
             - containerPort: 8848
               name: client-port
+            - containerPort: 7848
+              name: rpc
           env:
             - name: NACOS_REPLICAS
               value: "2"
