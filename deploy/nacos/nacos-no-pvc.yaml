@@ -14,6 +14,7 @@ spec:
     - port: 7848
       name: rpc
       targetPort: 7848
+  clusterIP: None
   selector:
     app: nacos
 ---
