@@ -38,6 +38,9 @@ spec:
             - name: http
               containerPort: {{ .Values.env.serverPort }}
               protocol: TCP
+            - name: rpc
+              containerPort: 7848
+              protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
 {{- if eq .Values.global.mode "quickstart" }}
