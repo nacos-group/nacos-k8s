@@ -42,9 +42,9 @@ spec:
     - port: 7848
       name: rpc
       targetPort: 7848
-      {{- if eq .Values.service.type "NodePort" }}
-      nodePort: {{ .Values.service.rpcPort }}
-  {{- end }}
+      {{- if eq .Values.service.rpcType "NodePort" }}
+      nodePort: {{ .Values.service.rpcNodePort }}
+      {{- end }}
   selector:
     app.kubernetes.io/name: {{ include "nacos.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
