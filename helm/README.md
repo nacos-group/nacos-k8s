@@ -111,9 +111,6 @@ The following table lists the configurable parameters of the Skywalking chart an
 | `service.type`									| http service type													| `NodePort`			|
 | `service.port`									| http service port													| `8848`				|
 | `service.nodePort`								| http service nodeport												| `30000`				|
-| `service.rpcType`									| rpc service type													| `ClusterIP`			|
-| `service.rpcPort`									| rpc service port													| `7848`				|
-| `service.rpcNodePort`								| rpc service nodeport												| `30001`				|
 | `ingress.enabled`									| Enable ingress or not												| `false`				|
 | `ingress.annotations`								| The annotations used in ingress									| `{}`					|
 | `ingress.hosts`									| The host of nacos service in ingress rule							| `nacos.example.com`	|
