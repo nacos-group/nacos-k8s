@@ -6,6 +6,8 @@ metadata:
   labels:
     app: nacos-headless
 spec:
+  type: ClusterIP
+  clusterIP: None
   ports:
     - port: 8848
       name: server
@@ -48,7 +50,7 @@ spec:
                   - key: "app"
                     operator: In
                     values:
-                      - nacos-headless
+                      - nacos
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: k8snacos
@@ -97,3 +99,4 @@ spec:
   selector:
     matchLabels:
       app: nacos
+
