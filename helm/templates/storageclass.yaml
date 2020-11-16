@@ -1,4 +1,4 @@
-{{- if and .Values.persistence.enabled .Values.persistence.storageClass -}}
+{{- if and .Values.persistence.enabled .Values.persistence.storageClassName -}}
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
