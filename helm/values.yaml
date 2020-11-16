@@ -118,7 +118,6 @@ service:
   type: NodePort
   port: 8848
   nodePort: 30000
-  rpcPort: 7848
 
 
 ingress:

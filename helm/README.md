@@ -99,21 +99,21 @@ The following table lists the configurable parameters of the Skywalking chart an
 | `persistence.enabled`                 | Enable the nacos data persistence or not                           | `false`                              |
 | `persistence.storageClassName`        | Nacos storage class name                                           | `sc-nacos`                   |
 | `persistence.classParameters`                     | Nacos storageclass parameters                                      | `{}`
-| `persistence.data.accessModes` | Nacos data pvc access mode                           | `ReadWriteOnce`                     |
-| `persistence.data.storageClassName`  | Nacos data pvc storage class name      | `sc-nacos`                                |
-| `persistence.data.resources.requests.storage` | Nacos data pvc requests storage             | `5G`                   |
-| `persistence.plugin.accessModes` | Nacos plugin pvc access mode (Available as cluster mode)                       | `ReadWriteOnce`                     |
-| `persistence.plugin.storageClassName`  | Nacos plugin pvc storage class name (Available as cluster mode)      | `sc-nacos`                                |
-| `persistence.plugin.resources.requests.storage` | Nacos plugin pvc requests storage (Available as cluster mode)             | `5G`                   |
-| `persistence.log.accessModes` | Nacos log pvc access mode (Available as cluster mode)                           | `ReadWriteOnce`                     |
-| `persistence.log.storageClassName`  | Nacos log pvc storage class name (Available as cluster mode)      | `sc-nacos`                                |
-| `persistence.log.resources.requests.storage` | Nacos log pvc requests storage (Available as cluster mode)| `5G`          |
-| `service.type` | service type | `NodePort` |
-| `service.port` | service port | `8848` |
-| `service.nodePort` | service nodeport                 | `30000`                     |
-| `ingress.enabled` | Enable ingress or not | `false` |
-| `ingress.annotations` | The annotations used in ingress | `{}` |
-| `ingress.hosts` | The host of nacos service in ingress rule | `nacos.example.com` |
+| `persistence.data.accessModes`					| Nacos data pvc access mode										| `ReadWriteOnce`		|
+| `persistence.data.storageClassName`				| Nacos data pvc storage class name									| `manual`			|
+| `persistence.data.resources.requests.storage`		| Nacos data pvc requests storage									| `5G`					|
+| `persistence.plugin.accessModes`					| Nacos plugin pvc access mode (Available as cluster mode)			| `ReadWriteOnce`		|
+| `persistence.plugin.storageClassName`				| Nacos plugin pvc storage class name (Available as cluster mode)	| `manual`			|
+| `persistence.plugin.resources.requests.storage`	| Nacos plugin pvc requests storage (Available as cluster mode)		| `5G`					|
+| `persistence.log.accessModes`						| Nacos log pvc access mode (Available as cluster mode)				| `ReadWriteOnce`		|
+| `persistence.log.storageClassName`				| Nacos log pvc storage class name (Available as cluster mode)		| `manual`			|
+| `persistence.log.resources.requests.storage`		| Nacos log pvc requests storage (Available as cluster mode)		| `5G`					|
+| `service.type`									| http service type													| `NodePort`			|
+| `service.port`									| http service port													| `8848`				|
+| `service.nodePort`								| http service nodeport												| `30000`				|
+| `ingress.enabled`									| Enable ingress or not												| `false`				|
+| `ingress.annotations`								| The annotations used in ingress									| `{}`					|
+| `ingress.hosts`									| The host of nacos service in ingress rule							| `nacos.example.com`	|
 
 
 ## Example
