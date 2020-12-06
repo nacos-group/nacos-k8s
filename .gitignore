@@ -9,3 +9,5 @@ gen
 !/.idea/
 !/.idea/*
 /nacos-k8s.iml
+
+.DS_Store
