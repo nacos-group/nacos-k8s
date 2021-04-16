@@ -24,7 +24,7 @@ spec:
 {{- if eq .Values.global.mode "cluster" }}
       initContainers:
         - name: peer-finder-plugin-install
-          image: nacos/nacos-peer-finder-plugin:1.0
+          image: nacos/nacos-peer-finder-plugin:1.1
           imagePullPolicy: Always
           volumeMounts:
             - mountPath: /home/nacos/plugins/peer-finder
@@ -38,9 +38,12 @@ spec:
             - name: http
               containerPort: {{ .Values.env.serverPort }}
               protocol: TCP
-            - name: rpc
-              containerPort: 7848
-              protocol: TCP
+            - containerPort: 9848
+              name: client-rpc
+            - containerPort: 9849
+              name: raft-rpc
+            - containerPort: 7848
+              name: old-raft-rpc
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
 {{- if eq .Values.global.mode "quickstart" }}

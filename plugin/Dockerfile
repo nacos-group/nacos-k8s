@@ -1,4 +1,4 @@
-FROM centos:7.5.1804
+FROM centos:7
 MAINTAINER pader "huangmnlove@163.com"
 
 ADD ./peer/on-start.sh /

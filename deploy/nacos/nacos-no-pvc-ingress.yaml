@@ -13,10 +13,16 @@ spec:
     - port: 8848
       name: server
       targetPort: 8848
+    - port: 9848
+      name: client-rpc
+      targetPort: 9848
+    - port: 9849
+      name: raft-rpc
+      targetPort: 9849
+      ## 兼容1.4.x版本的选举端口
     - port: 7848
-      name: rpc
+      name: old-raft-rpc
       targetPort: 7848
-  clusterIP: None
   selector:
     app: nacos
 ---
@@ -66,8 +72,12 @@ spec:
           ports:
             - containerPort: 8848
               name: client
+            - containerPort: 9848
+              name: client-rpc
+            - containerPort: 9849
+              name: raft-rpc
             - containerPort: 7848
-              name: rpc
+              name: old-raft-rpc
           env:
             - name: NACOS_REPLICAS
               value: "3"

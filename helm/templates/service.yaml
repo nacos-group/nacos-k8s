@@ -12,23 +12,30 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
+    - port: 9848
+      name: client-rpc
+      targetPort: 9848
+    - port: 9849
+      name: raft-rpc
+      targetPort: 9849
+    ## 兼容1.4.x版本的选举端口
     - port: 7848
-      name: rpc
+      name: old-raft-rpc
       targetPort: 7848
       protocol: TCP
   selector:
     app.kubernetes.io/name: {{ include "nacos.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
+  {{- end }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: nacos-cs
-  labels: 
-{{- toYaml .Values.service.labels | nindent 4 }}
-  annotations: 
-{{- toYaml .Values.service.annotations | nindent 4 }}
+  labels:
+  {{- toYaml .Values.service.labels | nindent 4 }}
+  annotations:
+  {{- toYaml .Values.service.annotations | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -38,7 +45,7 @@ spec:
       name: http
       {{- if eq .Values.service.type "NodePort" }}
       nodePort: {{ .Values.service.nodePort }}
-      {{- end }}
+  {{- end }}
   selector:
     app.kubernetes.io/name: {{ include "nacos.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}

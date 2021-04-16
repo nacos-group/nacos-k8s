@@ -150,6 +150,15 @@ objects:
               - containerPort: 8848
                 name: client-port
                 protocol: TCP
+              - containerPort: 9848
+                name: client-rpc
+                protocol: TCP
+              - containerPort: 9849
+                name: raft-rpc
+                protocol: TCP
+              - containerPort: 7848
+                name: old-raft-rpc
+                protocol: TCP
             resources:
               requests:
                 cpu: 500m
@@ -169,7 +178,7 @@ objects:
         dnsPolicy: ClusterFirst
         
         initContainers:
-          - image: 'nacos/nacos-peer-finder-plugin:1.0'
+          - image: 'nacos/nacos-peer-finder-plugin:1.1'
             imagePullPolicy: Always
             name: peer-finder-plugin-install
             resources: {}
@@ -303,6 +312,16 @@ objects:
         port: 8848
         protocol: TCP
         targetPort: 8848
+      - port: 9848
+        name: client-rpc
+        targetPort: 9848
+      - port: 9849
+        name: raft-rpc
+        targetPort: 9849
+      ## 兼容1.4.x版本的选举端口
+      - port: 7848
+        name: old-raft-rpc
+        targetPort: 7848
     selector:
       app: nacos
     sessionAffinity: None
