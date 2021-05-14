@@ -45,7 +45,14 @@ mysql:
            storage: 5G
        storageClassName: sc-mysql
 
-
+## standalone or cluster need config mysql!!!
+custom:
+  db:
+    host: localhost
+    name: nacos
+    port: 3306
+    username: usernmae
+    password: password
 
 
 ######nfs

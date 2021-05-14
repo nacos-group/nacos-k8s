@@ -10,4 +10,20 @@ data:
   mysql.user: {{ .user }}
   mysql.password: {{ .password }}
   {{- end }}
-{{- end }}
+  {{- else if or (eq .Values.global.mode "standalone") (eq .Values.global.mode "cluster") }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nacos-cm
+data:
+  {{- with .Values.custom.db }}
+  mysql.db.host: {{.host}}
+  mysql.db.name: {{ .name }}
+  mysql.port: {{ .port }}
+  mysql.user: {{ .username }}
+  mysql.password: {{ .password }}
+  {{- end }}
+  {{- end }}
+
+
+

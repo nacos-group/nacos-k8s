@@ -60,6 +60,11 @@ spec:
             value: "standalone"
           - name: SPRING_DATASOURCE_PLATFORM
             value: "mysql"
+          - name: MYSQL_SERVICE_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: nacos-cm
+                key: mysql.db.host
           - name: MYSQL_SERVICE_DB_NAME
             valueFrom:
                configMapKeyRef:
@@ -109,8 +114,10 @@ spec:
             value: {{ .Values.env.preferhostmode | quote }}
             {{- if .Values.env.dbHost  }}
           - name: MYSQL_SERVICE_HOST
-            value: {{ .Values.env.dbHost | quote }}
-            {{- end }}
+            valueFrom:
+              configMapKeyRef:
+                name: nacos-cm
+                key: mysql.db.host
           - name: MYSQL_SERVICE_DB_NAME
             valueFrom:
               configMapKeyRef:
