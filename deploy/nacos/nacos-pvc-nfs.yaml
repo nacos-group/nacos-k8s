@@ -124,40 +124,25 @@ spec:
             - name: PREFER_HOST_MODE
               value: "hostname"
           volumeMounts:
-            - name: plugindir
+            - name: data
               mountPath: /home/nacos/plugins/peer-finder
-            - name: datadir
+              subPath: peer-finder
+            - name: data
               mountPath: /home/nacos/data
-            - name: logdir
+              subPath: data
+            - name: data
               mountPath: /home/nacos/logs
+              subPath: logs
   volumeClaimTemplates:
     - metadata:
-        name: plugindir
+        name: data
         annotations:
           volume.beta.kubernetes.io/storage-class: "managed-nfs-storage"
       spec:
         accessModes: [ "ReadWriteMany" ]
         resources:
           requests:
-            storage: 5Gi
-    - metadata:
-        name: datadir
-        annotations:
-          volume.beta.kubernetes.io/storage-class: "managed-nfs-storage"
-      spec:
-        accessModes: [ "ReadWriteMany" ]
-        resources:
-          requests:
-            storage: 5Gi
-    - metadata:
-        name: logdir
-        annotations:
-          volume.beta.kubernetes.io/storage-class: "managed-nfs-storage"
-      spec:
-        accessModes: [ "ReadWriteMany" ]
-        resources:
-          requests:
-            storage: 5Gi
+            storage: 20Gi
   selector:
     matchLabels:
       app: nacos

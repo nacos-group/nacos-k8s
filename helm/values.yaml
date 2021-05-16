@@ -3,8 +3,8 @@
 # Declare variables to be passed into your templates.
 
 global:
- mode: quickstart
- #mode: standalone
+# mode: quickstart
+ mode: standalone
  #mode: cluster 
  storageClass: 
    provisioner: 
@@ -45,7 +45,7 @@ mysql:
            storage: 5G
        storageClassName: sc-mysql
 
-## standalone or cluster need config mysql!!!
+## when global mode eq standalone or cluster need config mysql  !!!
 custom:
   db:
     host: localhost
@@ -105,21 +105,6 @@ persistence:
     resources:
       requests:
         storage: 5Gi
-  plugin:
-    accessModes: 
-    - ReadWriteOnce
-    storageClassName: manual
-    resources:
-      requests:
-        storage: 5Gi
-  log:
-    accessModes: 
-    - ReadWriteOnce
-    storageClassName: manual
-    resources:
-      requests:
-        storage: 5Gi
-
 service:
   #type: ClusterIP
   type: NodePort
