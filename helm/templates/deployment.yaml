@@ -28,7 +28,8 @@ spec:
           imagePullPolicy: Always
           volumeMounts:
             - mountPath: /home/nacos/plugins/peer-finder
-              name: plugindir
+              name: data
+              subPath: peer-finder
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}

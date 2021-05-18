@@ -66,8 +66,9 @@ spec:
           image: nacos/nacos-peer-finder-plugin:1.1
           imagePullPolicy: Always
           volumeMounts:
-            - mountPath: "/home/nacos/plugins/peer-finder"
-              name: plugindir
+            - mountPath: /home/nacos/plugins/peer-finder
+              name: data
+              subPath: peer-finder
       containers:
         - name: nacos
           imagePullPolicy: Always
