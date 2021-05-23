@@ -66,7 +66,7 @@ The following table lists the configurable parameters of the Skywalking chart an
 
 | Parameter                             | Description                                                        | Default                             |
 |---------------------------------------|--------------------------------------------------------------------|-------------------------------------|
-| `global.mode`                         | Run Mode (~~quickstart,~~ standalone, cluster; )   | `quickstart`            |
+| `global.mode`                         | Run Mode (~~quickstart,~~ standalone, cluster; )   | `standalone`            |
 | `global.storageClass.provisioner`     | Global storage class provisioner                                   | `nil`                               |
 | ~~mysql.resources~~                    | The [resources] to allocate for mysql container                    | `{}`                                |
 | ~~mysql.nodeSelector~~                  | Mysql labels for mysql                  | `{}`                                |
@@ -134,15 +134,17 @@ The following table lists the configurable parameters of the Skywalking chart an
 
 ## Example
 ![img](../images/nacos.png)
-#### quickstart mode(without mysql)
+#### standalone mode(with embedded)
 ```console
-$ helm install `release name` ./ --set global.mode=quickstart
+$ helm install `release name` ./ --set global.mode=standalone
 ```
 ![img](../images/quickstart.png)
 
-#### standalone mode(without pv)
+#### standalone mode(with mysql)
 ```console
-$ helm install `release name` ./ --set global.mode=standalone
+$ helm install `release name` ./ --set global.mode=standalone --set nacos.storage.db.host=host --set nacos.storage.
+db.name=dbName --set nacos.storage.db.port=port --set nacos.storage.db.username=username  --set nacos.storage.db.
+password=password --set nacos.storage.db.param=characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false
 ```
 ![img](../images/standalone.png)
 

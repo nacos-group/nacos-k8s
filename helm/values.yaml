@@ -30,15 +30,15 @@ nacos:
   health:
     enabled: false
   storage:
-    type: mysql
-#    type: embedded
-    db:
-      host: localhost
-      name: nacos
-      port: 3306
-      username: usernmae
-      password: password
-      param: characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false
+    type: embedded
+#    type: mysql
+#    db:
+#      host: localhost
+#      name: nacos
+#      port: 3306
+#      username: usernmae
+#      password: password
+#      param: characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false
 
 
 
