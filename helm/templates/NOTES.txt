@@ -20,7 +20,6 @@
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl port-forward $POD_NAME 8080:80
 {{- end }}
-2. MODE: 
-   quickstart: you need to modify replicaCount in the values.yaml, .Values.replicaCount=1
+2. MODE:
    standalone: you need to modify replicaCount in the values.yaml, .Values.replicaCount=1
    cluster: kubectl scale sts {{ .Release.Namespace }}-nacos --replicas=3

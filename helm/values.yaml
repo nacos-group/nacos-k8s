@@ -3,56 +3,43 @@
 # Declare variables to be passed into your templates.
 
 global:
-# mode: quickstart
- mode: standalone
- #mode: cluster 
- storageClass: 
-   provisioner: 
- #nfs
- # provisioner: fuseim.pri/ifs
- ###ceph
- #  provisioner: ceph.com/rbd
+  mode: standalone
+  #mode: cluster
+  storageClass:
+    provisioner:
+  #nfs
+  # provisioner: fuseim.pri/ifs
+  ###ceph
+  #  provisioner: ceph.com/rbd
 
-############################mysql###########################
-mysql:
- annotations: {}
- resources: {}
- nodeSelector: {}
- affinity: {}
- tolerations: {}
- service:
-   port: 3306
- rootPassword: root
- database: nacos_devtest
- user: nacos
- password: nacos
- image:
-   pullPolicy: IfNotPresent
-   repository: nacos/nacos-mysql
-   tag: 5.7
- classParameters: {}
- persistence:
-   enabled: false
-   existingClaim: mysql-data
-   #existingClaim:
-   claim:
-     name: mysql-data
-     spec:
-       accessModes:
-         - ReadWriteOnce
-       resources:
-         requests:
-           storage: 5G
-       storageClassName: sc-mysql
+############################nacos###########################
+nacos:
+  image:
+    repository: nacos/nacos-server
+    tag: latest
+    pullPolicy: IfNotPresent
+  plugin:
+    enable: true
+    image:
+      repository: nacos/nacos-peer-finder-plugin
+      tag: 1.1
+  replicaCount: 1
+  domainName: cluster.local
+  preferhostmode: hostname
+  serverPort: 8848
+  health:
+    enabled: false
+  storage:
+    type: mysql
+#    type: embedded
+    db:
+      host: localhost
+      name: nacos
+      port: 3306
+      username: usernmae
+      password: password
+      param: characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false
 
-## when global mode eq standalone or cluster need config mysql  !!!
-custom:
-  db:
-    host: localhost
-    name: nacos
-    port: 3306
-    username: usernmae
-    password: password
 
 
 ######nfs
@@ -75,32 +62,19 @@ custom:
 
 
 
-############################mysql###########################
 
-############################nacos###########################
-replicaCount: 1
 
-image:
-  repository: nacos/nacos-server
-  tag: latest
-  pullPolicy: IfNotPresent
 
-health:
-  enabled: false
 
-env:
-  domainName: cluster.local
-  preferhostmode: hostname
-  serverPort: 8848
 #  dbHost: 127.0.0.1
 
 persistence:
   enabled: false
   storageClassName: sc-nacos
-  classParameters: {}
+  classParameters: { }
   data:
-    accessModes: 
-    - ReadWriteOnce
+    accessModes:
+      - ReadWriteOnce
     storageClassName: manual
     resources:
       requests:
@@ -114,19 +88,19 @@ service:
 
 ingress:
   enabled: false
-  annotations: {}
+  annotations: { }
     # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  # kubernetes.io/tls-acme: "true"
   hosts:
     - host: nacos.example.com
-      paths: []
+      paths: [ ]
 
-  tls: []
+  tls: [ ]
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
 
-resources: 
+resources:
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -135,15 +109,15 @@ resources:
   #   cpu: 100m
   #   memory: 128Mi
   requests:
-     cpu: 500m
-     memory: 2Gi
-annotations: {}
+    cpu: 500m
+    memory: 2Gi
+annotations: { }
 
-nodeSelector: {}
+nodeSelector: { }
 
-tolerations: []
+tolerations: [ ]
 
-affinity: {}
+affinity: { }
 
 
 

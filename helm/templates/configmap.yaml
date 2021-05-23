@@ -1,27 +1,16 @@
-{{- if ne .Values.global.mode "quickstart" }}
+{{- if eq .Values.nacos.storage.type "mysql"}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: nacos-cm
 data:
-  {{- with .Values.mysql }}
-  mysql.db.name: {{ .database }}
-  mysql.port: "3306"
-  mysql.user: {{ .user }}
-  mysql.password: {{ .password }}
-  {{- end }}
-  {{- else if or (eq .Values.global.mode "standalone") (eq .Values.global.mode "cluster") }}
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: nacos-cm
-data:
-  {{- with .Values.custom.db }}
+  {{- with .Values.nacos.storage.db }}
   mysql.db.host: {{.host}}
   mysql.db.name: {{ .name }}
   mysql.port: {{ .port }}
   mysql.user: {{ .username }}
   mysql.password: {{ .password }}
+  mysql.param: {{ .param }}
   {{- end }}
   {{- end }}
 

@@ -68,6 +68,11 @@ chmod +x quick-startup.sh
 
 # Advanced
 
+## Tips
+If you use a custom database, please initialize the database script yourself first.
+<https://github.com/alibaba/nacos/blob/develop/distribution/conf/nacos-mysql.sql>
+
+
 > In advanced use, the cluster is automatically scaled and data is persisted, but [PersistentVolumeClaims](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) must be deployed. In this example, NFS is used.
 >
 

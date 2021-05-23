@@ -10,7 +10,7 @@ spec:
   {{- else }}
   serviceName: nacos-cs
   {{- end }}
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.nacos.replicaCount }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "nacos.name" . }}
@@ -21,10 +21,22 @@ spec:
         app.kubernetes.io/name: {{ include "nacos.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
-      {{- if eq .Values.global.mode "cluster" }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if and (eq .Values.global.mode "cluster") (.Values.nacos.plugin.enable) }}
       initContainers:
         - name: peer-finder-plugin-install
-          image: nacos/nacos-peer-finder-plugin:1.1
+          image: {{.Values.nacos.plugin.image.repository}}:{{.Values.nacos.plugin.image.tag}}
           imagePullPolicy: Always
           volumeMounts:
             - mountPath: /home/nacos/plugins/peer-finder
@@ -33,52 +45,48 @@ spec:
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.nacos.image.repository }}:{{ .Values.nacos.image.tag }}"
+          imagePullPolicy: {{ .Values.nacos.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.env.serverPort }}
+              containerPort: {{ .Values.nacos.serverPort }}
               protocol: TCP
-            - containerPort: 9848
+            - containerPort: {{ add .Values.nacos.serverPort 1000}}
               name: client-rpc
-            - containerPort: 9849
+            - containerPort: {{ add .Values.nacos.serverPort 1001 }}
               name: raft-rpc
             - containerPort: 7848
               name: old-raft-rpc
           resources:
           {{- toYaml .Values.resources | nindent 12 }}
-          {{- if eq .Values.global.mode "quickstart" }}
           env:
+            - name: NACOS_SERVER_PORT
+              value: {{ .Values.nacos.serverPort | quote }}
+            - name: NACOS_APPLICATION_PORT
+              value: {{ .Values.nacos.serverPort | quote }}
+            {{- if eq .Values.global.mode "standalone" }}
             - name: PREFER_HOST_MODE
-              value: {{ .Values.env.preferhostmode | quote }}
+              value: {{ .Values.nacos.preferhostmode | quote }}
             - name: MODE
               value: "standalone"
-            - name: MYSQL_SERVICE_DB_NAME
+
+            {{- else if eq .Values.global.mode "cluster" }}
+            - name: NACOS_REPLICAS
               valueFrom:
-                configMapKeyRef:
-                  name: nacos-cm
-                  key: mysql.db.name
-            - name: MYSQL_SERVICE_PORT
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.replicas
+            - name: SERVICE_NAME
+              value: "nacos-hs"
+            - name: DOMAIN_NAME
+              value: {{ .Values.nacos.domainName | quote }}
+            - name: POD_NAMESPACE
               valueFrom:
-                configMapKeyRef:
-                  name: nacos-cm
-                  key: mysql.port
-            - name: MYSQL_SERVICE_USER
-              valueFrom:
-                configMapKeyRef:
-                  name: nacos-cm
-                  key: mysql.user
-            - name: MYSQL_SERVICE_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  name: nacos-cm
-                  key: mysql.password
-          {{- else if eq .Values.global.mode "standalone" }}
-          env:
-            - name: PREFER_HOST_MODE
-              value: {{ .Values.env.preferhostmode | quote }}
-            - name: MODE
-              value: "standalone"
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            {{- end }}
+            {{- if eq .Values.nacos.storage.type "mysql" }}
             - name: SPRING_DATASOURCE_PLATFORM
               value: "mysql"
             - name: MYSQL_SERVICE_HOST
@@ -106,58 +114,16 @@ spec:
                 configMapKeyRef:
                   name: nacos-cm
                   key: mysql.password
-            - name: NACOS_SERVER_PORT
-              value: {{ .Values.env.serverPort | quote }}
-            - name: NACOS_APPLICATION_PORT
-              value: {{ .Values.env.serverPort | quote }}
-          volumeMounts:
-            - name: data
-              mountPath: /home/nacos/data
-              subPath: data
-          {{- else if eq .Values.global.mode "cluster" }}
-          env:
-            - name: NACOS_REPLICAS
-              value: "3"
-            - name: SERVICE_NAME
-              value: "nacos-hs"
-            - name: DOMAIN_NAME
-              value: {{ .Values.env.domainName | quote }}
-            - name: POD_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.namespace
-            - name: PREFER_HOST_MODE
-              value: {{ .Values.env.preferhostmode | quote }}
-            - name: MYSQL_SERVICE_HOST
+            - name: MYSQL_SERVICE_DB_PARAM
               valueFrom:
                 configMapKeyRef:
                   name: nacos-cm
-                  key: mysql.db.host
-            - name: MYSQL_SERVICE_DB_NAME
-              valueFrom:
-                configMapKeyRef:
-                  name: nacos-cm
-                  key: mysql.db.name
-            - name: MYSQL_SERVICE_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: nacos-cm
-                  key: mysql.port
-            - name: MYSQL_SERVICE_USER
-              valueFrom:
-                configMapKeyRef:
-                  name: nacos-cm
-                  key: mysql.user
-            - name: MYSQL_SERVICE_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  name: nacos-cm
-                  key: mysql.password
-            - name: NACOS_SERVER_PORT
-              value: {{ .Values.env.serverPort | quote }}
-            - name: NACOS_APPLICATION_PORT
-              value: {{ .Values.env.serverPort | quote }}
+                  key: mysql.param
+
+            {{else}}
+            - name: EMBEDDED_STORAGE
+              value: embedded
+          {{end}}
           volumeMounts:
             - name: data
               mountPath: /home/nacos/plugins/peer-finder
@@ -168,7 +134,6 @@ spec:
             - name: data
               mountPath: /home/nacos/logs
               subPath: logs
-      {{- end }}
       {{- if not .Values.persistence.enabled  }}
       volumes:
         - name: data
@@ -179,18 +144,6 @@ spec:
     - metadata:
         name: data
       spec:
-      {{- toYaml .Values.persistence.data | nindent 6 }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-      {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-      {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-  {{- toYaml . | nindent 8 }}
-
+  {{- toYaml .Values.persistence.data | nindent 6 }}
   {{- end }}
+
