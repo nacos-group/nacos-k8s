@@ -111,7 +111,6 @@ The following table lists the configurable parameters of the Skywalking chart an
 | `nacos.storage.db.username`                      | username of  database                                                       |                               |
 | `nacos.storage.db.password`                      | password of  database                                                       |                               |
 | `nacos.storage.db.param`                      | Database url parameter                                                       | `characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false`                               |
-
 | `persistence.enabled`                 | Enable the nacos data persistence or not                           | `false`                              |
 | `persistence.storageClassName`        | Nacos storage class name                                           | `sc-nacos`                   |
 | `persistence.classParameters`                     | Nacos storageclass parameters                                      | `{}`
