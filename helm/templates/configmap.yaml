@@ -7,10 +7,10 @@ data:
   {{- with .Values.nacos.storage.db }}
   mysql.db.host: {{.host}}
   mysql.db.name: {{ .name }}
-  mysql.port: {{ .port }}
+  mysql.port: {{ .port | default 3306}}
   mysql.user: {{ .username }}
   mysql.password: {{ .password }}
-  mysql.param: {{ .param }}
+  mysql.param: {{ .param | default "characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false" }}
   {{- end }}
   {{- end }}
 

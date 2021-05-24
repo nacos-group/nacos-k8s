@@ -67,27 +67,6 @@ The following table lists the configurable parameters of the Skywalking chart an
 | Parameter                             | Description                                                        | Default                             |
 |---------------------------------------|--------------------------------------------------------------------|-------------------------------------|
 | `global.mode`                         | Run Mode (~~quickstart,~~ standalone, cluster; )   | `standalone`            |
-| `global.storageClass.provisioner`     | Global storage class provisioner                                   | `nil`                               |
-| ~~mysql.resources~~                    | The [resources] to allocate for mysql container                    | `{}`                                |
-| ~~mysql.nodeSelector~~                  | Mysql labels for mysql                  | `{}`                                |
-| ~~mysql.affinity~~                     | Mysql affinity policy                                              | `{}`                                |
-| ~~mysql.tolerations~~                   | Mysql tolerations                                                  | `{}`                                |
-| ~~mysql.image.pullPolicy~~              | Mysql container image pull policy                                  | `IfNotPresent`                      |
-| ~~mysql.annotations~~            | Mysql  annotations                                           | `{}`                                |
-| ~~mysql.image.repository~~       | Mysql  container image name                                  | `nacos/nacos-mysql`          |
-| ~~mysql.image.tag~~              | Mysql  container image tag                                   | `5.7`                            |
-| ~~mysql.rootPassword~~           | Mysql  root password                                         | `root`                              |
-| ~~mysql.database~~               | Nacos database name                                                | `nacos_devtest`                     |
-| ~~mysql.user~~                   | Nacos database user                                                | `nacos`                             |
-| ~~mysql.password~~               | Nacos database password                                            | `nacos`                             |
-| ~~mysql.classParameters~~        | Mysql  storageclass parameters                               | `{}`                                |
-| ~~mysql.persistence.enabled~~    | Enable the  data persistence or not                    | `false`                             |
-| ~~mysql.persistence.existingClaim~~|Use the existing PVC which must be created manually before bound, and specify the `subPath` if the PVC is shared with other components                                        | `mysql-data`        |
-| ~~mysql.persistence.claim.name~~      | Mysql  pvc name                                         | `mysql-data`                 |
-| ~~mysql.persistence.claim.spec.accessModes~~ | Mysql  pvc access mode                           | `ReadWriteOnce`                     |
-| ~~mysql.persistence.claim.spec.resources.requests.storage~~  | Mysql  pvc requests storage      | `5G`                                |
-| ~~mysql.persistence.claim.spec.storageClassName~~|  Mysql  pvc storage class name               | `sc-mysql`                   |
-| ~~mysql.service.port~~           | Mysql  service port                                          | `3306`                              |
 | `resources`                          | The [resources] to allocate for nacos container                    | `{}`                                |
 | `nodeSelector`                       | Nacos labels for pod assignment                   | `{}`                                |
 | `affinity`                           | Nacos affinity policy                                              | `{}`                                |
@@ -104,7 +83,7 @@ The following table lists the configurable parameters of the Skywalking chart an
 | `nacos.health.enabled`                      | Enable health check or not                                         | `false`                              |
 | `nacos.env.preferhostmode`                  | Enable Nacos cluster node domain name support                      | `hostname`                         |
 | `nacos.env.serverPort`                      | Nacos port                                                         | `8848`                               |
-| `nacos.storage.type`                      | Nacos data storage method `mysql` or `embedded`. The `embedded` supports either standalone or cluster mode                                                       | `mysql`                               |
+| `nacos.storage.type`                      | Nacos data storage method `mysql` or `embedded`. The `embedded` supports either standalone or cluster mode                                                       | `embedded`                               |
 | `nacos.storage.db.host`                      | mysql  host                                                       |                                |
 | `nacos.storage.db.name`                      | mysql  database name                                                      |                                |
 | `nacos.storage.db.port`                      | mysql port                                                       | 3306                               |
@@ -112,17 +91,9 @@ The following table lists the configurable parameters of the Skywalking chart an
 | `nacos.storage.db.password`                      | password of  database                                                       |                               |
 | `nacos.storage.db.param`                      | Database url parameter                                                       | `characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false`                               |
 | `persistence.enabled`                 | Enable the nacos data persistence or not                           | `false`                              |
-| `persistence.storageClassName`        | Nacos storage class name                                           | `sc-nacos`                   |
-| `persistence.classParameters`                     | Nacos storageclass parameters                                      | `{}`
 | `persistence.data.accessModes`					| Nacos data pvc access mode										| `ReadWriteOnce`		|
 | `persistence.data.storageClassName`				| Nacos data pvc storage class name									| `manual`			|
 | `persistence.data.resources.requests.storage`		| Nacos data pvc requests storage									| `5G`					|
-| `persistence.plugin.accessModes`					| Nacos plugin pvc access mode (Available as cluster mode)			| `ReadWriteOnce`		|
-| `persistence.plugin.storageClassName`				| Nacos plugin pvc storage class name (Available as cluster mode)	| `manual`			|
-| `persistence.plugin.resources.requests.storage`	| Nacos plugin pvc requests storage (Available as cluster mode)		| `5G`					|
-| `persistence.log.accessModes`						| Nacos log pvc access mode (Available as cluster mode)				| `ReadWriteOnce`		|
-| `persistence.log.storageClassName`				| Nacos log pvc storage class name (Available as cluster mode)		| `manual`			|
-| `persistence.log.resources.requests.storage`		| Nacos log pvc requests storage (Available as cluster mode)		| `5G`					|
 | `service.type`									| http service type													| `NodePort`			|
 | `service.port`									| http service port													| `8848`				|
 | `service.nodePort`								| http service nodeport												| `30000`				|
@@ -143,7 +114,7 @@ $ helm install `release name` ./ --set global.mode=standalone
 ```console
 $ helm install `release name` ./ --set global.mode=standalone --set nacos.storage.db.host=host --set nacos.storage.
 db.name=dbName --set nacos.storage.db.port=port --set nacos.storage.db.username=username  --set nacos.storage.db.
-password=password --set nacos.storage.db.param=characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false
+password=password
 ```
 ![img](../images/standalone.png)
 

@@ -119,7 +119,6 @@ spec:
                 configMapKeyRef:
                   name: nacos-cm
                   key: mysql.param
-
             {{else}}
             - name: EMBEDDED_STORAGE
               value: embedded
@@ -144,6 +143,6 @@ spec:
     - metadata:
         name: data
       spec:
-  {{- toYaml .Values.persistence.data | nindent 6 }}
+  {{- toYaml .Values.persistence.data | nindent 8 }}
   {{- end }}
 

@@ -4,13 +4,7 @@
 
 global:
   mode: standalone
-  #mode: cluster
-  storageClass:
-    provisioner:
-  #nfs
-  # provisioner: fuseim.pri/ifs
-  ###ceph
-  #  provisioner: ceph.com/rbd
+#  mode: cluster
 
 ############################nacos###########################
 nacos:
@@ -40,38 +34,8 @@ nacos:
 #      password: password
 #      param: characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false
 
-
-
-######nfs
-#    archiveOnDelete: "false"
-
-######ceph
-#    monitors: 10.144.131.48:6789
-#    adminId: admin
-#    adminSecretName: ceph-secret-admin
-#    adminSecretNamespace: nacos
-#    pool: nacos-mysql-data
-#    userId: mysql
-#    userSecretName: ceph-secret-mysql
-#    userSecretNamespace: nacos
-#    fsType: ext4
-#    imageFormat: "2"
-#    imageFeatures: "layering"
-
-
-
-
-
-
-
-
-
-#  dbHost: 127.0.0.1
-
 persistence:
   enabled: false
-  storageClassName: sc-nacos
-  classParameters: { }
   data:
     accessModes:
       - ReadWriteOnce
@@ -79,6 +43,8 @@ persistence:
     resources:
       requests:
         storage: 5Gi
+
+
 service:
   #type: ClusterIP
   type: NodePort
