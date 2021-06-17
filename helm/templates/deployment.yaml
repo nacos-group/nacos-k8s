@@ -64,9 +64,9 @@ spec:
               value: {{ .Values.nacos.serverPort | quote }}
             - name: NACOS_APPLICATION_PORT
               value: {{ .Values.nacos.serverPort | quote }}
-            {{- if eq .Values.global.mode "standalone" }}
             - name: PREFER_HOST_MODE
               value: {{ .Values.nacos.preferhostmode | quote }}
+            {{- if eq .Values.global.mode "standalone" }}
             - name: MODE
               value: "standalone"
 
