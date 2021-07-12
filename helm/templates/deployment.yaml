@@ -71,11 +71,6 @@ spec:
               value: "standalone"
 
             {{- else if eq .Values.global.mode "cluster" }}
-            - name: NACOS_REPLICAS
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: spec.replicas
             - name: SERVICE_NAME
               value: "nacos-hs"
             - name: DOMAIN_NAME
