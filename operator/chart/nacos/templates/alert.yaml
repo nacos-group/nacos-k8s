@@ -1,0 +1,47 @@
+#apiVersion: monitoring.coreos.com/v1
+#kind: PrometheusRule
+#metadata:
+#  name: nacos
+#  labels:
+#    prometheus: k8s
+#    role: alert-rules
+#spec:
+#  groups:
+#  - name: nacos-alert
+#    rules:
+#    - alert: NacosDown
+#      expr: up{service='{{ include "nacos.fullname" . }}-headless'} == 0
+#      for: 1m
+#      labels:
+#        severity: critical
+#      annotations:
+#        service: metrics
+#        summary: "Instance {{`{{ $labels.instance }}`}} "
+#        description: "nacos down"
+#    - alert: NacosDBException
+#      expr: nacos_exception_total{name='db', service='{{ include "nacos.fullname" . }}-headless'} == 0
+#      for: 1m
+#      labels:
+#        severity: critical
+#      annotations:
+#        service: metrics
+#        summary: "Instance {{`{{ $labels.instance }}`}} "
+#        description: "nacos db exception"
+#    - alert: NacosDiskException
+#      expr: nacos_exception_total{name='disk', service='{{ include "nacos.fullname" . }}-headless'} == 0
+#      for: 1m
+#      labels:
+#        severity: critical
+#      annotations:
+#        service: metrics
+#        summary: "Instance {{`{{ $labels.instance }}`}} "
+#        description: "nacos disk exception"
+#    - alert: NacosBeatException
+#      expr: nacos_exception_total{name='leaderSendBeatFailed', service='{{ include "nacos.fullname" . }}-headless'} == 0
+#      for: 1m
+#      labels:
+#        severity: critical
+#      annotations:
+#        service: metrics
+#        summary: "Instance {{`{{ $labels.instance }}`}} "
+#        description: "nacos beat exception"

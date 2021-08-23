@@ -1,0 +1,26 @@
+apiVersion: nacos.io/v1alpha1
+kind: Nacos
+metadata:
+  name: nacos
+  namespace: nacos-test
+spec:
+  type: cluster
+  image: nacos/nacos-server:v2.0.3
+  replicas: 3
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 1
+      memory: 2Gi
+  mysqlInitImage: "registry.cn-hangzhou.aliyuncs.com/choerodon-tools/mysql-client:10.2.15-r0"
+  database:
+    type: mysql
+    mysqlHost: mysql.nacos-test.svc.cluster.local
+    mysqlDb: nacos
+    mysqlUser: root
+    mysqlPort: "3306"
+    mysqlPassword: "eGSZUDBaa3"
+  config: |
+    management.endpoints.web.exposure.include=*

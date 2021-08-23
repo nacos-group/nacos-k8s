@@ -1,0 +1,39 @@
+type: cluster
+
+replicaCount: 3
+
+image:
+  repository: nacos/nacos-server
+  pullPolicy: IfNotPresent
+  tag: "1.4.1"
+  // mysql模式下需要自动创建数据库，非mysql不会生效
+  mysqlInitImage: registry.cn-hangzhou.aliyuncs.com/shenkonghui/mysql-client
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+volume:
+  enabled: true
+  storageSize: 1Gi
+  storageClassName: default
+
+database:
+  type: embedded
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2048Mi
+  requests:
+    cpu: 100m
+    memory: 2048Mi
+
+config: |
+  management.endpoints.web.exposure.include=*
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

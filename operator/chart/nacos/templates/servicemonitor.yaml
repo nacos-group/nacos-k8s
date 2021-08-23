@@ -1,0 +1,19 @@
+#apiVersion: monitoring.coreos.com/v1
+#kind: ServiceMonitor
+#metadata:
+#  generation: 1
+#  labels:
+#    app: {{ include "nacos.fullname" . }}
+#  name: {{ include "nacos.fullname" . }}
+#spec:
+#  endpoints:
+#    - interval: 30s
+#      port: client
+#      path: /nacos/actuator/prometheus
+#      # metricRelabelings:
+#      # - sourceLabels: [service]
+#      #   replacement: {{ include "nacos.fullname" . }}
+#      #   targetLabel: service
+#  selector:
+#    matchLabels:
+#      app: {{ include "nacos.fullname" . }}
