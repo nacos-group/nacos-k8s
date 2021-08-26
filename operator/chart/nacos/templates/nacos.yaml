@@ -1,0 +1,54 @@
+apiVersion: nacos.io/v1alpha1
+kind: Nacos
+metadata:
+  name: {{ include "nacos.fullname" . }}
+spec:
+  # standalone/cluster
+  type: {{ .Values.type}}
+  image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+  mysqlInitImage: {{ .Values.image.mysqlInitImage }}
+  enableEmbedded: {{ .Values.enableEmbedded }}
+  imagePullPolicy: {{ .Values.image.pullPolicy }}
+  replicas: {{ .Values.replicaCount}}
+  {{- with .Values.nodeSelector }}
+  nodeSelector:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.affinity }}
+  affinity:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.tolerations }}
+  tolerations:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.resources }}
+  resources:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.env }}
+  env:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{-  if .Values.database }}
+  database:
+    type: {{ .Values.database.type}}
+    {{- if eq .Values.database.type "mysql"}}
+    mysqlHost: {{ .Values.database.mysqlHost}}
+    mysqlDb: {{ .Values.database.mysqlDb}}
+    mysqlUser: {{ .Values.database.mysqlUser}}
+    mysqlPort: "{{ .Values.database.mysqlPort}}"
+    mysqlPassword: "{{ .Values.database.mysqlPassword}}"
+    {{-  end }}
+  {{-  end }}
+  {{-  if  eq .Values.volume.enabled true}}
+  volume:
+    enabled: {{ .Values.volume.enabled}}
+    requests:
+      storage: {{ .Values.volume.storageSize}}
+    storageClass: {{ .Values.volume.storageClassName}}
+  {{-  end }}
+  config: |
+{{- if .Values.config }}
+{{ .Values.config | indent 4 }}
+{{- end }}

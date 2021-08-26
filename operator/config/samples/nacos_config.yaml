@@ -1,0 +1,10 @@
+apiVersion: nacos.io/v1alpha1
+kind: Nacos
+metadata:
+  name: nacos
+spec:
+  type: standalone
+  image: nacos/nacos-server:1.4.1
+  replicas: 1
+  config: |
+    management.endpoints.web.exposure.include=*

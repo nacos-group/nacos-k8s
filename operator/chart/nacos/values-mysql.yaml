@@ -1,0 +1,45 @@
+type: cluster
+
+replicaCount: 3
+
+image:
+  repository: nacos/nacos-server
+  pullPolicy: IfNotPresent
+  tag: "1.4.1"
+  mysqlInitImage: registry.cn-hangzhou.aliyuncs.com/shenkonghui/mysql-client
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+database:
+  type: mysql
+  mysqlHost: "mysql"
+  mysqlPort: 3306
+  mysqlUser: root
+  mysqlDb: nacos
+  mysqlPassword: "dangerous"
+
+volume:
+  enabled: false
+
+env:
+- name: JVM_XMX
+  value: 2g
+
+config: |
+  management.endpoints.web.exposure.include=*
+
+resources:
+  limits:
+    cpu: 1
+    memory: 2048Mi
+  requests:
+    cpu: 1000m
+    memory: 2048Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
