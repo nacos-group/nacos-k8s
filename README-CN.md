@@ -6,9 +6,8 @@
 [English Document](https://github.com/nacos-group/nacos-k8s/blob/master/README.md)
 
 # Tips
-如果你使用的**Nacos**是1.1.4版本或者更低, 请参考这里 [Tag](https://github.com/nacos-group/nacos-k8s/tree/v1.1.4)
-
-
+* 如果你使用的**Nacos**是1.1.4版本或者更低, 请参考这里 [Tag](https://github.com/nacos-group/nacos-k8s/tree/v1.1.4)
+* 推荐使用[Nacos Operator](operator/README-CN.md)在Kubernetes部署Nacos Server.
 # 快速开始
 
 * **Clone 项目**

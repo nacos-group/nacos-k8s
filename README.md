@@ -8,6 +8,8 @@ This project contains a Nacos Docker image meant to facilitate the deployment of
 # Tips
 If you are using **Nacos** version 1.1.4 or lower,, please refer to this [Tag](https://github.com/nacos-group/nacos-k8s/tree/v1.1.4)
 
+It is recommended to deploy Nacos in Kubernetes using [Nacos Operator](operator/README.md).
+
 # Quick Start
 
 * **Clone Project**
@@ -310,5 +312,7 @@ You can find that the new node has joined the cluster
 | MYSQL_PASSWORD             | Y       | Database Password                                |
 | Nfs:server                 | Y       | NFS server address |
 | Nfs:path                   | Y       | NFS server shared path |
+
+
 
 
