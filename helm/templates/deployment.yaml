@@ -59,6 +59,13 @@ spec:
               name: old-raft-rpc
           resources:
           {{- toYaml .Values.resources | nindent 12 }}
+          readinessProbe:
+            initialDelaySeconds: 30
+            failureThreshold: 3
+            successThreshold: 3
+            httpGet:
+              path: /nacos
+              port: {{ .Values.nacos.serverPort }}          
           env:
             - name: NACOS_SERVER_PORT
               value: {{ .Values.nacos.serverPort | quote }}
