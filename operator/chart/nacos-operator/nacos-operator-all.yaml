@@ -1348,7 +1348,7 @@ spec:
         - name: nacos-operator
           securityContext:
             {}
-          image: "registry.cn-hangzhou.aliyuncs.com/shenkonghui/nacos-operator:v1.0.1"
+          image: "nacos/nacos-operator:latest"
           command: ["/manager"]
           args: ["--enable-leader-election"]
           imagePullPolicy: Always

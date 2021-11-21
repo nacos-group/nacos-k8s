@@ -4,7 +4,7 @@ metadata:
   name: nacos
 spec:
   type: cluster
-  image: nacos/nacos-server:1.4.1
+  image: nacos/nacos-server:2.0.3
   replicas: 3
   resources:
     requests:

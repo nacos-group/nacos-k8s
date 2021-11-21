@@ -27,6 +27,7 @@ const TYPE_CLUSTER = "cluster"
 const NACOS = "nacos"
 const NACOS_PORT = 8848
 const RAFT_PORT = 7848
+const NEW_RAFT_PORT = 9848
 
 // 导入的sql文件名称
 const SQL_FILE_NAME = "nacos-mysql.sql"
@@ -371,6 +372,11 @@ func (e *KindClient) buildService(nacos *nacosgroupv1alpha1.Nacos) *v1.Service {
 					Port:     RAFT_PORT,
 					Protocol: "TCP",
 				},
+				{
+					Name:     "new-rpc",
+					Port:     NEW_RAFT_PORT,
+					Protocol: "TCP",
+				},
 			},
 			Selector: labels,
 		},
@@ -499,6 +505,11 @@ func (e *KindClient) buildStatefulset(nacos *nacosgroupv1alpha1.Nacos) *appv1.St
 								{
 									Name:          "rpc",
 									ContainerPort: RAFT_PORT,
+									Protocol:      "TCP",
+								},
+								{
+									Name:          "new-rpc",
+									ContainerPort: NEW_RAFT_PORT,
 									Protocol:      "TCP",
 								},
 							},

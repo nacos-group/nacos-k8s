@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: registry.cn-hangzhou.aliyuncs.com/shenkonghui/nacos-operator
+  repository: nacos/nacos-operator
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v1.0.1"
+  tag: "latest"
 
 imagePullSecrets: []
 nameOverride: ""
