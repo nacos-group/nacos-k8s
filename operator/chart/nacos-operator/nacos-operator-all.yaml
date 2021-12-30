@@ -1266,12 +1266,14 @@ rules:
   - apiGroups:
       - ""
       - apps
+      - batch
     resources:
       - configmaps
       - statefulsets
       - pods
       - services
       - events
+      - jobs
     verbs:
       - get
       - create
