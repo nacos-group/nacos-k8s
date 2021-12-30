@@ -230,23 +230,38 @@ func (e *KindClient) buildJob(nacos *nacosgroupv1alpha1.Nacos) *batchv1.Job {
 				Spec: v1.PodSpec{
 					InitContainers: []v1.Container{
 						{
-							Name:  "mysql-check-host",
-							Image: "busybox:1.31",
+							Name:  "mysql-ping-database",
+							Image: nacos.Spec.MysqlInitImage,
 							Env: []v1.EnvVar{
 								{
 									Name:  "MYSQL_HOST",
 									Value: nacos.Spec.Database.MysqlHost,
 								},
+								{
+									Name:  "MYSQL_DB",
+									Value: nacos.Spec.Database.MysqlDb,
+								},
+								{
+									Name:  "MYSQL_PORT",
+									Value: nacos.Spec.Database.MysqlPort,
+								},
+								{
+									Name:  "MYSQL_USER",
+									Value: nacos.Spec.Database.MysqlUser,
+								},
+								{
+									Name:  "MYSQL_PASS",
+									Value: nacos.Spec.Database.MysqlPassword,
+								},
 							},
-							// 先测试mysql是否启动成功
 							Command: []string{
 								"/bin/sh",
 								"-c",
-								"until nslookup \"${MYSQL_HOST}\"; do echo waiting for mysql...; sleep 2; done;",
+								"while ! mysqladmin ping --host=\"${MYSQL_HOST}\" --port=\"${MYSQL_PORT}\" --user=\"${MYSQL_USER}\" --password=\"${MYSQL_PASS}\" ; do echo \"check mysql\"; sleep 1; done",
 							},
 						},
 						{
-							Name:  "mysql-check-database",
+							Name:  "mysql-create-database",
 							Image: nacos.Spec.MysqlInitImage,
 							Env: []v1.EnvVar{
 								{
@@ -594,7 +609,48 @@ func (e *KindClient) buildStatefulset(nacos *nacosgroupv1alpha1.Nacos) *appv1.St
 		})
 	}
 	myErrors.EnsureNormal(controllerutil.SetControllerReference(nacos, ss, e.scheme))
+
+	if nacos.Spec.Database.TypeDatabase == "mysql" && nacos.Spec.MysqlInitImage != "" {
+		ss = e.AddCheckDatabase(nacos,ss)
+	}
 	return ss
+}
+
+func  (e *KindClient) AddCheckDatabase(nacos *nacosgroupv1alpha1.Nacos, sts *appv1.StatefulSet)*appv1.StatefulSet{
+	container := v1.Container{
+
+			Name:  "mysql-check-database",
+			Image: nacos.Spec.MysqlInitImage,
+			Env: []v1.EnvVar{
+				{
+					Name:  "MYSQL_HOST",
+					Value: nacos.Spec.Database.MysqlHost,
+				},
+				{
+					Name:  "MYSQL_DB",
+					Value: nacos.Spec.Database.MysqlDb,
+				},
+				{
+					Name:  "MYSQL_PORT",
+					Value: nacos.Spec.Database.MysqlPort,
+				},
+				{
+					Name:  "MYSQL_USER",
+					Value: nacos.Spec.Database.MysqlUser,
+				},
+				{
+					Name:  "MYSQL_PASS",
+					Value: nacos.Spec.Database.MysqlPassword,
+				},
+			},
+			Command: []string{
+				"/bin/sh",
+				"-c",
+				"while ! mysqlcheck --host=\"${MYSQL_HOST}\" --port=\"${MYSQL_PORT}\" --user=\"${MYSQL_USER}\" --password=\"${MYSQL_PASS}\" --databases \"${MYSQL_DB}\" ; do sleep 1; done"			},
+
+	}
+	sts.Spec.Template.Spec.InitContainers  = append(sts.Spec.Template.Spec.InitContainers, container)
+	return sts
 }
 
 func (e *KindClient) buildConfigMap(nacos *nacosgroupv1alpha1.Nacos) *v1.ConfigMap {
