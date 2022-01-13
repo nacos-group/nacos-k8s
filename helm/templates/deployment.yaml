@@ -47,6 +47,22 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.nacos.image.repository }}:{{ .Values.nacos.image.tag }}"
           imagePullPolicy: {{ .Values.nacos.image.pullPolicy }}
+          startupProbe:
+            initialDelaySeconds: 180
+            periodSeconds: 5
+            timeoutSeconds: 10
+            httpGet:
+              scheme: HTTP
+              port: {{ .Values.nacos.serverPort }}
+              path: /nacos/v1/console/health/readiness
+          livenessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 10
+            httpGet:
+              scheme: HTTP
+              port: {{ .Values.nacos.serverPort }}
+              path: /nacos/v1/console/health/liveness
           ports:
             - name: http
               containerPort: {{ .Values.nacos.serverPort }}
