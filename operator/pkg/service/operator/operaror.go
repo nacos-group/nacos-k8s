@@ -47,7 +47,7 @@ func (c *OperatorClient) MakeEnsure(nacos *nacosgroupv1alpha1.Nacos) {
 		c.KindClient.EnsureConfigmap(nacos)
 		c.KindClient.EnsureStatefulset(nacos)
 		c.KindClient.EnsureService(nacos)
-		if nacos.Spec.Database.TypeDatabase == "mysql" {
+		if nacos.Spec.Database.TypeDatabase == "mysql" && nacos.Spec.MysqlInitImage != ""{
 			c.KindClient.EnsureMysqlConfigMap(nacos)
 			c.KindClient.EnsureJob(nacos)
 		}
@@ -56,7 +56,7 @@ func (c *OperatorClient) MakeEnsure(nacos *nacosgroupv1alpha1.Nacos) {
 		c.KindClient.EnsureStatefulsetCluster(nacos)
 		c.KindClient.EnsureHeadlessServiceCluster(nacos)
 		c.KindClient.EnsureClientService(nacos)
-		if nacos.Spec.Database.TypeDatabase == "mysql" {
+		if nacos.Spec.Database.TypeDatabase == "mysql" && nacos.Spec.MysqlInitImage != ""{
 			c.KindClient.EnsureMysqlConfigMap(nacos)
 			c.KindClient.EnsureJob(nacos)
 		}
