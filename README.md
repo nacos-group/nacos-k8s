@@ -46,7 +46,7 @@ chmod +x quick-startup.sh
   * **Service discovery**
 
   ```powershell
-  curl -X GET 'http://cluster-ip:8848/nacos/v1/ns/instances?serviceName=nacos.naming.serviceName'
+  curl -X GET 'http://cluster-ip:8848/nacos/v1/ns/instance/list/?serviceName=nacos.naming.serviceName'
   ```
 
 
