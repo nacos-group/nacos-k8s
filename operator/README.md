@@ -186,27 +186,8 @@ spec:
         value: 2g
     ```
 
-2. Configure through the properties file
 
-   https://github.com/nacos-group/nacos-docker/blob/master/build/bin/docker-startup.sh
-
-   ```
-   export CUSTOM_SEARCH_NAMES="application,custom"
-   export CUSTOM_SEARCH_LOCATIONS=${BASE_DIR}/init.d/,file:${BASE_DIR}/conf/
-   ```
-
-   Support custom configuration file, spec.config will be directly mapped to custom.properties file
-
-    ```
-    apiVersion: nacos.io/v1alpha1
-    kind: Nacos
-    metadata:
-      name: nacos
-    spec:
-    ...
-      config:|
-        management.endpoints.web.exposure.include=*
-    ```
+  
 
 ## Development Document
 ```
