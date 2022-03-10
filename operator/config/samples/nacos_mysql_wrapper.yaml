@@ -1,0 +1,34 @@
+apiVersion: nacos.io/v1alpha1
+kind: Nacos
+metadata:
+  name: nacos
+spec:
+  # standalone/cluster
+  type: standalone
+  image: nacos/nacos-server:1.4.1
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 2
+      memory: 2Gi
+  mysqlInitImage: "registry.cn-hangzhou.aliyuncs.com/choerodon-tools/mysql-client:10.2.15-r0"
+  database:
+    type: mysql
+    mysqlHost: 10.98.20.59
+    mysqlDb: nacos
+    mysqlUser: root
+    mysqlPort: "3306"
+    mysqlPassword: "123456"
+  k8sWrapper:
+    PodSpec:
+      nodeSelector:
+        disktype: ssd
+      tolerations:
+        - key: "example-key"
+          operator: "Exists"
+          effect: "NoSchedule"
+
+

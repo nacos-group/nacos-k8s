@@ -141,6 +141,10 @@ make demo clear=true
 | spec.volume.requests.storage | 存储大小 | 1Gi |
 | spec.volume.storageClass | 存储类 | default |
 | spec.config | 其他自定义配置，自动映射到custom.propretise | 格式和configmap兼容 |
+| spec.k8sWrapper | 支持通用k8配置，即PodSpec对象，会自动覆盖所有内部pod对象 | 无 |
+
+更多配置案例见./config/samples
+
 ### 设置模式
 目前支持standalone和cluster模式
 

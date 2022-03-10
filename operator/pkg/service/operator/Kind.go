@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	batchv1 "k8s.io/api/batch/v1"
+	"nacos.io/nacos-operator/pkg/util/merge"
 	"path/filepath"
 	"strconv"
 
@@ -143,11 +144,13 @@ func (e *KindClient) ValidationField(nacos *nacosgroupv1alpha1.Nacos) {
 func (e *KindClient) EnsureStatefulsetCluster(nacos *nacosgroupv1alpha1.Nacos) {
 	ss := e.buildStatefulset(nacos)
 	ss = e.buildStatefulsetCluster(nacos, ss)
+	ss.Spec.Template.Spec  = merge.PodSpec(ss.Spec.Template.Spec,nacos.Spec.K8sWrapper.PodSpec.Spec)
 	myErrors.EnsureNormal(e.k8sService.CreateOrUpdateStatefulSet(nacos.Namespace, ss))
 }
 
 func (e *KindClient) EnsureStatefulset(nacos *nacosgroupv1alpha1.Nacos) {
 	ss := e.buildStatefulset(nacos)
+	ss.Spec.Template.Spec  = merge.PodSpec(ss.Spec.Template.Spec,nacos.Spec.K8sWrapper.PodSpec.Spec)
 	myErrors.EnsureNormal(e.k8sService.CreateOrUpdateStatefulSet(nacos.Namespace, ss))
 }
 
@@ -187,6 +190,7 @@ func (e *KindClient) EnsureMysqlConfigMap(nacos *nacosgroupv1alpha1.Nacos) {
 func (e *KindClient) EnsureJob(nacos *nacosgroupv1alpha1.Nacos) {
 	// 使用job执行SQL脚本的逻辑
 	job := e.buildJob(nacos)
+	job.Spec.Template.Spec  = merge.PodSpec(job.Spec.Template.Spec,nacos.Spec.K8sWrapper.PodSpec.Spec)
 	myErrors.EnsureNormal(e.k8sService.CreateIfNotExistsJob(nacos.Namespace, job))
 }
 

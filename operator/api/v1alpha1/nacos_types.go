@@ -19,6 +19,7 @@ package v1alpha1
 import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"nacos.io/nacos-operator/pkg/util/merge/api"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -49,8 +50,13 @@ type NacosSpec struct {
 	Volume   Storage  `json:"volume,omitempty"`
 	// 配置文件
 	Config string `json:"config,omitempty"`
+	// 通用k8s配置包装器
+	K8sWrapper k8sWrapper `json:"k8sWrapper,omitempty"`
 }
 
+type k8sWrapper struct {
+	PodSpec api.PodSpecWrapper `json:"PodSpec,omitempty"`
+}
 type Storage struct {
 	Enabled      bool            `json:"enabled,omitempty"`
 	Requests     v1.ResourceList `json:"requests,omitempty" protobuf:"bytes,2,rep,name=requests,casttype=ResourceList,castkey=ResourceName"`
