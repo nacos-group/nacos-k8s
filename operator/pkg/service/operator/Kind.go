@@ -452,6 +452,12 @@ func (e *KindClient) buildStatefulset(nacos *nacosgroupv1alpha1.Nacos) *appv1.St
 			Value: "embedded",
 		})
 	} else if nacos.Spec.Database.TypeDatabase == "mysql" {
+		
+		env = append(env, v1.EnvVar{
+			Name:  "SPRING_DATASOURCE_PLATFORM",
+			Value: nacos.Spec.Database.TypeDatabase,
+		})
+		
 		env = append(env, v1.EnvVar{
 			Name:  "MYSQL_SERVICE_HOST",
 			Value: nacos.Spec.Database.MysqlHost,
