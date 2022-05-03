@@ -6,7 +6,7 @@ image:
   repository: nacos/nacos-server
   pullPolicy: IfNotPresent
   tag: "1.4.1"
-  // mysql模式下需要自动创建数据库，非mysql不会生效
+  # mysql模式下需要自动创建数据库，非mysql不会生效
   mysqlInitImage: registry.cn-hangzhou.aliyuncs.com/shenkonghui/mysql-client
 
 imagePullSecrets: []

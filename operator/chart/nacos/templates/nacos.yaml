@@ -8,7 +8,6 @@ spec:
   image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
   mysqlInitImage: {{ .Values.image.mysqlInitImage }}
   enableEmbedded: {{ .Values.enableEmbedded }}
-  imagePullPolicy: {{ .Values.image.pullPolicy }}
   replicas: {{ .Values.replicaCount}}
   {{- with .Values.nodeSelector }}
   nodeSelector:
