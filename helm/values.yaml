@@ -7,6 +7,7 @@ global:
 #  mode: cluster
 
 ############################nacos###########################
+namespace: default
 nacos:
   image:
     repository: nacos/nacos-server
