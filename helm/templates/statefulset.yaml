@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ include "nacos.fullname" . }}
+  namespace: {{ .Values.namespace }}
   annotations:
   {{- toYaml .Values.annotations | indent 4 }}
 spec:
