@@ -750,12 +750,20 @@ func (e *KindClient) buildDefaultConfigMap(nacos *nacosgroupv1alpha1.Nacos) *v1.
 }
 
 func (e *KindClient) buildStatefulsetCluster(nacos *nacosgroupv1alpha1.Nacos, ss *appv1.StatefulSet) *appv1.StatefulSet {
+
+	domain := "cluster.local"
+	// 从环境变量中获取domain
+	for _,env := range nacos.Spec.Env{
+		if env.Name == "DOMAIN_NAME" && env.Value != "" {
+			domain = env.Value
+		}
+	}
 	ss.Spec.ServiceName = e.generateHeadlessSvcName(nacos)
 	serivce := ""
 	serivceNoPort := ""
 	for i := 0; i < int(*nacos.Spec.Replicas); i++ {
-		serivce = fmt.Sprintf("%v%v-%d.%v.%v.%v:%v ", serivce, e.generateName(nacos), i, e.generateHeadlessSvcName(nacos), nacos.Namespace, "svc.cluster.local", NACOS_PORT)
-		serivceNoPort = fmt.Sprintf("%v%v-%d.%v.%v.%v ", serivceNoPort, e.generateName(nacos), i, e.generateHeadlessSvcName(nacos), nacos.Namespace, "svc.cluster.local")
+		serivce = fmt.Sprintf("%v%v-%d.%v.%v.%v.%v:%v ", serivce, e.generateName(nacos), i, e.generateHeadlessSvcName(nacos), nacos.Namespace, "svc",domain, NACOS_PORT)
+		serivceNoPort = fmt.Sprintf("%v%v-%d.%v.%v.%v.%v ", serivceNoPort, e.generateName(nacos), i, e.generateHeadlessSvcName(nacos), nacos.Namespace, "svc",domain)
 	}
 	serivce = serivce[0 : len(serivce)-1]
 	env := []v1.EnvVar{
