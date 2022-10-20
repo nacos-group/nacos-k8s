@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type INacosClient interface {
@@ -42,7 +43,16 @@ type ServersInfo struct {
 
 func (c *NacosClient) GetClusterNodes(ip string) (ServersInfo, error) {
 	servers := ServersInfo{}
-	resp, err := c.httpClient.Get(fmt.Sprintf("http://%s:8848/nacos/v1/ns/operator/servers", ip))
+	//增加支持ipV6 pod状态探测
+	var resp *http.Response
+	var err error
+
+	if strings.Contains(ip, ":") {
+		resp, err = c.httpClient.Get(fmt.Sprintf("http://[%s]:8848/nacos/v1/ns/operator/servers", ip))
+	} else {
+		resp, err = c.httpClient.Get(fmt.Sprintf("http://%s:8848/nacos/v1/ns/operator/servers", ip))
+	}
+
 	if err != nil {
 		return servers, err
 	}

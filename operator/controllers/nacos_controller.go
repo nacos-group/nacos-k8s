@@ -48,12 +48,12 @@ type NacosReconciler struct {
 // +kubebuilder:rbac:groups=nacos.io,resources=nacos/status,verbs=get;update;patch
 type reconcileFun func(nacos *nacosgroupv1alpha1.Nacos)
 
-func (r *NacosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
+func (r *NacosReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = context.Background()
 	_ = r.Log.WithValues("nacos", req.NamespacedName)
 
 	instance := &nacosgroupv1alpha1.Nacos{}
-	err := r.Client.Get(context.TODO(), req.NamespacedName, instance)
+	err := r.Client.Get(ctx, req.NamespacedName, instance)
 	if err != nil {
 		if k8sErrors.IsNotFound(err) {
 			return reconcile.Result{}, nil

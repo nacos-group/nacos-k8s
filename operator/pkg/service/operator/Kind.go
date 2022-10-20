@@ -144,13 +144,13 @@ func (e *KindClient) ValidationField(nacos *nacosgroupv1alpha1.Nacos) {
 func (e *KindClient) EnsureStatefulsetCluster(nacos *nacosgroupv1alpha1.Nacos) {
 	ss := e.buildStatefulset(nacos)
 	ss = e.buildStatefulsetCluster(nacos, ss)
-	ss.Spec.Template.Spec  = merge.PodSpec(ss.Spec.Template.Spec,nacos.Spec.K8sWrapper.PodSpec.Spec)
+	ss.Spec.Template.Spec = merge.PodSpec(ss.Spec.Template.Spec, nacos.Spec.K8sWrapper.PodSpec.Spec)
 	myErrors.EnsureNormal(e.k8sService.CreateOrUpdateStatefulSet(nacos.Namespace, ss))
 }
 
 func (e *KindClient) EnsureStatefulset(nacos *nacosgroupv1alpha1.Nacos) {
 	ss := e.buildStatefulset(nacos)
-	ss.Spec.Template.Spec  = merge.PodSpec(ss.Spec.Template.Spec,nacos.Spec.K8sWrapper.PodSpec.Spec)
+	ss.Spec.Template.Spec = merge.PodSpec(ss.Spec.Template.Spec, nacos.Spec.K8sWrapper.PodSpec.Spec)
 	myErrors.EnsureNormal(e.k8sService.CreateOrUpdateStatefulSet(nacos.Namespace, ss))
 }
 
@@ -190,7 +190,7 @@ func (e *KindClient) EnsureMysqlConfigMap(nacos *nacosgroupv1alpha1.Nacos) {
 func (e *KindClient) EnsureJob(nacos *nacosgroupv1alpha1.Nacos) {
 	// 使用job执行SQL脚本的逻辑
 	job := e.buildJob(nacos)
-	job.Spec.Template.Spec  = merge.PodSpec(job.Spec.Template.Spec,nacos.Spec.K8sWrapper.PodSpec.Spec)
+	job.Spec.Template.Spec = merge.PodSpec(job.Spec.Template.Spec, nacos.Spec.K8sWrapper.PodSpec.Spec)
 	myErrors.EnsureNormal(e.k8sService.CreateIfNotExistsJob(nacos.Namespace, job))
 }
 
@@ -429,6 +429,13 @@ func (e *KindClient) buildClientService(nacos *nacosgroupv1alpha1.Nacos) *v1.Ser
 			Selector: labels,
 		},
 	}
+	//client-service提供双栈
+	var ipf = make([]v1.IPFamily, 0)
+	ipf = append(ipf, v1.IPv4Protocol)
+	ipf = append(ipf, v1.IPv6Protocol)
+	svc.Spec.IPFamilies = ipf
+	var ipPli = v1.IPFamilyPolicyPreferDualStack
+	svc.Spec.IPFamilyPolicy = &ipPli
 	myErrors.EnsureNormal(controllerutil.SetControllerReference(nacos, svc, e.scheme))
 	return svc
 }
@@ -452,12 +459,12 @@ func (e *KindClient) buildStatefulset(nacos *nacosgroupv1alpha1.Nacos) *appv1.St
 			Value: "embedded",
 		})
 	} else if nacos.Spec.Database.TypeDatabase == "mysql" {
-		
+
 		env = append(env, v1.EnvVar{
 			Name:  "SPRING_DATASOURCE_PLATFORM",
 			Value: nacos.Spec.Database.TypeDatabase,
 		})
-		
+
 		env = append(env, v1.EnvVar{
 			Name:  "MYSQL_SERVICE_HOST",
 			Value: nacos.Spec.Database.MysqlHost,
@@ -621,45 +628,44 @@ func (e *KindClient) buildStatefulset(nacos *nacosgroupv1alpha1.Nacos) *appv1.St
 	myErrors.EnsureNormal(controllerutil.SetControllerReference(nacos, ss, e.scheme))
 
 	if nacos.Spec.Database.TypeDatabase == "mysql" && nacos.Spec.MysqlInitImage != "" {
-		ss = e.AddCheckDatabase(nacos,ss)
+		ss = e.AddCheckDatabase(nacos, ss)
 	}
 	return ss
 }
 
-func  (e *KindClient) AddCheckDatabase(nacos *nacosgroupv1alpha1.Nacos, sts *appv1.StatefulSet)*appv1.StatefulSet{
+func (e *KindClient) AddCheckDatabase(nacos *nacosgroupv1alpha1.Nacos, sts *appv1.StatefulSet) *appv1.StatefulSet {
 	container := v1.Container{
 
-			Name:  "mysql-check-database",
-			Image: nacos.Spec.MysqlInitImage,
-			Env: []v1.EnvVar{
-				{
-					Name:  "MYSQL_HOST",
-					Value: nacos.Spec.Database.MysqlHost,
-				},
-				{
-					Name:  "MYSQL_DB",
-					Value: nacos.Spec.Database.MysqlDb,
-				},
-				{
-					Name:  "MYSQL_PORT",
-					Value: nacos.Spec.Database.MysqlPort,
-				},
-				{
-					Name:  "MYSQL_USER",
-					Value: nacos.Spec.Database.MysqlUser,
-				},
-				{
-					Name:  "MYSQL_PASS",
-					Value: nacos.Spec.Database.MysqlPassword,
-				},
+		Name:  "mysql-check-database",
+		Image: nacos.Spec.MysqlInitImage,
+		Env: []v1.EnvVar{
+			{
+				Name:  "MYSQL_HOST",
+				Value: nacos.Spec.Database.MysqlHost,
 			},
-			Command: []string{
-				"/bin/sh",
-				"-c",
-				"while ! mysqlcheck --host=\"${MYSQL_HOST}\" --port=\"${MYSQL_PORT}\" --user=\"${MYSQL_USER}\" --password=\"${MYSQL_PASS}\" --databases \"${MYSQL_DB}\" ; do sleep 1; done"			},
-
+			{
+				Name:  "MYSQL_DB",
+				Value: nacos.Spec.Database.MysqlDb,
+			},
+			{
+				Name:  "MYSQL_PORT",
+				Value: nacos.Spec.Database.MysqlPort,
+			},
+			{
+				Name:  "MYSQL_USER",
+				Value: nacos.Spec.Database.MysqlUser,
+			},
+			{
+				Name:  "MYSQL_PASS",
+				Value: nacos.Spec.Database.MysqlPassword,
+			},
+		},
+		Command: []string{
+			"/bin/sh",
+			"-c",
+			"while ! mysqlcheck --host=\"${MYSQL_HOST}\" --port=\"${MYSQL_PORT}\" --user=\"${MYSQL_USER}\" --password=\"${MYSQL_PASS}\" --databases \"${MYSQL_DB}\" ; do sleep 1; done"},
 	}
-	sts.Spec.Template.Spec.InitContainers  = append(sts.Spec.Template.Spec.InitContainers, container)
+	sts.Spec.Template.Spec.InitContainers = append(sts.Spec.Template.Spec.InitContainers, container)
 	return sts
 }
 
@@ -753,7 +759,7 @@ func (e *KindClient) buildStatefulsetCluster(nacos *nacosgroupv1alpha1.Nacos, ss
 
 	domain := "cluster.local"
 	// 从环境变量中获取domain
-	for _,env := range nacos.Spec.Env{
+	for _, env := range nacos.Spec.Env {
 		if env.Name == "DOMAIN_NAME" && env.Value != "" {
 			domain = env.Value
 		}
@@ -762,8 +768,8 @@ func (e *KindClient) buildStatefulsetCluster(nacos *nacosgroupv1alpha1.Nacos, ss
 	serivce := ""
 	serivceNoPort := ""
 	for i := 0; i < int(*nacos.Spec.Replicas); i++ {
-		serivce = fmt.Sprintf("%v%v-%d.%v.%v.%v.%v:%v ", serivce, e.generateName(nacos), i, e.generateHeadlessSvcName(nacos), nacos.Namespace, "svc",domain, NACOS_PORT)
-		serivceNoPort = fmt.Sprintf("%v%v-%d.%v.%v.%v.%v ", serivceNoPort, e.generateName(nacos), i, e.generateHeadlessSvcName(nacos), nacos.Namespace, "svc",domain)
+		serivce = fmt.Sprintf("%v%v-%d.%v.%v.%v.%v:%v ", serivce, e.generateName(nacos), i, e.generateHeadlessSvcName(nacos), nacos.Namespace, "svc", domain, NACOS_PORT)
+		serivceNoPort = fmt.Sprintf("%v%v-%d.%v.%v.%v.%v ", serivceNoPort, e.generateName(nacos), i, e.generateHeadlessSvcName(nacos), nacos.Namespace, "svc", domain)
 	}
 	serivce = serivce[0 : len(serivce)-1]
 	env := []v1.EnvVar{
@@ -781,5 +787,11 @@ func (e *KindClient) buildStatefulsetCluster(nacos *nacosgroupv1alpha1.Nacos, ss
 func (e *KindClient) buildHeadlessServiceCluster(svc *v1.Service, nacos *nacosgroupv1alpha1.Nacos) *v1.Service {
 	svc.Spec.ClusterIP = "None"
 	svc.Name = e.generateHeadlessSvcName(nacos)
+	//nacos pod间raft 探测交互走ipv4
+	var ipf = make([]v1.IPFamily, 0)
+	ipf = append(ipf, v1.IPv4Protocol)
+	svc.Spec.IPFamilies = ipf
+	var ipPli = v1.IPFamilyPolicySingleStack
+	svc.Spec.IPFamilyPolicy = &ipPli
 	return svc
 }
