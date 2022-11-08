@@ -4,8 +4,8 @@ import (
 	"sort"
 	"strings"
 
-	"nacos.io/nacos-operator/pkg/util/contains"
 	corev1 "k8s.io/api/core/v1"
+	"nacos.io/nacos-operator/pkg/util/contains"
 )
 
 // StringSlices accepts two slices of strings, and returns a string slice
