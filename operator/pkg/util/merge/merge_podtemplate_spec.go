@@ -3,8 +3,8 @@ package merge
 import (
 	"sort"
 
-	"nacos.io/nacos-operator/pkg/util/contains"
 	corev1 "k8s.io/api/core/v1"
+	"nacos.io/nacos-operator/pkg/util/contains"
 )
 
 func PodSpec(original, override corev1.PodSpec) corev1.PodSpec {
@@ -136,7 +136,7 @@ func PodTemplateSpecs(original, override corev1.PodTemplateSpec) corev1.PodTempl
 
 	merged.Annotations = StringToStringMap(original.Annotations, override.Annotations)
 	merged.Labels = StringToStringMap(original.Labels, override.Labels)
-	merged.Spec = PodSpec(merged.Spec,override.Spec)
+	merged.Spec = PodSpec(merged.Spec, override.Spec)
 	return merged
 }
 

@@ -1,8 +1,8 @@
 package api
 
 import (
-	v1 "k8s.io/api/apps/v1"
 	"encoding/json"
+	v1 "k8s.io/api/apps/v1"
 )
 
 // StatefulSetConfiguration holds the optional custom StatefulSet
