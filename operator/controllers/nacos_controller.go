@@ -64,9 +64,7 @@ func (r *NacosReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	// 工作逻辑入口 , 引发了painc，返回默认false，重新插入队列,5秒继续执行
 	result := r.ReconcileWork(instance)
 	if result == false {
-		return reconcile.Result{
-			Requeue:      !result,
-			RequeueAfter: time.Second * 15}, nil
+		return reconcile.Result{RequeueAfter: time.Second * 5}, nil
 	} else {
 		return reconcile.Result{}, nil
 	}
