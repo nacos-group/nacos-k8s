@@ -19,6 +19,7 @@ nacos:
       repository: nacos/nacos-peer-finder-plugin
       tag: 1.1
   replicaCount: 1
+  podManagementPolicy: Parallel
   domainName: cluster.local
   preferhostmode: hostname
   serverPort: 8848

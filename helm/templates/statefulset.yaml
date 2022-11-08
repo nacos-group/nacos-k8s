@@ -12,6 +12,11 @@ spec:
   serviceName: nacos-cs
   {{- end }}
   replicas: {{ .Values.nacos.replicaCount }}
+  {{- if .Values.nacos.podManagementPolicy }}
+  podManagementPolicy: {{ .Values.nacos.podManagementPolicy }}
+  {{- else}}
+  podManagementPolicy: OrderedReady
+  {{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "nacos.name" . }}
