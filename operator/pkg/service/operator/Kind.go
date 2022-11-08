@@ -2,14 +2,12 @@ package operator
 
 import (
 	"fmt"
-	"io"
+	"io/ioutil"
 	batchv1 "k8s.io/api/batch/v1"
-	"nacos.io/nacos-operator/pkg/util/merge"
-	"net/http"
-	"strconv"
-	"time"
-
 	"k8s.io/apimachinery/pkg/runtime"
+	"nacos.io/nacos-operator/pkg/util/merge"
+	"path/filepath"
+	"strconv"
 
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -31,8 +29,8 @@ const NACOS_PORT = 8848
 const RAFT_PORT = 7848
 const NEW_RAFT_PORT = 9848
 
-// 直接读取Noacs 工程下面的SQL初始化文件
-const REMOTE_SQL_FILE_NAME = "https://raw.githubusercontent.com/alibaba/nacos/master/distribution/conf/mysql-schema.sql"
+// 导入的sql文件名称
+const SQL_FILE_NAME = "nacos-mysql.sql"
 
 var initScrit = `array=(%s)
 succ = 0
@@ -209,7 +207,7 @@ func (e *KindClient) buildMysqlConfigMap(nacos *nacosgroupv1alpha1.Nacos) *v1.Co
 		},
 
 		Data: map[string]string{
-			"SQL_SCRIPT": readSql(REMOTE_SQL_FILE_NAME),
+			"SQL_SCRIPT": readSql(SQL_FILE_NAME),
 		},
 	}
 	myErrors.EnsureNormal(controllerutil.SetControllerReference(nacos, cm, e.scheme))
@@ -355,23 +353,15 @@ func (e *KindClient) buildJob(nacos *nacosgroupv1alpha1.Nacos) *batchv1.Job {
 }
 
 func readSql(sqlFileName string) string {
-	client := http.Client{
-		Timeout: 10 * time.Second,
-	}
-	resp, err := client.Get(sqlFileName)
-	if err != nil {
-		fmt.Printf("read remote sql file from nacos failed, err: %s", err.Error())
-		panic(err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
+	// abspath：项目的根路径
+	abspath, _ := filepath.Abs("")
+	bytes, err := ioutil.ReadFile(abspath + "/config/sql/" + sqlFileName)
 	if err != nil {
 		fmt.Printf("read sql file failed, err: %s", err.Error())
 		return ""
 	}
 
-	return string(body)
+	return string(bytes)
 }
 
 func (e *KindClient) buildService(nacos *nacosgroupv1alpha1.Nacos) *v1.Service {
