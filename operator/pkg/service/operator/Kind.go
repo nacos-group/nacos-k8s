@@ -527,6 +527,17 @@ func (e *KindClient) buildStatefulset(nacos *nacosgroupv1alpha1.Nacos) *appv1.St
 						{
 							Name:  nacos.Name,
 							Image: nacos.Spec.Image,
+							Lifecycle: &v1.Lifecycle{
+								PreStop: &v1.Handler{
+									Exec: &v1.ExecAction{
+										Command: []string{
+											"/bin/sh",
+											"-c",
+											"rm -rf /home/nacos/data/protocol/raft",
+										},
+									},
+								},
+							},
 							Ports: []v1.ContainerPort{
 								{
 									Name:          "client",
