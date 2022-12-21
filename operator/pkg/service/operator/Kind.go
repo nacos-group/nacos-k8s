@@ -137,7 +137,7 @@ func setDefaultCertification(nacos *nacosgroupv1alpha1.Nacos) {
 			nacos.Spec.Certification.Token = "SecretKey012345678901234567890123456789012345678901234567890123456789"
 		}
 		if nacos.Spec.Certification.TokenExpireSeconds == "" {
-			nacos.Spec.Certification.Token = "18000"
+			nacos.Spec.Certification.TokenExpireSeconds = "18000"
 		}
 	}
 }
