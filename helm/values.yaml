@@ -18,6 +18,7 @@ nacos:
     image:
       repository: nacos/nacos-peer-finder-plugin
       tag: 1.1
+      pullPolicy: IfNotPresent
   replicaCount: 1
   podManagementPolicy: Parallel
   domainName: cluster.local
