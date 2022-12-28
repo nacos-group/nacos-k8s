@@ -105,6 +105,8 @@ spec:
               value: "8848"
             - name: PREFER_HOST_MODE
               value: "hostname"
+            - name: SPRING_DATASOURCE_PLATFORM
+              value: "mysql"
             - name: NACOS_SERVERS
               value: "nacos-0.nacos-headless.default.svc.cluster.local:8848 nacos-1.nacos-headless.default.svc.cluster.local:8848 nacos-2.nacos-headless.default.svc.cluster.local:8848"
   selector:

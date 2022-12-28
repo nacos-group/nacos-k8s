@@ -88,7 +88,7 @@ spec:
               name: old-raft-rpc
           env:
             - name: NACOS_REPLICAS
-              value: "2"
+              value: "3"
             - name: SERVICE_NAME
               value: "nacos-headless"
             - name: DOMAIN_NAME
@@ -122,7 +122,8 @@ spec:
               value: "8848"
             - name: NACOS_APPLICATION_PORT
               value: "8848"
-
+            - name: SPRING_DATASOURCE_PLATFORM
+              value: "mysql"
             - name: PREFER_HOST_MODE
               value: "hostname"
           volumeMounts:
