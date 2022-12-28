@@ -89,7 +89,7 @@ spec:
               name: old-raft-rpc
           env:
             - name: NACOS_REPLICAS
-              value: "2"
+              value: "3"
             - name: SERVICE_NAME
               value: "nacos-headless"
             - name: DOMAIN_NAME

@@ -134,6 +134,8 @@ spec:
               value: "8848"
             - name: PREFER_HOST_MODE
               value: "hostname"
+            - name: SPRING_DATASOURCE_PLATFORM
+              value: "mysql"
           volumeMounts:
             - name: data
               mountPath: /home/nacos/plugins/peer-finder
