@@ -61,7 +61,7 @@ spec:
                       - nacos
               topologyKey: "kubernetes.io/hostname"
       containers:
-        - name: k8snacos
+        - name: nacos
           imagePullPolicy: Always
           image: nacos/nacos-server:latest
           resources:
