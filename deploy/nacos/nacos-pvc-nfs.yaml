@@ -43,6 +43,7 @@ kind: StatefulSet
 metadata:
   name: nacos
 spec:
+  podManagementPolicy: Parallel
   serviceName: nacos-headless
   replicas: 3
   template:

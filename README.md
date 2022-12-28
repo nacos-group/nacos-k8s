@@ -165,6 +165,7 @@ mysql-gf2vd                        1/1     Running   0          111m
 
 ```yaml
 data:
+  mysql.host: "db host"
   mysql.db.name: "db name"
   mysql.port: " db port"
   mysql.user: " db username"

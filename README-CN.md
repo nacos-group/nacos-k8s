@@ -155,6 +155,7 @@ mysql-gf2vd                        1/1     Running   0          111m
 
 ```yaml
 data:
+  mysql.host: "数据库地址"
   mysql.db.name: "数据库名称"
   mysql.port: "端口"
   mysql.user: "用户名"
