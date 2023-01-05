@@ -2,7 +2,7 @@ package operator
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	batchv1 "k8s.io/api/batch/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"nacos.io/nacos-operator/pkg/util/merge"
@@ -355,7 +355,7 @@ func (e *KindClient) buildJob(nacos *nacosgroupv1alpha1.Nacos) *batchv1.Job {
 func readSql(sqlFileName string) string {
 	// abspath：项目的根路径
 	abspath, _ := filepath.Abs("")
-	bytes, err := ioutil.ReadFile(abspath + "/config/sql/" + sqlFileName)
+	bytes, err := os.ReadFile(abspath + "/config/sql/" + sqlFileName)
 	if err != nil {
 		fmt.Printf("read sql file failed, err: %s", err.Error())
 		return ""
