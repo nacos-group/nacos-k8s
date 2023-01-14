@@ -1,3 +1,5 @@
+# 请阅读Wiki文章
+# https://github.com/nacos-group/nacos-k8s/wiki/%E4%BD%BF%E7%94%A8peerfinder%E6%89%A9%E5%AE%B9%E6%8F%92%E4%BB%B6
 ---
 apiVersion: v1
 kind: Service
@@ -5,9 +7,8 @@ metadata:
   name: nacos-headless
   labels:
     app: nacos
-  annotations:
-    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
 spec:
+  publishNotReadyAddresses: true 
   ports:
     - port: 8848
       name: server
@@ -31,6 +32,7 @@ kind: ConfigMap
 metadata:
   name: nacos-cm
 data:
+  mysql.host: "mysql"
   mysql.db.name: "nacos_devtest"
   mysql.port: "3306"
   mysql.user: "nacos"
@@ -41,6 +43,7 @@ kind: StatefulSet
 metadata:
   name: nacos
 spec:
+  podManagementPolicy: Parallel
   serviceName: nacos-headless
   replicas: 3
   template:
@@ -98,6 +101,11 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.namespace
+            - name: MYSQL_SERVICE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.host
             - name: MYSQL_SERVICE_DB_NAME
               valueFrom:
                 configMapKeyRef:
@@ -118,14 +126,14 @@ spec:
                 configMapKeyRef:
                   name: nacos-cm
                   key: mysql.password
+            - name: SPRING_DATASOURCE_PLATFORM
+              value: "mysql"
             - name: NACOS_SERVER_PORT
               value: "8848"
             - name: NACOS_APPLICATION_PORT
               value: "8848"
             - name: PREFER_HOST_MODE
               value: "hostname"
-            - name: SPRING_DATASOURCE_PLATFORM
-              value: "mysql"
           volumeMounts:
             - name: data
               mountPath: /home/nacos/plugins/peer-finder
