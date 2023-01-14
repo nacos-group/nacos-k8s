@@ -112,10 +112,37 @@ func (e *KindClient) generateClientSvcName(nacos *nacosgroupv1alpha1.Nacos) stri
 // CR格式验证
 func (e *KindClient) ValidationField(nacos *nacosgroupv1alpha1.Nacos) {
 
+	setDefaultValue := []func(nacos *nacosgroupv1alpha1.Nacos){
+		setDefaultNacosType,
+		setDefaultMysql,
+		setDefaultCertification,
+	}
+
+	for _, f := range setDefaultValue {
+		f(nacos)
+	}
+}
+
+func setDefaultNacosType(nacos *nacosgroupv1alpha1.Nacos) {
+	// 默认设置单节点
 	if nacos.Spec.Type == "" {
 		nacos.Spec.Type = "standalone"
 	}
+}
 
+func setDefaultCertification(nacos *nacosgroupv1alpha1.Nacos) {
+	// 默认设置认证参数
+	if nacos.Spec.Certification.Enabled {
+		if nacos.Spec.Certification.Token == "" {
+			nacos.Spec.Certification.Token = "SecretKey012345678901234567890123456789012345678901234567890123456789"
+		}
+		if nacos.Spec.Certification.TokenExpireSeconds == "" {
+			nacos.Spec.Certification.TokenExpireSeconds = "18000"
+		}
+	}
+}
+
+func setDefaultMysql(nacos *nacosgroupv1alpha1.Nacos) {
 	// 默认设置内置数据库
 	if nacos.Spec.Database.TypeDatabase == "" {
 		nacos.Spec.Database.TypeDatabase = "embedded"
@@ -450,6 +477,29 @@ func (e *KindClient) buildStatefulset(nacos *nacosgroupv1alpha1.Nacos) *appv1.St
 		Name:  "PREFER_HOST_MODE",
 		Value: "hostname",
 	})
+
+	// 设置认证环境变量
+	if nacos.Spec.Certification.Enabled {
+		env = append(env, v1.EnvVar{
+			Name:  "NACOS_AUTH_ENABLE",
+			Value: strconv.FormatBool(nacos.Spec.Certification.Enabled),
+		})
+
+		env = append(env, v1.EnvVar{
+			Name:  "NACOS_AUTH_TOKEN_EXPIRE_SECONDS",
+			Value: nacos.Spec.Certification.TokenExpireSeconds,
+		})
+
+		env = append(env, v1.EnvVar{
+			Name:  "NACOS_AUTH_TOKEN",
+			Value: nacos.Spec.Certification.Token,
+		})
+
+		env = append(env, v1.EnvVar{
+			Name:  "NACOS_AUTH_CACHE_ENABLE",
+			Value: strconv.FormatBool(nacos.Spec.Certification.CacheEnabled),
+		})
+	}
 
 	// 数据库设置
 	if nacos.Spec.Database.TypeDatabase == "embedded" {
