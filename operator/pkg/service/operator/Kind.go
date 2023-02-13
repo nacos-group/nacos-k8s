@@ -2,7 +2,6 @@ package operator
 
 import (
 	"fmt"
-	"io"
 	batchv1 "k8s.io/api/batch/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"nacos.io/nacos-operator/pkg/util/merge"
@@ -477,6 +476,19 @@ func (e *KindClient) buildStatefulset(nacos *nacosgroupv1alpha1.Nacos) *appv1.St
 		Name:  "PREFER_HOST_MODE",
 		Value: "hostname",
 	})
+
+	switch nacos.Spec.FunctionMode {
+	case "naming":
+		env = append(nacos.Spec.Env, v1.EnvVar{
+			Name:  "FUNCTION_MODE",
+			Value: "naming",
+		})
+	case "config":
+		env = append(nacos.Spec.Env, v1.EnvVar{
+			Name:  "FUNCTION_MODE",
+			Value: "config",
+		})
+	}
 
 	// 设置认证环境变量
 	if nacos.Spec.Certification.Enabled {
