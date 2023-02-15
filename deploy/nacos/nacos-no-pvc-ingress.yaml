@@ -134,7 +134,8 @@ spec:
   - host: nacos-web.nacos-demo.com
     http:
       paths:
-      - path: /
+      - path: /nacos
+        pathType: Prefix
         backend:
           service: 
             name: nacos-headless
