@@ -80,6 +80,8 @@ spec:
           env:
             - name: NACOS_REPLICAS
               value: "3"
+            - name: SPRING_DATASOURCE_PLATFORM
+              value: "mysql"
             - name: MYSQL_SERVICE_HOST
               valueFrom:
                 configMapKeyRef:
