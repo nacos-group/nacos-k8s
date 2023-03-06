@@ -143,7 +143,7 @@ mysql-gf2vd                        1/1     Running   0          111m
 ```
 ## 执行数据库初始化语句
 
-数据库初始化语句位置  <https://github.com/alibaba/nacos/blob/develop/distribution/conf/nacos-mysql.sql>
+数据库初始化语句位置  <https://github.com/alibaba/nacos/blob/develop/distribution/conf/mysql-schema.sql>
 
 
 
