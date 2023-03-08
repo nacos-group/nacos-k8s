@@ -165,6 +165,7 @@ mysql-gf2vd                        1/1     Running   0          111m
 
 ```yaml
 data:
+  mysql.host: "db host"
   mysql.db.name: "db name"
   mysql.port: " db port"
   mysql.user: " db username"
@@ -284,6 +285,7 @@ You can find that the new node has joined the cluster
 | mysql.port     | N       | database port                          |
 | mysql.user     | Y       | database username                        |
 | mysql.password | Y       | database password                       |
+| SPRING_DATASOURCE_PLATFORM | Y       | Database type,The default is embedded database,parameters only support mysql or embedded                       |
 | NACOS_REPLICAS        | Y       | The number of clusters must be consistent with the value of the replicas attribute |
 | NACOS_SERVER_PORT     | N       | Nacos port,default:8848 for Peer-finder plugin               |
 | NACOS_APPLICATION_PORT     | N       | Nacos port， default:8848           |

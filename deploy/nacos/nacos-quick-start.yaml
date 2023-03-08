@@ -30,6 +30,7 @@ kind: ConfigMap
 metadata:
   name: nacos-cm
 data:
+  mysql.host: "mysql"
   mysql.db.name: "nacos_devtest"
   mysql.port: "3306"
   mysql.user: "nacos"
@@ -60,7 +61,7 @@ spec:
                       - nacos
               topologyKey: "kubernetes.io/hostname"
       containers:
-        - name: k8snacos
+        - name: nacos
           imagePullPolicy: Always
           image: nacos/nacos-server:latest
           resources:
@@ -79,6 +80,11 @@ spec:
           env:
             - name: NACOS_REPLICAS
               value: "3"
+            - name: MYSQL_SERVICE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.host
             - name: MYSQL_SERVICE_DB_NAME
               valueFrom:
                 configMapKeyRef:
@@ -99,6 +105,8 @@ spec:
                 configMapKeyRef:
                   name: nacos-cm
                   key: mysql.password
+            - name: SPRING_DATASOURCE_PLATFORM
+              value: "mysql"
             - name: NACOS_SERVER_PORT
               value: "8848"
             - name: NACOS_APPLICATION_PORT

@@ -43,7 +43,7 @@ spec:
       initContainers:
         - name: peer-finder-plugin-install
           image: {{.Values.nacos.plugin.image.repository}}:{{.Values.nacos.plugin.image.tag}}
-          imagePullPolicy: Always
+          imagePullPolicy: {{ .Values.nacos.plugin.image.pullPolicy }}
           volumeMounts:
             - mountPath: /home/nacos/plugins/peer-finder
               name: data
