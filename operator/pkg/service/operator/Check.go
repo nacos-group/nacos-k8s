@@ -57,8 +57,8 @@ func (c *CheckClient) CheckNacos(nacos *nacosgroupv1alpha1.Nacos, pods []corev1.
 		servers, err := c.nacosClient.GetClusterNodes(pod.Status.PodIP)
 		myErrors.EnsureNormalMyError(err, myErrors.CODE_CLUSTER_FAILE)
 		// 确保cr中实例个数和server数量相同
-		myErrors.EnsureEqual(len(servers.Servers), int(*nacos.Spec.Replicas), myErrors.CODE_CLUSTER_FAILE, "server num is not equal")
-		for _, svc := range servers.Servers {
+		myErrors.EnsureEqual(len(servers.Data), int(*nacos.Spec.Replicas), myErrors.CODE_CLUSTER_FAILE, "server num is not equal")
+		for _, svc := range servers.Data {
 			myErrors.EnsureEqual(svc.State, "UP", myErrors.CODE_CLUSTER_FAILE, "node is not up")
 			if leader != "" {
 				// 确保每个节点leader相同
