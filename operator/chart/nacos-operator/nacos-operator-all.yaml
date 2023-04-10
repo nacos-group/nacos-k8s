@@ -1281,6 +1281,14 @@ rules:
       - patch
       - list
       - watch
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - get
+      - create
+      - update
 ---
 # Source: nacos-operator/templates/serviceaccount.yaml
 apiVersion: rbac.authorization.k8s.io/v1
