@@ -22,6 +22,9 @@ spec:
       secretName: {{ .secretName }}
   {{- end }}
 {{- end }}
+  {{- if .Values.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.ingress.ingressClassName }}
+  {{- end }}
   {{- if eq .Values.ingress.apiVersion "networking.k8s.io/v1" }}
   rules:
   {{- range .Values.ingress.hosts }}
