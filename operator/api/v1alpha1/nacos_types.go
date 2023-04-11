@@ -45,9 +45,10 @@ type NacosSpec struct {
 
 	// 自定义配置
 	// 部署模式
-	Type     string   `json:"type,omitempty"`
-	Database Database `json:"database,omitempty"`
-	Volume   Storage  `json:"volume,omitempty"`
+	Type         string   `json:"type,omitempty"`
+	FunctionMode string   `json:"function_mode,omitempty"`
+	Database     Database `json:"database,omitempty"`
+	Volume       Storage  `json:"volume,omitempty"`
 	// 配置文件
 	Config string `json:"config,omitempty"`
 	// 开启认证
