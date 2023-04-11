@@ -450,6 +450,11 @@ func (e *KindClient) buildClientService(nacos *nacosgroupv1alpha1.Nacos) *v1.Ser
 					Port:     NACOS_PORT,
 					Protocol: "TCP",
 				},
+				{
+					Name:     "rpc",
+					Port:     9848,
+					Protocol: "TCP",
+				},
 			},
 			Selector: labels,
 		},
