@@ -39,7 +39,7 @@ Generate a random token if not set.
     {{- if not (empty .Values.nacos.auth.token) }}
         {{- .Values.nacos.auth.token -}}
     {{- else -}}
-        {{- randAlphaNum 64 | quote  -}}
+        {{- randAlphaNum 64 -}}
     {{- end -}}
 {{- end -}}
 {{- end -}}
@@ -53,7 +53,7 @@ Generate a random identity key if not set.
     {{- if not (empty .Values.nacos.auth.identityKey) }}
         {{- .Values.nacos.auth.identityKey -}}
     {{- else -}}
-        {{- randAlphaNum 16 | quote  -}}
+        {{- randAlphaNum 16  -}}
     {{- end -}}
 {{- end -}}
 {{- end -}}
@@ -66,7 +66,7 @@ Generate a random identity value if not set.
     {{- if not (empty .Values.nacos.auth.identityValue) }}
         {{- .Values.nacos.auth.identityValue -}}
     {{- else -}}
-        {{- randAlphaNum 16 | quote  -}}
+        {{- randAlphaNum 16  -}}
     {{- end -}}
 {{- end -}}
 {{- end -}}
