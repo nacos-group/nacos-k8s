@@ -114,7 +114,7 @@ spec:
             - name: PREFER_HOST_MODE
               value: "hostname"
             - name: NACOS_SERVERS
-              value: "nacos-0.nacos-headless.default.svc.cluster.local:8848 nacos-1.nacos-headless.default.svc.cluster.local:8848 nacos-2.nacos-headless.default.svc.cluster.local:8848"
+              value: "nacos-0.nacos-headless.default.svc.cluster.local.:8848 nacos-1.nacos-headless.default.svc.cluster.local.:8848 nacos-2.nacos-headless.default.svc.cluster.local.:8848"
   selector:
     matchLabels:
       app: nacos
