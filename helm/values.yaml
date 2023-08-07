@@ -24,6 +24,14 @@ nacos:
   domainName: cluster.local
   preferhostmode: hostname
   serverPort: 8848
+  auth:
+    enable: false
+    ## if not set, generate a random token
+    token: ""
+    ## if not set, generate a random key
+    identityKey: ""
+    ## if not set, generate a random value
+    identityValue: ""
   health:
     enabled: false
   storage:
@@ -64,7 +72,7 @@ ingress:
     # kubernetes.io/tls-acme: "true"
     # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
     # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
-    # ingressClassName: nginx
+  # ingressClassName: nginx
   ingressClassName: "nginx"
   hosts:
     - host: nacos.example.com
