@@ -2,11 +2,12 @@ package operator
 
 import (
 	"fmt"
+	"path/filepath"
+	"strconv"
+
 	batchv1 "k8s.io/api/batch/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"nacos.io/nacos-operator/pkg/util/merge"
-	"path/filepath"
-	"strconv"
 
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -21,12 +22,14 @@ import (
 	"nacos.io/nacos-operator/pkg/service/k8s"
 )
 
-const TYPE_STAND_ALONE = "standalone"
-const TYPE_CLUSTER = "cluster"
-const NACOS = "nacos"
-const NACOS_PORT = 8848
-const RAFT_PORT = 7848
-const NEW_RAFT_PORT = 9848
+const (
+	TYPE_STAND_ALONE = "standalone"
+	TYPE_CLUSTER     = "cluster"
+	NACOS            = "nacos"
+	NACOS_PORT       = 8848
+	RAFT_PORT        = 7848
+	NEW_RAFT_PORT    = 9848
+)
 
 // 导入的sql文件名称
 const SQL_FILE_NAME = "nacos-mysql.sql"
@@ -104,13 +107,13 @@ func (e *KindClient) generateName(nacos *nacosgroupv1alpha1.Nacos) string {
 func (e *KindClient) generateHeadlessSvcName(nacos *nacosgroupv1alpha1.Nacos) string {
 	return fmt.Sprintf("%s-headless", nacos.Name)
 }
+
 func (e *KindClient) generateClientSvcName(nacos *nacosgroupv1alpha1.Nacos) string {
 	return fmt.Sprintf("%s-client", nacos.Name)
 }
 
 // CR格式验证
 func (e *KindClient) ValidationField(nacos *nacosgroupv1alpha1.Nacos) {
-
 	setDefaultValue := []func(nacos *nacosgroupv1alpha1.Nacos){
 		setDefaultNacosType,
 		setDefaultMysql,
@@ -357,7 +360,7 @@ func (e *KindClient) buildJob(nacos *nacosgroupv1alpha1.Nacos) *batchv1.Job {
 											Key: "SQL_SCRIPT",
 										},
 									},
-									//Value: readSql(SQL_FILE_NAME),
+									// Value: readSql(SQL_FILE_NAME),
 								},
 							},
 							// 导入nacos-mysql.sql中的数据
@@ -459,15 +462,25 @@ func (e *KindClient) buildClientService(nacos *nacosgroupv1alpha1.Nacos) *v1.Ser
 			Selector: labels,
 		},
 	}
-	//client-service提供双栈
-	var ipf = make([]v1.IPFamily, 0)
+	// client-service提供双栈
+	ipf := make([]v1.IPFamily, 0)
 	ipf = append(ipf, v1.IPv4Protocol)
-	ipf = append(ipf, v1.IPv6Protocol)
+	if isIPv6Enabled() {
+		ipf = append(ipf, v1.IPv6Protocol)
+	}
 	svc.Spec.IPFamilies = ipf
-	var ipPli = v1.IPFamilyPolicyPreferDualStack
+	ipPli := v1.IPFamilyPolicyPreferDualStack
 	svc.Spec.IPFamilyPolicy = &ipPli
 	myErrors.EnsureNormal(controllerutil.SetControllerReference(nacos, svc, e.scheme))
 	return svc
+}
+
+func isIPv6Enabled() bool {
+	enableIPv6, err := strconv.ParseBool(os.Getevn("ENABLE_IPV6"))
+	if err != nil {
+		return false
+	}
+	return enableIPv6
 }
 
 func (e *KindClient) buildStatefulset(nacos *nacosgroupv1alpha1.Nacos) *appv1.StatefulSet {
@@ -570,7 +583,7 @@ func (e *KindClient) buildStatefulset(nacos *nacosgroupv1alpha1.Nacos) *appv1.St
 		})
 	}
 
-	var ss = &appv1.StatefulSet{
+	ss := &appv1.StatefulSet{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        e.generateName(nacos),
 			Namespace:   nacos.Namespace,
@@ -638,7 +651,7 @@ func (e *KindClient) buildStatefulset(nacos *nacosgroupv1alpha1.Nacos) *appv1.St
 	if nacos.Spec.Volume.Enabled {
 		ss.Spec.VolumeClaimTemplates = append(ss.Spec.VolumeClaimTemplates, v1.PersistentVolumeClaim{
 			Spec: v1.PersistentVolumeClaimSpec{
-				//VolumeName:       "db",
+				// VolumeName:       "db",
 				StorageClassName: nacos.Spec.Volume.StorageClass,
 				AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteOnce},
 				Resources: v1.ResourceRequirements{
@@ -712,7 +725,6 @@ func (e *KindClient) buildStatefulset(nacos *nacosgroupv1alpha1.Nacos) *appv1.St
 
 func (e *KindClient) AddCheckDatabase(nacos *nacosgroupv1alpha1.Nacos, sts *appv1.StatefulSet) *appv1.StatefulSet {
 	container := v1.Container{
-
 		Name:  "mysql-check-database",
 		Image: nacos.Spec.MysqlInitImage,
 		Env: []v1.EnvVar{
@@ -740,7 +752,8 @@ func (e *KindClient) AddCheckDatabase(nacos *nacosgroupv1alpha1.Nacos, sts *appv
 		Command: []string{
 			"/bin/sh",
 			"-c",
-			"while ! mysqlcheck --host=\"${MYSQL_HOST}\" --port=\"${MYSQL_PORT}\" --user=\"${MYSQL_USER}\" --password=\"${MYSQL_PASS}\" --databases \"${MYSQL_DB}\" ; do sleep 1; done"},
+			"while ! mysqlcheck --host=\"${MYSQL_HOST}\" --port=\"${MYSQL_PORT}\" --user=\"${MYSQL_USER}\" --password=\"${MYSQL_PASS}\" --databases \"${MYSQL_DB}\" ; do sleep 1; done",
+		},
 	}
 	sts.Spec.Template.Spec.InitContainers = append(sts.Spec.Template.Spec.InitContainers, container)
 	return sts
@@ -833,7 +846,6 @@ func (e *KindClient) buildDefaultConfigMap(nacos *nacosgroupv1alpha1.Nacos) *v1.
 }
 
 func (e *KindClient) buildStatefulsetCluster(nacos *nacosgroupv1alpha1.Nacos, ss *appv1.StatefulSet) *appv1.StatefulSet {
-
 	domain := "cluster.local"
 	// 从环境变量中获取domain
 	for _, env := range nacos.Spec.Env {
@@ -864,11 +876,11 @@ func (e *KindClient) buildStatefulsetCluster(nacos *nacosgroupv1alpha1.Nacos, ss
 func (e *KindClient) buildHeadlessServiceCluster(svc *v1.Service, nacos *nacosgroupv1alpha1.Nacos) *v1.Service {
 	svc.Spec.ClusterIP = "None"
 	svc.Name = e.generateHeadlessSvcName(nacos)
-	//nacos pod间raft 探测交互走ipv4
-	var ipf = make([]v1.IPFamily, 0)
+	// nacos pod间raft 探测交互走ipv4
+	ipf := make([]v1.IPFamily, 0)
 	ipf = append(ipf, v1.IPv4Protocol)
 	svc.Spec.IPFamilies = ipf
-	var ipPli = v1.IPFamilyPolicySingleStack
+	ipPli := v1.IPFamilyPolicySingleStack
 	svc.Spec.IPFamilyPolicy = &ipPli
 	return svc
 }
