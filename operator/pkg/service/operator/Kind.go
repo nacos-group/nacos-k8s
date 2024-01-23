@@ -2,6 +2,7 @@ package operator
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strconv"
 
@@ -476,7 +477,7 @@ func (e *KindClient) buildClientService(nacos *nacosgroupv1alpha1.Nacos) *v1.Ser
 }
 
 func isIPv6Enabled() bool {
-	enableIPv6, err := strconv.ParseBool(os.Getevn("ENABLE_IPV6"))
+	enableIPv6, err := strconv.ParseBool(os.Getenv("ENABLE_IPV6"))
 	if err != nil {
 		return false
 	}
