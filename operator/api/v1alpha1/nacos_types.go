@@ -62,6 +62,8 @@ type Certification struct {
 	Token              string `json:"token,omitempty"`
 	TokenExpireSeconds string `json:"token_expire_seconds,omitempty"`
 	CacheEnabled       bool   `json:"cache_enabled,omitempty"`
+	IdentityKey        string `json:"identity_key"`
+	IdentityValue      string `json:"identity_value"`
 }
 
 type K8sWrapper struct {

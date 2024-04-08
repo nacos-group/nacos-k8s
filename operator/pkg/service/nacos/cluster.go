@@ -18,7 +18,9 @@ type NacosClient struct {
 }
 
 type ServersInfo struct {
-	Servers []struct {
+	Code    int         `json:"code"`
+	Message interface{} `json:"message"`
+	Data    []struct {
 		IP         string `json:"ip"`
 		Port       int    `json:"port"`
 		State      string `json:"state"`
@@ -26,37 +28,73 @@ type ServersInfo struct {
 			LastRefreshTime int64 `json:"lastRefreshTime"`
 			RaftMetaData    struct {
 				MetaDataMap struct {
-					NamingPersistentService struct {
+					NamingInstanceMetadata struct {
 						Leader          string   `json:"leader"`
 						RaftGroupMember []string `json:"raftGroupMember"`
 						Term            int      `json:"term"`
-					} `json:"naming_persistent_service"`
+					} `json:"naming_instance_metadata"`
+					NamingPersistentServiceV2 struct {
+						Leader          string   `json:"leader"`
+						RaftGroupMember []string `json:"raftGroupMember"`
+						Term            int      `json:"term"`
+					} `json:"naming_persistent_service_v2"`
+					NamingServiceMetadata struct {
+						Leader          string   `json:"leader"`
+						RaftGroupMember []string `json:"raftGroupMember"`
+						Term            int      `json:"term"`
+					} `json:"naming_service_metadata"`
 				} `json:"metaDataMap"`
 			} `json:"raftMetaData"`
-			RaftPort string `json:"raftPort"`
-			Version  string `json:"version"`
+			RaftPort       string `json:"raftPort"`
+			ReadyToUpgrade bool   `json:"readyToUpgrade"`
+			Version        string `json:"version"`
 		} `json:"extendInfo"`
 		Address       string `json:"address"`
 		FailAccessCnt int    `json:"failAccessCnt"`
-	} `json:"servers"`
+		Abilities     struct {
+			RemoteAbility struct {
+				SupportRemoteConnection bool `json:"supportRemoteConnection"`
+			} `json:"remoteAbility"`
+			ConfigAbility struct {
+				SupportRemoteMetrics bool `json:"supportRemoteMetrics"`
+			} `json:"configAbility"`
+			NamingAbility struct {
+				SupportJraft bool `json:"supportJraft"`
+			} `json:"namingAbility"`
+		} `json:"abilities"`
+	} `json:"data"`
 }
 
-func (c *NacosClient) GetClusterNodes(ip string) (ServersInfo, error) {
+func (c *NacosClient) GetClusterNodes(ip string, identityKey string, identityValue string) (ServersInfo, error) {
 	servers := ServersInfo{}
 	//增加支持ipV6 pod状态探测
-	var resp *http.Response
+	client := &http.Client{}
 	var err error
-
+	var url string
 	if strings.Contains(ip, ":") {
-		resp, err = c.httpClient.Get(fmt.Sprintf("http://[%s]:8848/nacos/v1/ns/operator/servers", ip))
+		url = fmt.Sprintf("http://[%s]:8848/nacos/v1/core/cluster/nodes", ip)
 	} else {
-		resp, err = c.httpClient.Get(fmt.Sprintf("http://%s:8848/nacos/v1/ns/operator/servers", ip))
+		url = fmt.Sprintf("http://%s:8848/nacos/v1/core/cluster/nodes", ip)
 	}
-
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return servers, err
 	}
+
+	if identityKey != "" {
+		header := http.Header{
+			identityKey: []string{identityValue},
+		}
+		req.Header = header
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return servers, err
+	}
+
 	defer resp.Body.Close()
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return servers, err

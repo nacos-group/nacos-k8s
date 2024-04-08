@@ -18,6 +18,8 @@ serviceAccount:
   create: true
   annotations: {}
   name: ""
+  
+enableIPv6: false
 
 podAnnotations: {}
 
