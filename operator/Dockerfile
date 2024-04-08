@@ -17,6 +17,7 @@ COPY api/ api/
 COPY controllers/ controllers/
 COPY pkg/ pkg/
 ADD https://raw.githubusercontent.com/alibaba/nacos/develop/distribution/conf/mysql-schema.sql config/sql/nacos-mysql.sql
+RUN sed -i 's/INSERT INTO/INSERT IGNORE INTO/' config/sql/nacos-mysql.sql
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} GO111MODULE=on go build  -a -v -o manager main.go
@@ -26,7 +27,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} GO111MODULE=on go build  -a -v
 FROM registry.cn-hangzhou.aliyuncs.com/shenkonghui/distroless-static:nonroot
 WORKDIR /
 COPY --from=builder /workspace/manager .
-COPY --from=builder /workspace/config/sql/nacos-mysql.sql config/sql/nacos-mysql.sql
+COPY --from=builder --chmod=644 /workspace/config/sql/nacos-mysql.sql config/sql/nacos-mysql.sql
 USER nonroot:nonroot
 
 ENTRYPOINT ["/manager"]
