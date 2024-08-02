@@ -2,7 +2,6 @@ package operator
 
 import (
 	"fmt"
-	"io/ioutil"
 	batchv1 "k8s.io/api/batch/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"nacos.io/nacos-operator/pkg/util/merge"
@@ -112,10 +111,37 @@ func (e *KindClient) generateClientSvcName(nacos *nacosgroupv1alpha1.Nacos) stri
 // CR格式验证
 func (e *KindClient) ValidationField(nacos *nacosgroupv1alpha1.Nacos) {
 
+	setDefaultValue := []func(nacos *nacosgroupv1alpha1.Nacos){
+		setDefaultNacosType,
+		setDefaultMysql,
+		setDefaultCertification,
+	}
+
+	for _, f := range setDefaultValue {
+		f(nacos)
+	}
+}
+
+func setDefaultNacosType(nacos *nacosgroupv1alpha1.Nacos) {
+	// 默认设置单节点
 	if nacos.Spec.Type == "" {
 		nacos.Spec.Type = "standalone"
 	}
+}
 
+func setDefaultCertification(nacos *nacosgroupv1alpha1.Nacos) {
+	// 默认设置认证参数
+	if nacos.Spec.Certification.Enabled {
+		if nacos.Spec.Certification.Token == "" {
+			nacos.Spec.Certification.Token = "SecretKey012345678901234567890123456789012345678901234567890123456789"
+		}
+		if nacos.Spec.Certification.TokenExpireSeconds == "" {
+			nacos.Spec.Certification.TokenExpireSeconds = "18000"
+		}
+	}
+}
+
+func setDefaultMysql(nacos *nacosgroupv1alpha1.Nacos) {
 	// 默认设置内置数据库
 	if nacos.Spec.Database.TypeDatabase == "" {
 		nacos.Spec.Database.TypeDatabase = "embedded"
@@ -355,7 +381,7 @@ func (e *KindClient) buildJob(nacos *nacosgroupv1alpha1.Nacos) *batchv1.Job {
 func readSql(sqlFileName string) string {
 	// abspath：项目的根路径
 	abspath, _ := filepath.Abs("")
-	bytes, err := ioutil.ReadFile(abspath + "/config/sql/" + sqlFileName)
+	bytes, err := os.ReadFile(abspath + "/config/sql/" + sqlFileName)
 	if err != nil {
 		fmt.Printf("read sql file failed, err: %s", err.Error())
 		return ""
@@ -424,6 +450,11 @@ func (e *KindClient) buildClientService(nacos *nacosgroupv1alpha1.Nacos) *v1.Ser
 					Port:     NACOS_PORT,
 					Protocol: "TCP",
 				},
+				{
+					Name:     "rpc",
+					Port:     9848,
+					Protocol: "TCP",
+				},
 			},
 			Selector: labels,
 		},
@@ -450,6 +481,42 @@ func (e *KindClient) buildStatefulset(nacos *nacosgroupv1alpha1.Nacos) *appv1.St
 		Name:  "PREFER_HOST_MODE",
 		Value: "hostname",
 	})
+
+	switch nacos.Spec.FunctionMode {
+	case "naming":
+		env = append(nacos.Spec.Env, v1.EnvVar{
+			Name:  "FUNCTION_MODE",
+			Value: "naming",
+		})
+	case "config":
+		env = append(nacos.Spec.Env, v1.EnvVar{
+			Name:  "FUNCTION_MODE",
+			Value: "config",
+		})
+	}
+
+	// 设置认证环境变量
+	if nacos.Spec.Certification.Enabled {
+		env = append(env, v1.EnvVar{
+			Name:  "NACOS_AUTH_ENABLE",
+			Value: strconv.FormatBool(nacos.Spec.Certification.Enabled),
+		})
+
+		env = append(env, v1.EnvVar{
+			Name:  "NACOS_AUTH_TOKEN_EXPIRE_SECONDS",
+			Value: nacos.Spec.Certification.TokenExpireSeconds,
+		})
+
+		env = append(env, v1.EnvVar{
+			Name:  "NACOS_AUTH_TOKEN",
+			Value: nacos.Spec.Certification.Token,
+		})
+
+		env = append(env, v1.EnvVar{
+			Name:  "NACOS_AUTH_CACHE_ENABLE",
+			Value: strconv.FormatBool(nacos.Spec.Certification.CacheEnabled),
+		})
+	}
 
 	// 数据库设置
 	if nacos.Spec.Database.TypeDatabase == "embedded" {
@@ -527,6 +594,17 @@ func (e *KindClient) buildStatefulset(nacos *nacosgroupv1alpha1.Nacos) *appv1.St
 						{
 							Name:  nacos.Name,
 							Image: nacos.Spec.Image,
+							Lifecycle: &v1.Lifecycle{
+								PreStop: &v1.Handler{
+									Exec: &v1.ExecAction{
+										Command: []string{
+											"/bin/sh",
+											"-c",
+											"rm -rf /home/nacos/data/protocol/raft",
+										},
+									},
+								},
+							},
 							Ports: []v1.ContainerPort{
 								{
 									Name:          "client",

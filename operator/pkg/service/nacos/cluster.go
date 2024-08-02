@@ -3,7 +3,7 @@ package nacosClient
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -57,7 +57,7 @@ func (c *NacosClient) GetClusterNodes(ip string) (ServersInfo, error) {
 		return servers, err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return servers, err
 	}

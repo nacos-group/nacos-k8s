@@ -143,7 +143,7 @@ mysql-gf2vd                        1/1     Running   0          111m
 ```
 ## 执行数据库初始化语句
 
-数据库初始化语句位置  <https://github.com/alibaba/nacos/blob/develop/distribution/conf/nacos-mysql.sql>
+数据库初始化语句位置  <https://github.com/alibaba/nacos/blob/develop/distribution/conf/mysql-schema.sql>
 
 
 
@@ -155,6 +155,7 @@ mysql-gf2vd                        1/1     Running   0          111m
 
 ```yaml
 data:
+  mysql.host: "数据库地址"
   mysql.db.name: "数据库名称"
   mysql.port: "端口"
   mysql.user: "用户名"
@@ -281,6 +282,7 @@ for i in 0 1 2; do echo nacos-$i; kubectl exec nacos-$i curl GET "http://localho
 | mysql.port     | N       | 端口                        |
 | mysql.user     | Y       | 用户名                     |
 | mysql.password | Y       | 密码                     |
+| SPRING_DATASOURCE_PLATFORM | Y       | 数据库类型,默认embedded嵌入式数据库,参数只支持mysql或embedded                     |
 | NACOS_REPLICAS        | N      | 确定执行Nacos启动节点数量,如果不适用动态扩容插件,就必须配置这个属性，否则使用扩容插件后不会生效 |
 | NACOS_SERVER_PORT     | N       | Nacos 端口  为peer_finder插件提供端口          |
 | NACOS_APPLICATION_PORT     | N       | Nacos 端口             |

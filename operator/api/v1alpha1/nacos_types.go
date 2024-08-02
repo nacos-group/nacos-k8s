@@ -45,13 +45,23 @@ type NacosSpec struct {
 
 	// 自定义配置
 	// 部署模式
-	Type     string   `json:"type,omitempty"`
-	Database Database `json:"database,omitempty"`
-	Volume   Storage  `json:"volume,omitempty"`
+	Type         string   `json:"type,omitempty"`
+	FunctionMode string   `json:"function_mode,omitempty"`
+	Database     Database `json:"database,omitempty"`
+	Volume       Storage  `json:"volume,omitempty"`
 	// 配置文件
 	Config string `json:"config,omitempty"`
+	// 开启认证
+	Certification Certification `json:"certification,omitempty"`
 	// 通用k8s配置包装器
 	K8sWrapper K8sWrapper `json:"k8sWrapper,omitempty"`
+}
+
+type Certification struct {
+	Enabled            bool   `json:"enabled,omitempty"`
+	Token              string `json:"token,omitempty"`
+	TokenExpireSeconds string `json:"token_expire_seconds,omitempty"`
+	CacheEnabled       bool   `json:"cache_enabled,omitempty"`
 }
 
 type K8sWrapper struct {

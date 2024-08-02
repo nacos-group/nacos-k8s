@@ -121,12 +121,13 @@ func (s *StatefulSetService) CreateOrUpdateStatefulSet(namespace string, statefu
 	// namespace is our spec(https://github.com/kubernetes/community/blob/master/contributors/devel/api-conventions.md#concurrency-control-and-consistency),
 	// we will replace the current namespace state.
 
-	dAtA, _ := json.Marshal(storedStatefulSet.Spec.Template.Spec.Containers[0].Resources)
-	dAtB, _ := json.Marshal(statefulSet.Spec.Template.Spec.Containers[0].Resources)
-	if !bytes.Equal(dAtA, dAtB) ||
-		*statefulSet.Spec.Replicas != *storedStatefulSet.Spec.Replicas {
+	switch checkSts(storedStatefulSet, statefulSet) {
+	case Update:
 		statefulSet.ResourceVersion = storedStatefulSet.ResourceVersion
 		return s.UpdateStatefulSet(namespace, statefulSet)
+	//updates to statefulset spec for fields other than 'replicas', 'template', and 'updateStrategy' are forbidden
+	case Delete:
+		return s.DeleteStatefulSet(namespace, storedStatefulSet.Name)
 	}
 	return nil
 }
@@ -140,4 +141,56 @@ func (s *StatefulSetService) DeleteStatefulSet(namespace, name string) error {
 // ListStatefulSets will retrieve a list of statefulset in the given namespace
 func (s *StatefulSetService) ListStatefulSets(namespace string) (*appsv1.StatefulSetList, error) {
 	return s.kubeClient.AppsV1().StatefulSets(namespace).List(context.TODO(), metav1.ListOptions{})
+}
+
+type operator int
+
+const (
+	None operator = iota
+	Update
+	Delete
+)
+
+// check whether delete sts
+func checkSts(old *appsv1.StatefulSet, new *appsv1.StatefulSet) operator {
+
+	rsA, _ := json.Marshal(old.Spec.Template.Spec.Containers[0].Resources)
+	rsB, _ := json.Marshal(new.Spec.Template.Spec.Containers[0].Resources)
+
+	envA, _ := json.Marshal(old.Spec.Template.Spec.Containers[0].Env)
+	envB, _ := json.Marshal(new.Spec.Template.Spec.Containers[0].Env)
+
+	if checkVolumeClaimTemplates(old, new) {
+		return Delete
+	}
+
+	if !bytes.Equal(rsA, rsB) || *old.Spec.Replicas != *new.Spec.Replicas || !bytes.Equal(envA, envB) {
+		return Update
+	}
+
+	return None
+}
+
+// check whether delete sts
+func checkVolumeClaimTemplates(old *appsv1.StatefulSet, new *appsv1.StatefulSet) bool {
+	ov := old.Spec.VolumeClaimTemplates
+	nv := new.Spec.VolumeClaimTemplates
+	if len(ov) == 0 && len(nv) == 0 {
+		return false
+	}
+
+	if len(ov) != len(nv) {
+		return true
+	}
+
+	if len(ov) > 0 && len(nv) > 0 {
+		vmA, _ := json.Marshal(old.Spec.VolumeClaimTemplates[0].Spec.Resources)
+		vmB, _ := json.Marshal(new.Spec.VolumeClaimTemplates[0].Spec.Resources)
+
+		oscn := old.Spec.VolumeClaimTemplates[0].Spec.StorageClassName
+		nscn := new.Spec.VolumeClaimTemplates[0].Spec.StorageClassName
+		return !bytes.Equal(vmA, vmB) || !strings.EqualFold(*oscn, *nscn)
+	}
+
+	return false
 }
