@@ -69,6 +69,14 @@ spec:
               scheme: HTTP
               port: {{ .Values.nacos.serverPort }}
               path: /nacos/v1/console/health/liveness
+          readinessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 10
+            httpGet:
+              scheme: HTTP
+              port: {{ .Values.nacos.serverPort }}
+              path: /nacos/v1/console/health/readiness
           ports:
             - name: http
               containerPort: {{ .Values.nacos.serverPort }}
