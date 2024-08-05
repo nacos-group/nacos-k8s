@@ -1,0 +1,243 @@
+# 通过CNFS方式使用NAS文件系统
+# https://help.aliyun.com/zh/nas/user-guide/use-cnfs-to-manage-nas-file-systems-1
+
+# 使用已有的NAS文件系统创建CNFS
+---
+apiVersion: storage.alibabacloud.com/v1beta1
+kind: ContainerNetworkFileSystem
+metadata:
+  name: cnfs-nas-1a22334511
+spec:
+  description: "1a22334511"
+  type: nas
+  reclaimPolicy: Retain # 目前仅支持Retain策略，删除CNFS时并不会删除NAS文件系统。故删除pod时需要手动删除nas中的文件。删除CNFS并不会删除整个NAS实例
+  parameters:
+    server: 1a22334511-cdg23.cn-beijing.nas.aliyuncs.com
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nas-nacos
+mountOptions:
+  - noresvport,tcp,nolock
+  - vers=3
+parameters:
+  containerNetworkFileSystem: cnfs-nas-1a22334511 # 指定需要使用的CNFS名称
+  volumeAs: subpath
+  path: "/middleware/nacos"
+provisioner: nasplugin.csi.alibabacloud.com
+reclaimPolicy: Retain
+allowVolumeExpansion: true # 是否开启扩容
+
+# 删除时, 需要手动删除pv, 并将 cnfs-nas-1a22334511 /middleware/nacos/  下的nas-* 目录删除
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nacos-system
+# ---
+# # 如果使用阿里云CR拉私有仓库的镜像,可以配置
+# apiVersion: v1
+# data:
+#   .dockerconfigjson: eyJhdXRocyI6eyJo=
+# kind: Secret
+# metadata:
+#   name: aliyun-registry
+#   namespace: nacos-system
+# type: kubernetes.io/dockerconfigjson
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nacos
+  namespace: nacos-system
+  labels:
+    app: nacos
+  annotations:
+    # 通过Annotation配置传统型负载均衡CLB文档
+    # https://help.aliyun.com/zh/ack/ack-managed-and-ack-dedicated/user-guide/add-annotations-to-the-yaml-file-of-a-service-to-configure-clb-instances
+    service.beta.kubernetes.io/alibaba-cloud-loadbalancer-health-check-switch: off  # 关闭TCP端口的健康检查(需CCM版本高于v2.6.0)
+    service.beta.kubernetes.io/alibaba-cloud-loadbalancer-id: lb-2z1231231231238gdn  # 配置CLB的实例ID
+    service.beta.kubernetes.io/alicloud-loadbalancer-force-override-listeners: 'true' # 强制添加监听,不影响其他在用的监听,删除也是只影响当前监听
+spec:
+  publishNotReadyAddresses: true
+  ports:
+    - port: 8848
+      name: server
+      targetPort: 8848
+    - port: 9848
+      name: client-rpc
+      targetPort: 9848
+  selector:
+    app: nacos
+  sessionAffinity: None
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nacos-headless
+  namespace: nacos-system
+  labels:
+    app: nacos-headless
+spec:
+  publishNotReadyAddresses: true
+  ports:
+    - port: 8848
+      name: server
+      targetPort: 8848
+    - port: 9848
+      name: client-rpc
+      targetPort: 9848
+    - port: 9849
+      name: raft-rpc
+      targetPort: 9849
+    ## 兼容1.4.x版本的选举端口
+    - port: 7848
+      name: old-raft-rpc
+      targetPort: 7848
+  selector:
+    app: nacos
+  sessionAffinity: None
+  clusterIP: None
+---
+apiVersion: v1
+kind: Secret
+immutable: true
+metadata:
+  name: nacos-secret
+  namespace: nacos-system
+stringData:
+  mysql.host: "rm-2123123123123f.mysql.rds.aliyuncs.com"
+  # 提前导入相应nacos版本的SQL数据
+  # https://github.com/alibaba/nacos/blob/2.3.2/distribution/conf/mysql-schema.sql
+  mysql.db.name: "nacos"
+  mysql.port: "3306"
+  mysql.user: "nacos"
+  mysql.password: "X1231231231233333333"
+  token.secret.key: "ZFBNSE1QY3pWUHNJb25vNExUaU1NQVFIeGlDMnFybGlYM2FDdXkwaVRMOE5ocjgwCg=="    # 一串长度超32的字符串的base64编码
+  server.identity.key: "nacos"
+  server.identity.value: "R2xETW5GeWJZEZFhrd2FWCg=="
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nacos
+  namespace: nacos-system
+spec:
+  serviceName: nacos-headless
+  podManagementPolicy: Parallel
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: nacos
+      annotations:
+        pod.alpha.kubernetes.io/initialized: "true"
+    spec:
+      # 如果使用阿里云CR拉私有仓库的镜像,可以配置
+      # imagePullSecrets:
+      # - name: aliyun-registry
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                      - nacos-headless
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: nacos
+          imagePullPolicy: Always
+          image: nacos-registry.cn-hangzhou.cr.aliyuncs.com/nacos/nacos-server:v2.3.2
+          resources:
+            limits:
+              memory: "2Gi"
+            requests:
+              memory: "2Gi"
+          ports:
+            - containerPort: 8848
+              name: client-port
+            - containerPort: 9848
+              name: client-rpc
+            - containerPort: 9849
+              name: raft-rpc
+            - containerPort: 7848
+              name: old-raft-rpc
+          env:
+            - name: NACOS_REPLICAS
+              value: "3"
+            - name: NACOS_AUTH_ENABLE
+              value: "true"
+            - name: NACOS_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: nacos-secret
+                  key: token.secret.key
+            - name: NACOS_AUTH_IDENTITY_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: nacos-secret
+                  key: server.identity.key
+            - name: NACOS_AUTH_IDENTITY_VALUE
+              valueFrom:
+                secretKeyRef:
+                  name: nacos-secret
+                  key: server.identity.value
+            - name: MYSQL_SERVICE_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: nacos-secret
+                  key: mysql.host
+            - name: MYSQL_SERVICE_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: nacos-secret
+                  key: mysql.db.name
+            - name: MYSQL_SERVICE_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: nacos-secret
+                  key: mysql.port
+            - name: MYSQL_SERVICE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: nacos-secret
+                  key: mysql.user
+            - name: MYSQL_SERVICE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nacos-secret
+                  key: mysql.password
+            - name: SPRING_DATASOURCE_PLATFORM
+              value: "mysql"
+            - name: MODE
+              value: "cluster"
+            - name: NACOS_SERVER_PORT
+              value: "8848"
+            - name: PREFER_HOST_MODE
+              value: "hostname"
+            - name: NACOS_SERVERS
+              # 修改了namespace, k8s 本地域名
+              value: "nacos-0.nacos-headless.nacos-system.svc.mid.local:8848 nacos-1.nacos-headless.nacos-system.svc.mid.local:8848 nacos-2.nacos-headless.nacos-system.svc.mid.local:8848"
+          volumeMounts:
+            - name: data
+              mountPath: /home/nacos/data
+              subPath: data
+            - name: data
+              mountPath: /home/nacos/logs
+              subPath: logs
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ "ReadWriteMany" ]
+        storageClassName: "nas-nacos" # 通过CNFS使用已有的NAS文件系统
+        resources:
+          requests:
+            storage: 20Gi # 如果打开目录限额功能，则storage字段会生效，动态创建目录写入数据量最大为20 GiB。
+  selector:
+    matchLabels:
+      app: nacos
