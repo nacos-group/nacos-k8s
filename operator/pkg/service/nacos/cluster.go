@@ -18,7 +18,9 @@ type NacosClient struct {
 }
 
 type ServersInfo struct {
-	Servers []struct {
+	Code    int         `json:"code"`
+	Message interface{} `json:"message"`
+	Data    []struct {
 		IP         string `json:"ip"`
 		Port       int    `json:"port"`
 		State      string `json:"state"`
@@ -38,7 +40,7 @@ type ServersInfo struct {
 		} `json:"extendInfo"`
 		Address       string `json:"address"`
 		FailAccessCnt int    `json:"failAccessCnt"`
-	} `json:"servers"`
+	} `json:"data"`
 }
 
 func (c *NacosClient) GetClusterNodes(ip string) (ServersInfo, error) {
@@ -48,9 +50,9 @@ func (c *NacosClient) GetClusterNodes(ip string) (ServersInfo, error) {
 	var err error
 
 	if strings.Contains(ip, ":") {
-		resp, err = c.httpClient.Get(fmt.Sprintf("http://[%s]:8848/nacos/v1/ns/operator/servers", ip))
+		resp, err = c.httpClient.Get(fmt.Sprintf("http://[%s]:8848/nacos/v1/core/cluster/nodes", ip))
 	} else {
-		resp, err = c.httpClient.Get(fmt.Sprintf("http://%s:8848/nacos/v1/ns/operator/servers", ip))
+		resp, err = c.httpClient.Get(fmt.Sprintf("http://%s:8848/nacos/v1/core/cluster/nodes", ip))
 	}
 
 	if err != nil {
