@@ -202,7 +202,9 @@ spec:
     spec:
       type: standalone
       env:
-      - key: JVM_XMS
+      - name: JVM_XMS
+        value: 2g
+      - name: JVM_XMX
         value: 2g
     ```
 
