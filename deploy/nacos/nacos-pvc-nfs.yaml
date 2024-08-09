@@ -90,6 +90,14 @@ spec:
             - containerPort: 7848
               name: old-raft-rpc
           env:
+            - name: NACOS_AUTH_ENABLE
+              value: "true"
+            - name: NACOS_AUTH_IDENTITY_KEY
+              value: "2222"
+            - name: NACOS_AUTH_IDENTITY_VALUE
+              value: "2xxx"
+            - name: NACOS_AUTH_TOKEN
+              value: "SecretKey012345678901234567890123456789012345678901234567890123456789"          
             - name: NACOS_REPLICAS
               value: "3"
             - name: SERVICE_NAME
