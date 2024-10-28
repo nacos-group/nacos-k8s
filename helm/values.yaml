@@ -24,6 +24,14 @@ nacos:
   domainName: cluster.local
   preferhostmode: hostname
   serverPort: 8848
+  auth:
+    enable: false
+    ## if not set, generate a random token
+    token: ""
+    ## if not set, generate a random key
+    identityKey: ""
+    ## if not set, generate a random value
+    identityValue: ""
   health:
     enabled: false
   storage:

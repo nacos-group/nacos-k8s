@@ -103,6 +103,16 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.namespace
             {{- end }}
+            {{- if .Values.nacos.auth.enable }}
+            - name: NACOS_AUTH_ENABLE
+              value: "true"
+            - name: NACOS_AUTH_TOKEN
+              value: {{ include "nacos.auth.token" . | quote }}
+            - name: NACOS_AUTH_IDENTITY_KEY
+              value: {{ include "nacos.auth.identityKey" . | quote }}
+            - name: NACOS_AUTH_IDENTITY_VALUE
+              value: {{ include "nacos.auth.identityValue" . | quote }}
+            {{- end }}
             {{- if eq .Values.nacos.storage.type "mysql" }}
             - name: SPRING_DATASOURCE_PLATFORM
               value: "mysql"
