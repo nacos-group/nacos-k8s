@@ -9,6 +9,9 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"nacos.io/nacos-operator/pkg/util/merge"
+	"os"
+	"path/filepath"
+	"strconv"
 
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
