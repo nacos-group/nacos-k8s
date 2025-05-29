@@ -82,7 +82,7 @@ If you use a custom database, please initialize the database script yourself fir
 
 ## Deploy NFS
 
-* Create Role 
+* Create Role
 
 ```shell
 kubectl create -f deploy/nfs/rbac.yaml
@@ -147,7 +147,7 @@ kubectl create -f deploy/mysql/mysql-nfs.yaml
 
 ```shell
 
-kubectl get pod 
+kubectl get pod
 NAME                         READY   STATUS    RESTARTS   AGE
 mysql-gf2vd                        1/1     Running   0          111m
 
@@ -155,7 +155,7 @@ mysql-gf2vd                        1/1     Running   0          111m
 
 
 
-## Deploy Nacos 
+## Deploy Nacos
 
 
 
@@ -170,6 +170,7 @@ data:
   mysql.port: " db port"
   mysql.user: " db username"
   mysql.password: " db password"
+  mysql.param: " db param"
 ```
 
 
@@ -247,13 +248,13 @@ You can find that the new node has joined the cluster
 - Kubernetes Node configuration(for reference only)
 
 | Hostname   | Configuration                                                                    |
-| ---------- | -------------------------------------------------------------------------------- |                    
+| ---------- | -------------------------------------------------------------------------------- |
 | k8s-master | CentOS Linux release 7.4.1708 (Core) Single-core processor Mem 4G Cloud disk 40G |
 | node01     | CentOS Linux release 7.4.1708 (Core) Single-core processor Mem 4G Cloud disk 40G |
 | node02     | CentOS Linux release 7.4.1708 (Core) Single-core processor Mem 4G Cloud disk 40G |
 
-- Kubernetes version：**1.12.2+** 
-- NFS version：**4.1+** 
+- Kubernetes version：**1.12.2+**
+- NFS version：**4.1+**
 
 
 
@@ -277,7 +278,7 @@ You can find that the new node has joined the cluster
 
 # Configuration properties
 
-* nacos-pvc-nfs.yaml or nacos-quick-start.yaml 
+* nacos-pvc-nfs.yaml or nacos-quick-start.yaml
 
 | Name                  | Required | Description                                    |
 | --------------------- | -------- | --------------------------------------- |
@@ -285,6 +286,7 @@ You can find that the new node has joined the cluster
 | mysql.port     | N       | database port                          |
 | mysql.user     | Y       | database username                        |
 | mysql.password | Y       | database password                       |
+| mysql.param | N       | database parameter                       |
 | SPRING_DATASOURCE_PLATFORM | Y       | Database type,The default is embedded database,parameters only support mysql or embedded                       |
 | NACOS_REPLICAS        | Y       | The number of clusters must be consistent with the value of the replicas attribute |
 | NACOS_SERVER_PORT     | N       | Nacos port,default:8848 for Peer-finder plugin               |
@@ -293,7 +295,7 @@ You can find that the new node has joined the cluster
 
 
 
-* **nfs** deployment.yaml 
+* **nfs** deployment.yaml
 
 | Name       | Required | Description                     |
 | ---------- | -------- | ------------------------ |
@@ -304,7 +306,7 @@ You can find that the new node has joined the cluster
 
 
 
-* mysql yaml 
+* mysql yaml
 
 | Name                       | Required | Description                                                        |
 | -------------------------- | -------- | ----------------------------------------------------------- |
