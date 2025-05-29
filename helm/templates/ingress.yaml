@@ -4,7 +4,7 @@ apiVersion: {{ .Values.ingress.apiVersion }}
 kind: Ingress
 metadata:
   name: {{ $fullName }}
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Release.Namespace }}
   labels:
 {{ include "nacos.labels" . | indent 4 }}
   {{- with .Values.ingress.annotations }}

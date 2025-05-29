@@ -22,7 +22,7 @@ If you use a custom database, please initialize the database script yourself fir
 To install the chart with `release name`:
 
 ```shell
-$ helm install `release name` ./nacos
+$ helm install `release name` ./ --set nacos.authToken="{base64 string}",nacos.identityKey={key},nacos.identityValue={value}
 ```
 
 The command deploys Nacos on the Kubernetes cluster in the default configuration. It will run without a mysql chart and persistent volume. The [configuration](#configuration) section lists the parameters that can be configured during installation. 
@@ -64,42 +64,47 @@ The command removes all the Kubernetes components associated with the chart and 
 
 The following table lists the configurable parameters of the Skywalking chart and their default values.
 
-| Parameter                             | Description                                                        | Default                             |
-|---------------------------------------|--------------------------------------------------------------------|-------------------------------------|
-| `global.mode`                         | Run Mode (~~quickstart,~~ standalone, cluster; )   | `standalone`            |
-| `resources`                          | The [resources] to allocate for nacos container                    | `{}`                                |
-| `nodeSelector`                       | Nacos labels for pod assignment                   | `{}`                                |
-| `affinity`                           | Nacos affinity policy                                              | `{}`                                |
-| `tolerations`                         | Nacos tolerations                                                  | `{}`                                |
-| `resources.requests.cpu`|nacos requests cpu resource|`500m`|
-| `resources.requests.memory`|nacos requests memory resource|`2G`|
-| `nacos.replicaCount`                        | Number of desired nacos pods, the number should be 1 as run standalone mode| `1`           |
-| `nacos.image.repository`                    | Nacos container image name                                      | `nacos/nacos-server`                   |
-| `nacos.image.tag`                           | Nacos container image tag                                       | `latest`                                |
-| `nacos.image.pullPolicy`                    | Nacos container image pull policy                                | `IfNotPresent`                        |
-| `nacos.plugin.enable`                    | Nacos cluster plugin that is auto scale                                       | `true`                   |
-| `nacos.plugin.image.repository`                    | Nacos cluster plugin image name                                      | `nacos/nacos-peer-finder-plugin`                   |
-| `nacos.plugin.image.tag`                           | Nacos cluster plugin image tag                                       | `1.1`                                |
-| `nacos.health.enabled`                      | Enable health check or not                                         | `false`                              |
-| `nacos.env.preferhostmode`                  | Enable Nacos cluster node domain name support                      | `hostname`                         |
-| `nacos.env.serverPort`                      | Nacos port                                                         | `8848`                               |
-| `nacos.storage.type`                      | Nacos data storage method `mysql` or `embedded`. The `embedded` supports either standalone or cluster mode                                                       | `embedded`                               |
-| `nacos.storage.db.host`                      | mysql  host                                                       |                                |
-| `nacos.storage.db.name`                      | mysql  database name                                                      |                                |
-| `nacos.storage.db.port`                      | mysql port                                                       | 3306                               |
-| `nacos.storage.db.username`                      | username of  database                                                       |                               |
-| `nacos.storage.db.password`                      | password of  database                                                       |                               |
-| `nacos.storage.db.param`                      | Database url parameter                                                       | `characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false`                               |
-| `persistence.enabled`                 | Enable the nacos data persistence or not                           | `false`                              |
-| `persistence.data.accessModes`					| Nacos data pvc access mode										| `ReadWriteOnce`		|
-| `persistence.data.storageClassName`				| Nacos data pvc storage class name									| `manual`			|
-| `persistence.data.resources.requests.storage`		| Nacos data pvc requests storage									| `5G`					|
-| `service.type`									| http service type													| `NodePort`			|
-| `service.port`									| http service port													| `8848`				|
-| `service.nodePort`								| http service nodeport												| `30000`				|
-| `ingress.enabled`									| Enable ingress or not												| `false`				|
-| `ingress.annotations`								| The annotations used in ingress									| `{}`					|
-| `ingress.hosts`									| The host of nacos service in ingress rule							| `nacos.example.com`	|
+| Parameter                                       | Description                                                                                                | Default                                                                                         |
+|-------------------------------------------------|------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| `global.mode`                                   | Run Mode (~~quickstart,~~ standalone, cluster; )                                                           | `standalone`                                                                                    |
+| `resources`                                     | The [resources] to allocate for nacos container                                                            | `{}`                                                                                            |
+| `nodeSelector`                                  | Nacos labels for pod assignment                                                                            | `{}`                                                                                            |
+| `affinity`                                      | Nacos affinity policy                                                                                      | `{}`                                                                                            |
+| `tolerations`                                   | Nacos tolerations                                                                                          | `{}`                                                                                            |
+| `resources.requests.cpu`                        | nacos requests cpu resource                                                                                | `500m`                                                                                          |
+| `resources.requests.memory`                     | nacos requests memory resource                                                                             | `2G`                                                                                            |
+| `nacos.replicaCount`                            | Number of desired nacos pods, the number should be 1 as run standalone mode                                | `1`                                                                                             |
+| `nacos.image.repository`                        | Nacos container image name                                                                                 | `nacos/nacos-server`                                                                            |
+| `nacos.image.tag`                               | Nacos container image tag                                                                                  | `latest`                                                                                        |
+| `nacos.image.pullPolicy`                        | Nacos container image pull policy                                                                          | `IfNotPresent`                                                                                  |
+| `nacos.plugin.enable`                           | Nacos cluster plugin that is auto scale                                                                    | `true`                                                                                          |
+| `nacos.plugin.image.repository`                 | Nacos cluster plugin image name                                                                            | `nacos/nacos-peer-finder-plugin`                                                                |
+| `nacos.plugin.image.tag`                        | Nacos cluster plugin image tag                                                                             | `1.1`                                                                                           |
+| `nacos.health.enabled`                          | Enable health check or not                                                                                 | `false`                                                                                         |
+| `nacos.preferHostMode`                          | Enable Nacos cluster node domain name support                                                              | `hostname`                                                                                      |
+| `nacos.serverPort`                              | Nacos pod's port                                                                                           | `8848`                                                                                          |
+| `nacos.consolePort`                             | Nacos console main port                                                                                    | `8080`                                                                                          |
+| `nacos.mcpPort`                                 | Nacos mcp registry port                                                                                    | `9080`                                                                                          |
+| `nacos.authToken`                               | Nacos auth plugin token secret key                                                                         | *Must* be setting manually                                                                      |
+| `nacos.identityKey`                             | Nacos auth server identity key                                                                             | *Must* be setting manually                                                                      |
+| `nacos.identityValue`                           | Nacos auth server identity value                                                                           | *Must* be setting manually                                                                      |
+| `nacos.storage.type`                            | Nacos data storage method `mysql` or `embedded`. The `embedded` supports either standalone or cluster mode | `embedded`                                                                                      |
+| `nacos.storage.db.host`                         | mysql  host                                                                                                |                                                                                                 |
+| `nacos.storage.db.name`                         | mysql  database name                                                                                       |                                                                                                 |
+| `nacos.storage.db.port`                         | mysql port                                                                                                 | 3306                                                                                            |
+| `nacos.storage.db.username`                     | username of  database                                                                                      |                                                                                                 |
+| `nacos.storage.db.password`                     | password of  database                                                                                      |                                                                                                 |
+| `nacos.storage.db.param`                        | Database url parameter                                                                                     | `characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false` |
+| `persistence.enabled`                           | Enable the nacos data persistence or not                                                                   | `false`                                                                                         |
+| `persistence.data.accessModes`					             | Nacos data pvc access mode										                                                                       | `ReadWriteOnce`		                                                                               |
+| `persistence.data.storageClassName`				         | Nacos data pvc storage class name									                                                                 | `manual`			                                                                                     |
+| `persistence.data.resources.requests.storage`		 | Nacos data pvc requests storage									                                                                   | `5G`					                                                                                       |
+| `service.type`									                         | http service type													                                                                             | `NodePort`			                                                                                   |
+| `service.port`									                         | http service port													                                                                             | `8848`				                                                                                      |
+| `service.nodePort`								                      | http service nodeport												                                                                          | `30000`				                                                                                     |
+| `ingress.enabled`									                      | Enable ingress or not												                                                                          | `false`				                                                                                     |
+| `ingress.annotations`								                   | The annotations used in ingress									                                                                   | `{}`					                                                                                       |
+| `ingress.hosts`									                        | The host of nacos service in ingress rule							                                                           | `nacos.example.com`	                                                                            |
 
 
 ## Example

@@ -4,14 +4,15 @@
 
 global:
   mode: standalone
+#  deploymentType: merge
 #  mode: cluster
 
 ############################nacos###########################
-namespace: default
+#namespace: default
 nacos:
   image:
     repository: nacos/nacos-server
-    tag: latest
+    tag: v3.0.1
     pullPolicy: IfNotPresent
   plugin:
     enable: true
@@ -22,8 +23,13 @@ nacos:
   replicaCount: 1
   podManagementPolicy: Parallel
   domainName: cluster.local
-  preferhostmode: hostname
+  preferHostMode: hostname
   serverPort: 8848
+  consolePort: 8080
+  mcpPort: 9080
+  authToken: nil
+  identityKey: nil
+  identityValue: nil
   health:
     enabled: false
   storage:

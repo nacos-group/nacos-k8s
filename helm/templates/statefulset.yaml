@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ include "nacos.fullname" . }}
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Release.Namespace }}
   annotations:
   {{- toYaml .Values.annotations | indent 4 }}
 spec:
@@ -59,18 +59,18 @@ spec:
             timeoutSeconds: 10
             httpGet:
               scheme: HTTP
-              port: {{ .Values.nacos.serverPort }}
-              path: /nacos/v1/console/health/readiness
+              port: {{ .Values.nacos.consolePort }}
+              path: /v3/console/health/readiness
           livenessProbe:
             initialDelaySeconds: 10
             periodSeconds: 5
             timeoutSeconds: 10
             httpGet:
               scheme: HTTP
-              port: {{ .Values.nacos.serverPort }}
-              path: /nacos/v1/console/health/liveness
+              port: {{ .Values.nacos.consolePort }}
+              path: /v3/console/health/liveness
           ports:
-            - name: http
+            - name: client-http
               containerPort: {{ .Values.nacos.serverPort }}
               protocol: TCP
             - containerPort: {{ add .Values.nacos.serverPort 1000}}
@@ -79,15 +79,26 @@ spec:
               name: raft-rpc
             - containerPort: 7848
               name: old-raft-rpc
+            - containerPort: {{ .Values.nacos.consolePort}}
+              name: console
+              protocol: TCP
+            - containerPort: {{ .Values.nacos.mcpPort }}
+              name: mcp
           resources:
-          {{- toYaml .Values.resources | nindent 12 }}
+          {{ toYaml .Values.resources | nindent 12 }}
           env:
             - name: NACOS_SERVER_PORT
               value: {{ .Values.nacos.serverPort | quote }}
             - name: NACOS_APPLICATION_PORT
               value: {{ .Values.nacos.serverPort | quote }}
             - name: PREFER_HOST_MODE
-              value: {{ .Values.nacos.preferhostmode | quote }}
+              value: {{ .Values.nacos.preferHostMode | quote }}
+            - name: NACOS_AUTH_TOKEN
+              value: {{ .Values.nacos.authToken | quote }}
+            - name: NACOS_AUTH_IDENTITY_KEY
+              value: {{ .Values.nacos.identityKey | quote }}
+            - name: NACOS_AUTH_IDENTITY_VALUE
+              value: {{ .Values.nacos.identityValue | quote }}
             {{- if eq .Values.global.mode "standalone" }}
             - name: MODE
               value: "standalone"

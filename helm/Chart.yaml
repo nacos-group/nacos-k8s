@@ -1,9 +1,11 @@
-apiVersion: v1
-appVersion: "1.0"
+apiVersion: v2
+appVersion: "3.0.1"
 description: A Helm chart for Kubernetes
 name: nacos
-version: 0.1.5
+version: 1.0.0
 maintainers:
   - name: arrowfeng
   - name: paderlol
-
+  - name: yunye
+home: https://nacos.io/
+icon: https://img.alicdn.com/imgextra/i4/O1CN01rW3vAB1FDWKSOiFf0_!!6000000000453-2-tps-204-40.png
