@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 echo "mysql mysql startup"
-kubectl create -f ./deploy/mysql/mysql-local.yaml
+sh deploy/mysql/mysql-init.sh && kubectl create -f ./deploy/mysql/mysql-local.yaml
 
 
 echo "nacos quick startup"
