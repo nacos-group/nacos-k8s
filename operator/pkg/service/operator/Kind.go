@@ -39,7 +39,7 @@ for element in ${array[@]}
 do
   while true
   do
-    ping $element -c 1 > /dev/stdout
+    ping -c 1 $element > /dev/stdout
     if [[ $? -eq 0 ]]; then
       echo $element "all domain ready"
       break
@@ -858,7 +858,7 @@ func (e *KindClient) buildStatefulsetCluster(nacos *nacosgroupv1alpha1.Nacos, ss
 	}
 	ss.Spec.Template.Spec.Containers[0].Env = append(ss.Spec.Template.Spec.Containers[0].Env, env...)
 	// 先检查域名解析再启动
-	ss.Spec.Template.Spec.Containers[0].Command = []string{"sh", "-c", fmt.Sprintf("%s&&bin/docker-startup.sh", fmt.Sprintf(initScrit, serivceNoPort))}
+	ss.Spec.Template.Spec.Containers[0].Command = []string{"/bin/bash", "-c", fmt.Sprintf("%s&&bin/docker-startup.sh", fmt.Sprintf(initScrit, serivceNoPort))}
 	return ss
 }
 
