@@ -33,7 +33,7 @@ const NEW_RAFT_PORT = 9848
 const SQL_FILE_NAME = "nacos-mysql.sql"
 
 var initScrit = `array=(%s)
-succ = 0
+succ=0
 
 for element in ${array[@]} 
 do
@@ -858,7 +858,7 @@ func (e *KindClient) buildStatefulsetCluster(nacos *nacosgroupv1alpha1.Nacos, ss
 	}
 	ss.Spec.Template.Spec.Containers[0].Env = append(ss.Spec.Template.Spec.Containers[0].Env, env...)
 	// 先检查域名解析再启动
-	ss.Spec.Template.Spec.Containers[0].Command = []string{"sh", "-c", fmt.Sprintf("%s&&bin/docker-startup.sh", fmt.Sprintf(initScrit, serivceNoPort))}
+	ss.Spec.Template.Spec.Containers[0].Command = []string{"bash", "-c", fmt.Sprintf("%s&&bin/docker-startup.sh", fmt.Sprintf(initScrit, serivceNoPort))}
 	return ss
 }
 
