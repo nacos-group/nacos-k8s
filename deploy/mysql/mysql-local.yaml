@@ -15,12 +15,17 @@ spec:
     spec:
       containers:
       - name: mysql
-        image: nacos/nacos-mysql:5.7
+        image: mysql:8.0.30
         ports:
         - containerPort: 3306
+        args:
+          - "--character-set-server=utf8mb4"
+          - "--collation-server=utf8mb4_unicode_ci"
         volumeMounts:
         - name: mysql-data
           mountPath: /var/lib/mysql
+        - name: mysql-init
+          mountPath: /docker-entrypoint-initdb.d
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: "root"
@@ -34,6 +39,9 @@ spec:
       - name: mysql-data
         hostPath:
           path: /var/lib/mysql
+      - name: mysql-init
+        hostPath:
+          path: /data/mysql-init
 ---
 apiVersion: v1
 kind: Service

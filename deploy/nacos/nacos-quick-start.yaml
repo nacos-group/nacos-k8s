@@ -22,6 +22,9 @@ spec:
     - port: 7848
       name: old-raft-rpc
       targetPort: 7848
+    - port: 8080
+      name: console
+      targetPort: 8080
   selector:
     app: nacos
 ---
@@ -77,6 +80,8 @@ spec:
               name: raft-rpc
             - containerPort: 7848
               name: old-raft-rpc
+            - containerPort: 8080
+              name: console
           env:
             - name: NACOS_REPLICAS
               value: "3"
@@ -118,4 +123,3 @@ spec:
   selector:
     matchLabels:
       app: nacos
-
