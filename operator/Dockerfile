@@ -17,7 +17,7 @@ COPY main.go main.go
 COPY api/ api/
 COPY controllers/ controllers/
 COPY pkg/ pkg/
-ADD https://raw.githubusercontent.com/alibaba/nacos/develop/distribution/conf/mysql-schema.sql config/sql/nacos-mysql.sql
+ADD https://raw.githubusercontent.com/alibaba/nacos/develop/plugin-default-impl/nacos-default-datasource-plugin/nacos-datasource-plugin-mysql/src/main/resources/META-INF/mysql-schema.sql config/sql/nacos-mysql.sql
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} GO111MODULE=on go build  -a -v -o manager main.go
