@@ -2,6 +2,9 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+imagePullSecrets: []
+# - name: my-registry-secret
+
 global:
   mode: standalone
 #  deploymentType: merge
@@ -12,8 +15,10 @@ global:
 nacos:
   image:
     repository: nacos/nacos-server
-    tag: v3.0.1
+    tag: v3.2.3
     pullPolicy: IfNotPresent
+  # majorVersion: ""  # Override version detection when using custom tags like "latest".
+                       # Set to "2" for Nacos 2.x or "3" for Nacos 3.x.
   plugin:
     enable: true
     image:
@@ -27,9 +32,12 @@ nacos:
   serverPort: 8848
   consolePort: 8080
   mcpPort: 9080
-  authToken: nil
-  identityKey: nil
-  identityValue: nil
+  # IMPORTANT: Change this token in production! Must be a base64-encoded string >= 32 bytes.
+  authToken: VGhpc0lzQ3VzdG9tU2VjcmV0S2V5MEluSXRzVmVyeVNhZmU=
+  identityKey: serverIdentity
+  identityValue: security
+  probe:
+    startupDelaySeconds: 180
   health:
     enabled: false
   storage:
@@ -42,6 +50,8 @@ nacos:
 #      username: usernmae
 #      password: password
 #      param: characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false
+#      # For MySQL 8.0+, you may need to add: &allowPublicKeyRetrieval=true
+#      # Full example: characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
 
 persistence:
   enabled: false

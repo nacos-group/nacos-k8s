@@ -43,3 +43,21 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
+
+{{/*
+Detect whether the Nacos image is v3.x.
+Override with nacos.majorVersion if using a custom tag like "latest".
+Returns the string "true" or "false".
+*/}}
+{{- define "nacos.isV3" -}}
+{{- $tag := .Values.nacos.image.tag | toString -}}
+{{- if .Values.nacos.majorVersion -}}
+  {{- eq (.Values.nacos.majorVersion | toString) "3" -}}
+{{- else if hasPrefix "v2." $tag -}}
+  {{- false -}}
+{{- else if hasPrefix "2." $tag -}}
+  {{- false -}}
+{{- else -}}
+  {{- true -}}
+{{- end -}}
+{{- end -}}
