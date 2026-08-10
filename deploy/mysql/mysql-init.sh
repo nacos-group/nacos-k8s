@@ -7,22 +7,26 @@ CLEAN_VERSION=${NACOS_VERSION#v}
 # deal -slim
 CLEAN_VERSION=${CLEAN_VERSION%-*}
 
-SCHEMA_URL="https://raw.githubusercontent.com/alibaba/nacos/${CLEAN_VERSION}/distribution/conf/mysql-schema.sql"
+NEW_SCHEMA_URL="https://raw.githubusercontent.com/alibaba/nacos/${CLEAN_VERSION}/plugin-default-impl/nacos-default-datasource-plugin/nacos-datasource-plugin-mysql/src/main/resources/META-INF/mysql-schema.sql"
+OLD_SCHEMA_URL="https://raw.githubusercontent.com/alibaba/nacos/${CLEAN_VERSION}/distribution/conf/mysql-schema.sql"
 
 TARGET_DIR="/data/mysql-init"
 VERSIONED_FILE="${TARGET_DIR}/${CLEAN_VERSION}-mysql-schema.sql"
 FINAL_FILE="${TARGET_DIR}/mysql-schema.sql"
 
-# 创建目录
+# Create directory
 mkdir -p "${TARGET_DIR}"
 
-# 下载 schema 文件
-echo "⬇️  Downloading MySQL schema for Nacos ${CLEAN_VERSION}..."
-curl -sSL "$SCHEMA_URL" -o "${VERSIONED_FILE}"
+# Download schema file (try new path first, fallback to legacy path)
+echo "Downloading MySQL schema for Nacos ${CLEAN_VERSION}..."
+if ! curl -sSL --fail "${NEW_SCHEMA_URL}" -o "${VERSIONED_FILE}" 2>/dev/null; then
+  echo "New path not found, trying legacy path..."
+  curl -sSL --fail "${OLD_SCHEMA_URL}" -o "${VERSIONED_FILE}"
+fi
 
-# 校验下载
+# Verify download
 if [ ! -s "${VERSIONED_FILE}" ]; then
-  echo "❌ Failed to download schema file from $SCHEMA_URL"
+  echo "Failed to download schema file"
   exit 1
 fi
 
@@ -32,4 +36,4 @@ cp "${VERSIONED_FILE}" "${FINAL_FILE}"
 # 删除原始版本号文件
 rm -f "${VERSIONED_FILE}"
 
-echo "✅ Downloaded and prepared: ${FINAL_FILE}"
+echo "Downloaded and prepared: ${FINAL_FILE}"
