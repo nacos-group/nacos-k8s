@@ -114,6 +114,18 @@ wait_for_pods() {
     expected_pods=3
   fi
 
+  # kubectl wait fails immediately if no pods exist yet; poll until at least one appears
+  echo ">>> Waiting for pods to be created..."
+  local elapsed=0
+  while [[ $(kubectl get pods -l app.kubernetes.io/name=nacos -o name 2>/dev/null | wc -l | tr -d ' ') -lt 1 ]]; do
+    if [[ ${elapsed} -ge 120 ]]; then
+      echo "ERROR: No pods created after 120s"
+      return 1
+    fi
+    sleep 5
+    elapsed=$((elapsed + 5))
+  done
+
   kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=nacos \
     --timeout="${TIMEOUT}"
 
