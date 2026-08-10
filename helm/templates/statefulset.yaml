@@ -39,6 +39,10 @@ spec:
       tolerations:
       {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- if and (eq .Values.global.mode "cluster") (.Values.nacos.plugin.enable) }}
       initContainers:
         - name: peer-finder-plugin-install
@@ -54,36 +58,60 @@ spec:
           image: "{{ .Values.nacos.image.repository }}:{{ .Values.nacos.image.tag }}"
           imagePullPolicy: {{ .Values.nacos.image.pullPolicy }}
           startupProbe:
-            initialDelaySeconds: 180
+            initialDelaySeconds: {{ .Values.nacos.probe.startupDelaySeconds | default 180 }}
             periodSeconds: 5
             timeoutSeconds: 10
             httpGet:
               scheme: HTTP
+              {{- if eq (include "nacos.isV3" .) "true" }}
               port: {{ .Values.nacos.consolePort }}
               path: /v3/console/health/readiness
+              {{- else }}
+              port: {{ .Values.nacos.serverPort }}
+              path: /nacos/
+              {{- end }}
           livenessProbe:
             initialDelaySeconds: 10
             periodSeconds: 5
             timeoutSeconds: 10
             httpGet:
               scheme: HTTP
+              {{- if eq (include "nacos.isV3" .) "true" }}
               port: {{ .Values.nacos.consolePort }}
               path: /v3/console/health/liveness
+              {{- else }}
+              port: {{ .Values.nacos.serverPort }}
+              path: /nacos/
+              {{- end }}
+          readinessProbe:
+            periodSeconds: 5
+            timeoutSeconds: 10
+            httpGet:
+              scheme: HTTP
+              {{- if eq (include "nacos.isV3" .) "true" }}
+              port: {{ .Values.nacos.consolePort }}
+              path: /v3/console/health/readiness
+              {{- else }}
+              port: {{ .Values.nacos.serverPort }}
+              path: /nacos/
+              {{- end }}
           ports:
             - name: client-http
               containerPort: {{ .Values.nacos.serverPort }}
               protocol: TCP
-            - containerPort: {{ add .Values.nacos.serverPort 1000}}
+            - containerPort: {{ add .Values.nacos.serverPort 1000 }}
               name: client-rpc
             - containerPort: {{ add .Values.nacos.serverPort 1001 }}
               name: raft-rpc
             - containerPort: 7848
               name: old-raft-rpc
-            - containerPort: {{ .Values.nacos.consolePort}}
+            {{- if eq (include "nacos.isV3" .) "true" }}
+            - containerPort: {{ .Values.nacos.consolePort }}
               name: console
               protocol: TCP
             - containerPort: {{ .Values.nacos.mcpPort }}
               name: mcp
+            {{- end }}
           resources:
           {{ toYaml .Values.resources | nindent 12 }}
           env:
