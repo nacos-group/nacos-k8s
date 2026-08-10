@@ -113,7 +113,7 @@ helm_install() {
     extra_args+=(--set "nacos.storage.db.port=3306")
     extra_args+=(--set "nacos.storage.db.username=nacos")
     extra_args+=(--set "nacos.storage.db.password=nacos")
-    extra_args+=(--set "nacos.storage.db.param=characterEncoding=utf8\&connectTimeout=1000\&socketTimeout=3000\&autoReconnect=true\&useSSL=false")
+    extra_args+=(--set "nacos.storage.db.param=characterEncoding=utf8\&connectTimeout=1000\&socketTimeout=3000\&autoReconnect=true\&useSSL=false\&allowPublicKeyRetrieval=true")
   fi
 
   echo ">>> Installing Helm chart..."
