@@ -1,0 +1,13 @@
+# Helm values override for Nacos 3.x CI smoke tests.
+# image.tag is injected by helm-smoke-test.sh via --set.
+nacos:
+  consolePort: 8080
+  mcpPort: 9080
+
+service:
+  type: ClusterIP
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 2Gi

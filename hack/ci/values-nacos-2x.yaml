@@ -1,0 +1,17 @@
+# Helm values override for Nacos 2.x CI smoke tests.
+# image.tag is injected by helm-smoke-test.sh via --set.
+#
+# Known limitation: the current Helm chart hardcodes Nacos 3.x probe paths
+# (/v3/console/health/*). Until the chart is updated to support configurable
+# probes, 2.x tests are expected to fail at the pod readiness stage.
+nacos:
+  consolePort: 8848
+  mcpPort: 8848
+
+service:
+  type: ClusterIP
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 2Gi
