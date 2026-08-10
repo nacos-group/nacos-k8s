@@ -1,5 +1,9 @@
 # Helm values override for Nacos 2.x CI smoke tests.
 # image.tag is injected by helm-smoke-test.sh via --set.
+nacos:
+  probe:
+    startupDelaySeconds: 30
+
 service:
   type: ClusterIP
 
