@@ -108,6 +108,7 @@ helm_install() {
 
   if [[ "${MODE}" == "cluster" ]]; then
     extra_args+=(--set "nacos.replicaCount=3")
+    extra_args+=(--set "nacos.probe.startupDelaySeconds=180")
   fi
 
   if [[ "${STORAGE}" == "mysql" ]]; then
