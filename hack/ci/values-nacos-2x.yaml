@@ -1,0 +1,23 @@
+# Helm values override for Nacos 2.x CI smoke tests.
+# image.tag is injected by helm-smoke-test.sh via --set.
+#
+# Known limitations for Nacos 2.x on the current Helm chart:
+# 1. Probe paths are hardcoded to /v3/console/health/* (3.x endpoints).
+#    Until the chart supports configurable probes, 2.x pods will fail readiness.
+# 2. The chart always renders consolePort and mcpPort as container ports.
+#    These must differ from serverPort (8848) to avoid duplicate port errors.
+#    We use placeholder ports that Nacos 2.x will simply ignore.
+nacos:
+  consolePort: 8080
+  mcpPort: 9080
+  authToken: bmFjb3MtY2ktc21va2UtdGVzdC1zZWNyZXQta2V5LWZvci1qd3QtdG9rZW4=
+  identityKey: nacosKey
+  identityValue: nacosValue
+
+service:
+  type: ClusterIP
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 2Gi

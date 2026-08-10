@@ -1,0 +1,16 @@
+# Helm values override for Nacos 3.x CI smoke tests.
+# image.tag is injected by helm-smoke-test.sh via --set.
+nacos:
+  consolePort: 8080
+  mcpPort: 9080
+  authToken: bmFjb3MtY2ktc21va2UtdGVzdC1zZWNyZXQta2V5LWZvci1qd3QtdG9rZW4=
+  identityKey: nacosKey
+  identityValue: nacosValue
+
+service:
+  type: ClusterIP
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 2Gi

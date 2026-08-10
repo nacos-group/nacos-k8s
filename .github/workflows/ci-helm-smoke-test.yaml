@@ -1,0 +1,82 @@
+name: Helm Smoke Test
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+jobs:
+  helm-smoke-test:
+    name: "${{ matrix.mode }} | nacos ${{ matrix.nacos-version }} | k8s ${{ matrix.k8s-version }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        nacos-version: [v2.5.3, v3.2.3]
+        k8s-version: [v1.34.8, v1.36.1]
+        mode: [standalone, cluster]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Kind
+        run: |
+          curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.32.0/kind-linux-amd64
+          chmod +x ./kind
+          sudo mv ./kind /usr/local/bin/kind
+          kind version
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: latest
+
+      - name: Create Kind cluster
+        run: |
+          kind create cluster \
+            --name ci \
+            --image kindest/node:${{ matrix.k8s-version }}
+          kubectl cluster-info
+          kubectl get nodes
+
+      - name: Run smoke test (embedded)
+        run: |
+          NACOS_VERSION=${{ matrix.nacos-version }} \
+          MODE=${{ matrix.mode }} \
+          STORAGE=embedded \
+            ./hack/ci/helm-smoke-test.sh
+
+      - name: Run smoke test (mysql)
+        if: matrix.mode == 'standalone'
+        run: |
+          NACOS_VERSION=${{ matrix.nacos-version }} \
+          MODE=${{ matrix.mode }} \
+          STORAGE=mysql \
+            ./hack/ci/helm-smoke-test.sh
+
+      - name: Collect diagnostics
+        if: failure()
+        run: |
+          mkdir -p /tmp/diagnostics
+          kubectl get pods -o wide > /tmp/diagnostics/pods.txt 2>&1 || true
+          kubectl describe pods -l app.kubernetes.io/name=nacos > /tmp/diagnostics/describe.txt 2>&1 || true
+          for pod in $(kubectl get pods -l app.kubernetes.io/name=nacos -o name 2>/dev/null); do
+            pod_name="${pod#pod/}"
+            kubectl logs "${pod}" --all-containers > "/tmp/diagnostics/logs-${pod_name}.txt" 2>&1 || true
+            kubectl logs "${pod}" --all-containers --previous > "/tmp/diagnostics/logs-${pod_name}-previous.txt" 2>&1 || true
+          done
+          kubectl get events --sort-by=.lastTimestamp > /tmp/diagnostics/events.txt 2>&1 || true
+
+      - name: Upload diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostics-${{ matrix.nacos-version }}-${{ matrix.k8s-version }}-${{ matrix.mode }}
+          path: /tmp/diagnostics/
+          retention-days: 7
+
+      - name: Cleanup
+        if: always()
+        run: kind delete cluster --name ci
