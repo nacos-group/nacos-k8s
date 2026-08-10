@@ -36,7 +36,7 @@ chmod +x quick-startup.sh
   * **服务注册**
 
   ```bash
-  curl -X PUT 'http://cluster-ip:8848/nacos/v1/ns/instance?serviceName=nacos.naming.serviceName&ip=20.18.7.10&port=8080'
+  curl -X POST 'http://cluster-ip:8848/nacos/v2/ns/instance?serviceName=nacos.naming.serviceName&ip=20.18.7.10&port=8080'
   ```
 
 
@@ -44,7 +44,7 @@ chmod +x quick-startup.sh
   * **服务发现**
 
   ```bash
-  curl -X GET 'http://cluster-ip:8848/nacos/v1/ns/instance/list?serviceName=nacos.naming.serviceName'
+  curl -X GET 'http://cluster-ip:8848/nacos/v2/ns/instance/list?serviceName=nacos.naming.serviceName'
   ```
 
 
@@ -52,7 +52,7 @@ chmod +x quick-startup.sh
   * **发布配置**
 
   ```bash
-  curl -X POST "http://cluster-ip:8848/nacos/v1/cs/configs?dataId=nacos.cfg.dataId&group=test&content=helloWorld"
+  curl -X POST "http://cluster-ip:8848/nacos/v2/cs/config?dataId=nacos.cfg.dataId&group=test&content=helloWorld"
   ```
 
 
@@ -60,7 +60,7 @@ chmod +x quick-startup.sh
   * **获取配置**
 
   ```bash
-  curl -X GET "http://cluster-ip:8848/nacos/v1/cs/configs?dataId=nacos.cfg.dataId&group=test"
+  curl -X GET "http://cluster-ip:8848/nacos/v2/cs/config?dataId=nacos.cfg.dataId&group=test"
   ```
 
 
@@ -71,6 +71,8 @@ chmod +x quick-startup.sh
 >
 
 
+
+> **⚠️ 弃用说明**: 以下 NFS、Ceph 和 OpenShift 部署方式已弃用，不再积极维护。它们依赖已归档的上游项目（`kubernetes-incubator/external-storage`）和过时的 API。**请使用 [Helm chart](helm/)** 部署，通过 `persistence.enabled=true` 配合任意 StorageClass（包括 NFS CSI、Rook-Ceph 等）实现持久化存储。
 
 ## 部署 NFS
 
@@ -143,7 +145,7 @@ mysql-gf2vd                        1/1     Running   0          111m
 ```
 ## 执行数据库初始化语句
 
-数据库初始化语句位置  <https://github.com/alibaba/nacos/blob/develop/distribution/conf/mysql-schema.sql>
+数据库初始化语句位置  <https://github.com/alibaba/nacos/blob/develop/plugin-default-impl/nacos-default-datasource-plugin/nacos-datasource-plugin-mysql/src/main/resources/META-INF/mysql-schema.sql>
 
 
 
@@ -187,7 +189,7 @@ nacos-2   1/1     Running   0          19h
 
 ## 访问后台管理ui 界面
 
-nacos 部署方式中支持部署ingress，浏览器访问 http://nacos-web.nacos-demo.com/nacos/index.html ，默认用户名密码nacos\nacos进行管理后台的访问
+nacos 部署方式中支持部署ingress，浏览器访问 http://nacos-web.nacos-demo.com/ （Nacos 3.x 控制台运行在 8080 端口），默认用户名密码nacos\nacos进行管理后台的访问
 
 注：访问ingress 需要对 nacos-web.nacos-demo.com 进行dns解析，解析ip 为 slave 节点ip，您的集群需要提前安装ingress controller
 
@@ -199,7 +201,7 @@ nacos 部署方式中支持部署ingress，浏览器访问 http://nacos-web.naco
 * 在扩容前,使用 [`kubectl exec`](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands/#exec)获取在pod中的Nacos集群配置文件信息
 
 ```powershell
-for i in 0 1; do echo nacos-$i; kubectl exec nacos-$i cat conf/cluster.conf; done
+for i in 0 1; do echo nacos-$i; kubectl exec nacos-$i -- cat conf/cluster.conf; done
 ```
 
 StatefulSet控制器根据其序数索引为每个Pod提供唯一的主机名。 主机名采用<statefulset name>  -  <ordinal index>的形式。 因为nacos StatefulSet的副本字段设置为2，所以当前集群文件中只有两个Nacos节点地址
@@ -223,20 +225,12 @@ kubectl scale sts nacos --replicas=3
 * 在扩容后,使用 [`kubectl exec`](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands/#exec)获取在pod中的Nacos集群配置文件信息
 
 ```bash
-for i in 0 1 2; do echo nacos-$i; kubectl exec nacos-$i cat conf/cluster.conf; done
+for i in 0 1 2; do echo nacos-$i; kubectl exec nacos-$i -- cat conf/cluster.conf; done
 ```
 
 ![get_cluster_after](/images/get_cluster_after.gif)
 
 
-
-* 使用 [`kubectl exec`](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands/#exec)执行Nacos API 在每台节点上获取当前**Leader**是否一致
-
-```bash
-for i in 0 1 2; do echo nacos-$i; kubectl exec nacos-$i curl GET "http://localhost:8848/nacos/v1/ns/raft/state"; done
-```
-
-到这里你可以发现新节点已经正常加入Nacos集群当中
 
 # 例子部署环境
 
@@ -282,7 +276,7 @@ for i in 0 1 2; do echo nacos-$i; kubectl exec nacos-$i curl GET "http://localho
 | mysql.port     | N       | 端口                        |
 | mysql.user     | Y       | 用户名                     |
 | mysql.password | Y       | 密码                     |
-| SPRING_DATASOURCE_PLATFORM | Y       | 数据库类型,默认embedded嵌入式数据库,参数只支持mysql或embedded                     |
+| NACOS_DATASOURCE_PLATFORM | Y       | 数据库类型,默认embedded嵌入式数据库,参数只支持mysql或embedded（旧名称 `SPRING_DATASOURCE_PLATFORM` 已弃用）                     |
 | NACOS_REPLICAS        | N      | 确定执行Nacos启动节点数量,如果不适用动态扩容插件,就必须配置这个属性，否则使用扩容插件后不会生效 |
 | NACOS_SERVER_PORT     | N       | Nacos 端口  为peer_finder插件提供端口          |
 | NACOS_APPLICATION_PORT     | N       | Nacos 端口             |

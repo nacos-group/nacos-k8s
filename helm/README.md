@@ -8,13 +8,13 @@ This project is based on the Helm Chart packaged by [nacos-k8s](https://github.c
 
 ## Prerequisites
 
- - Kubernetes 1.10+ 
+ - Kubernetes 1.19+ 
  - Helm v3 
  - PV provisioner support in the underlying infrastructure
 
 ## Tips
 If you use a custom database, please initialize the database script yourself first.
-<https://github.com/alibaba/nacos/blob/develop/distribution/conf/nacos-mysql.sql>
+<https://github.com/alibaba/nacos/blob/develop/plugin-default-impl/nacos-default-datasource-plugin/nacos-datasource-plugin-mysql/src/main/resources/META-INF/mysql-schema.sql>
 
  
 ## Installing the Chart
@@ -31,20 +31,20 @@ The command deploys Nacos on the Kubernetes cluster in the default configuration
 
 #### Service registration
 ```shell
-curl -X POST 'http://$NODE_IP:$NODE_PORT/nacos/v1/ns/instance?serviceName=nacos.naming.serviceName&ip=20.18.7.10&port=8080'
+curl -X POST 'http://$NODE_IP:$NODE_PORT/nacos/v2/ns/instance?serviceName=nacos.naming.serviceName&ip=20.18.7.10&port=8080'
 ```
 
 #### Service discovery
 ```shell
-curl -X GET 'http://$NODE_IP:$NODE_PORT/nacos/v1/ns/instance/list?serviceName=nacos.naming.serviceName'
+curl -X GET 'http://$NODE_IP:$NODE_PORT/nacos/v2/ns/instance/list?serviceName=nacos.naming.serviceName'
 ```
 #### Publish config
 ```shell
-curl -X POST "http://$NODE_IP:$NODE_PORT/nacos/v1/cs/configs?dataId=nacos.cfg.dataId&group=test&content=helloWorld"
+curl -X POST "http://$NODE_IP:$NODE_PORT/nacos/v2/cs/config?dataId=nacos.cfg.dataId&group=test&content=helloWorld"
 ```
 #### Get config
 ```shell
-curl -X GET "http://$NODE_IP:$NODE_PORT/nacos/v1/cs/configs?dataId=nacos.cfg.dataId&group=test"
+curl -X GET "http://$NODE_IP:$NODE_PORT/nacos/v2/cs/config?dataId=nacos.cfg.dataId&group=test"
 ```
 
 
@@ -62,7 +62,7 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ## Configuration
 
-The following table lists the configurable parameters of the Skywalking chart and their default values.
+The following table lists the configurable parameters of the Nacos chart and their default values.
 
 | Parameter                                       | Description                                                                                                | Default                                                                                         |
 |-------------------------------------------------|------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
@@ -75,7 +75,7 @@ The following table lists the configurable parameters of the Skywalking chart an
 | `resources.requests.memory`                     | nacos requests memory resource                                                                             | `2G`                                                                                            |
 | `nacos.replicaCount`                            | Number of desired nacos pods, the number should be 1 as run standalone mode                                | `1`                                                                                             |
 | `nacos.image.repository`                        | Nacos container image name                                                                                 | `nacos/nacos-server`                                                                            |
-| `nacos.image.tag`                               | Nacos container image tag                                                                                  | `latest`                                                                                        |
+| `nacos.image.tag`                               | Nacos container image tag                                                                                  | `v3.2.3`                                                                                        |
 | `nacos.image.pullPolicy`                        | Nacos container image pull policy                                                                          | `IfNotPresent`                                                                                  |
 | `nacos.plugin.enable`                           | Nacos cluster plugin that is auto scale                                                                    | `true`                                                                                          |
 | `nacos.plugin.image.repository`                 | Nacos cluster plugin image name                                                                            | `nacos/nacos-peer-finder-plugin`                                                                |
@@ -105,6 +105,9 @@ The following table lists the configurable parameters of the Skywalking chart an
 | `ingress.enabled`									                      | Enable ingress or not												                                                                          | `false`				                                                                                     |
 | `ingress.annotations`								                   | The annotations used in ingress									                                                                   | `{}`					                                                                                       |
 | `ingress.hosts`									                        | The host of nacos service in ingress rule							                                                           | `nacos.example.com`	                                                                            |
+| `nacos.majorVersion`                            | Override version detection for custom image tags (set to "2" or "3")                               |                                                                                                 |
+| `nacos.probe.startupDelaySeconds`               | Startup probe initial delay in seconds                                                             | `180`                                                                                           |
+| `imagePullSecrets`                              | Docker registry secret names for private images                                                    | `[]`                                                                                            |
 
 
 ## Example
