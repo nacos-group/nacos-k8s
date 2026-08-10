@@ -1,4 +1,4 @@
-{{- if and (eq .Values.global.mode "cluster") }}
+{{- if eq .Values.global.mode "cluster" }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -12,19 +12,21 @@ spec:
       targetPort: {{ .Values.nacos.serverPort }}
       protocol: TCP
       name: http
-    - port: {{ add .Values.service.port 1000}}
+    - port: {{ add .Values.service.port 1000 }}
       name: client-rpc
-      targetPort: {{add .Values.nacos.serverPort 1000}}
-    - port: {{add .Values.service.port 1001}}
+      targetPort: {{ add .Values.nacos.serverPort 1000 }}
+    - port: {{ add .Values.service.port 1001 }}
       name: raft-rpc
-      targetPort: {{add .Values.nacos.serverPort 1001}}
-    - port: {{ .Values.nacos.consolePort}}
+      targetPort: {{ add .Values.nacos.serverPort 1001 }}
+    {{- if eq (include "nacos.isV3" .) "true" }}
+    - port: {{ .Values.nacos.consolePort }}
       name: console
       targetPort: {{ .Values.nacos.consolePort }}
-    - port: {{ .Values.nacos.mcpPort}}
+    - port: {{ .Values.nacos.mcpPort }}
       name: mcp
       targetPort: {{ .Values.nacos.mcpPort }}
-    ## 兼容1.4.x版本的选举端口
+    {{- end }}
+    ## compat: 1.4.x raft election port
     - port: 7848
       name: old-raft-rpc
       targetPort: 7848
@@ -32,17 +34,21 @@ spec:
   selector:
     app.kubernetes.io/name: {{ include "nacos.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
-  {{- end }}
+{{- end }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: nacos-cs
   namespace: {{ .Release.Namespace }}
+  {{- with .Values.service.labels }}
   labels:
-  {{- toYaml .Values.service.labels | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.service.annotations }}
   annotations:
-  {{- toYaml .Values.service.annotations | nindent 4 }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -50,26 +56,28 @@ spec:
       targetPort: {{ .Values.nacos.serverPort }}
       protocol: TCP
       name: http
-    - port: {{ add .Values.service.port 1000}}
+      {{- if eq .Values.service.type "NodePort" }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
+    - port: {{ add .Values.service.port 1000 }}
       name: client-rpc
-      targetPort: {{add .Values.nacos.serverPort 1000}}
-    - port: {{add .Values.service.port 1001}}
+      targetPort: {{ add .Values.nacos.serverPort 1000 }}
+    - port: {{ add .Values.service.port 1001 }}
       name: raft-rpc
-      targetPort: {{add .Values.nacos.serverPort 1001}}
-    - port: 8080
+      targetPort: {{ add .Values.nacos.serverPort 1001 }}
+    {{- if eq (include "nacos.isV3" .) "true" }}
+    - port: {{ .Values.nacos.consolePort }}
       name: console
       targetPort: {{ .Values.nacos.consolePort }}
-    - port: 9080
+    - port: {{ .Values.nacos.mcpPort }}
       name: mcp
       targetPort: {{ .Values.nacos.mcpPort }}
-    ## 兼容1.4.x版本的选举端口
+    {{- end }}
+    ## compat: 1.4.x raft election port
     - port: 7848
       name: old-raft-rpc
       targetPort: 7848
       protocol: TCP
-      {{- if eq .Values.service.type "NodePort" }}
-      nodePort: {{ .Values.service.nodePort }}
-  {{- end }}
   selector:
     app.kubernetes.io/name: {{ include "nacos.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
