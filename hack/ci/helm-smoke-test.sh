@@ -56,12 +56,16 @@ setup_mysql() {
   echo ">>> Downloading Nacos schema SQL..."
   local clean_version="${NACOS_VERSION#v}"
   clean_version="${clean_version%-*}"
-  local schema_url="https://raw.githubusercontent.com/alibaba/nacos/${clean_version}/distribution/conf/mysql-schema.sql"
+  local new_schema_url="https://raw.githubusercontent.com/alibaba/nacos/${clean_version}/plugin-default-impl/nacos-default-datasource-plugin/nacos-datasource-plugin-mysql/src/main/resources/META-INF/mysql-schema.sql"
+  local old_schema_url="https://raw.githubusercontent.com/alibaba/nacos/${clean_version}/distribution/conf/mysql-schema.sql"
   local sql_file="/tmp/nacos-schema.sql"
 
-  curl -sSL "${schema_url}" -o "${sql_file}"
+  if ! curl -sSL --fail "${new_schema_url}" -o "${sql_file}" 2>/dev/null; then
+    echo ">>> New path not found, trying legacy path..."
+    curl -sSL --fail "${old_schema_url}" -o "${sql_file}"
+  fi
   if [[ ! -s "${sql_file}" ]]; then
-    echo "ERROR: Failed to download schema from ${schema_url}"
+    echo "ERROR: Failed to download schema from both paths"
     exit 1
   fi
 
