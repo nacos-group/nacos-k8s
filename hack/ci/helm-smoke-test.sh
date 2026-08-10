@@ -6,7 +6,7 @@
 #   NACOS_VERSION  - Nacos image tag (e.g. v2.5.3, v3.2.3)
 #   MODE           - standalone or cluster
 # Optional:
-#   STORAGE        - embedded (default) or mysql (standalone only)
+#   STORAGE        - embedded (default) or mysql
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -19,7 +19,11 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 RELEASE_NAME="nacos-ci"
 NAMESPACE="default"
 HELM_CHART="${REPO_ROOT}/helm"
-TIMEOUT="300s"
+if [[ "${MODE}" == "cluster" ]]; then
+  TIMEOUT="600s"
+else
+  TIMEOUT="300s"
+fi
 
 # Determine major version (2 or 3) from tag like v2.5.3 or v3.2.3
 MAJOR_VERSION="${NACOS_VERSION#v}"
