@@ -76,7 +76,7 @@ setup_mysql() {
   # readinessProbe (mysqladmin ping) passes before the server fully accepts SQL connections
   echo ">>> Waiting for MySQL to accept connections..."
   local retries=0
-  until kubectl exec "${mysql_pod}" -- mysql -uroot -proot -e "SELECT 1" &>/dev/null; do
+  until kubectl exec "${mysql_pod}" -- mysql -h 127.0.0.1 -uroot -proot -e "SELECT 1" &>/dev/null; do
     retries=$((retries + 1))
     if [[ ${retries} -ge 30 ]]; then
       echo "ERROR: MySQL not accepting connections after 30 retries"
@@ -86,7 +86,7 @@ setup_mysql() {
   done
 
   kubectl cp "${sql_file}" "${mysql_pod}:/tmp/nacos-schema.sql"
-  kubectl exec "${mysql_pod}" -- mysql -uroot -proot nacos -e "source /tmp/nacos-schema.sql"
+  kubectl exec "${mysql_pod}" -- mysql -h 127.0.0.1 -uroot -proot nacos -e "source /tmp/nacos-schema.sql"
   echo ">>> MySQL setup complete."
 }
 
