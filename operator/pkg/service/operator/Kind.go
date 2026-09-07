@@ -128,7 +128,7 @@ func setDefaultNacosType(nacos *nacosgroupv1alpha1.Nacos) {
 
 func setDefaultCertification(nacos *nacosgroupv1alpha1.Nacos) {
 	// 默认设置认证参数
-	if nacos.Spec.Certification.Enabled {
+	if nacos.Spec.Certification.Enabled != nil && *nacos.Spec.Certification.Enabled {
 		if nacos.Spec.Certification.Token == "" {
 			nacos.Spec.Certification.Token = "SecretKey012345678901234567890123456789012345678901234567890123456789"
 		}
@@ -493,25 +493,31 @@ func (e *KindClient) buildStatefulset(nacos *nacosgroupv1alpha1.Nacos) *appv1.St
 	}
 
 	// 设置认证环境变量
-	if nacos.Spec.Certification.Enabled {
+	if nacos.Spec.Certification.Enabled != nil {
 		env = append(env, v1.EnvVar{
 			Name:  "NACOS_AUTH_ENABLE",
-			Value: strconv.FormatBool(nacos.Spec.Certification.Enabled),
+			Value: strconv.FormatBool(*nacos.Spec.Certification.Enabled),
 		})
+	}
 
+	if nacos.Spec.Certification.TokenExpireSeconds != "" {
 		env = append(env, v1.EnvVar{
 			Name:  "NACOS_AUTH_TOKEN_EXPIRE_SECONDS",
 			Value: nacos.Spec.Certification.TokenExpireSeconds,
 		})
+	}
 
+	if nacos.Spec.Certification.Token != "" {
 		env = append(env, v1.EnvVar{
 			Name:  "NACOS_AUTH_TOKEN",
 			Value: nacos.Spec.Certification.Token,
 		})
+	}
 
+	if nacos.Spec.Certification.CacheEnabled != nil {
 		env = append(env, v1.EnvVar{
 			Name:  "NACOS_AUTH_CACHE_ENABLE",
-			Value: strconv.FormatBool(nacos.Spec.Certification.CacheEnabled),
+			Value: strconv.FormatBool(*nacos.Spec.Certification.CacheEnabled),
 		})
 	}
 

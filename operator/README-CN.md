@@ -191,6 +191,18 @@ spec:
     mysqlPort: "3306"
     mysqlPassword: "123456"
 ```
+### 鉴权配置
+
+`spec.certification.enabled` 和 `spec.certification.cache_enabled` 使用三态语义。省略字段时，Operator 不写入对应环境变量，继续继承所选 Nacos 镜像的默认值；显式 `true` 和 `false` 都会传递给 Nacos。从 Nacos 3.3 开始，只有需要在升级期间继续关闭 Client API 鉴权时才应提前显式设置 `enabled: false`；该字段不影响 Admin 和 Console 鉴权。
+
+```yaml
+spec:
+  certification:
+    enabled: false
+```
+
+`chart/nacos` 下的 Nacos Chart 通过 `certification.enabled` 和 `certification.cacheEnabled` 提供相同的覆盖能力。
+
 ### 自定义配置
 1. 通过环境变量配置 兼容nacos-docker项目， https://github.com/nacos-group/nacos-docker
    

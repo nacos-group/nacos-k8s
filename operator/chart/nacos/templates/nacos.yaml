@@ -1,3 +1,6 @@
+{{- $certification := default (dict) .Values.certification -}}
+{{- $authEnabled := get $certification "enabled" -}}
+{{- $authCacheEnabled := get $certification "cacheEnabled" -}}
 apiVersion: nacos.io/v1alpha1
 kind: Nacos
 metadata:
@@ -47,6 +50,15 @@ spec:
       storage: {{ .Values.volume.storageSize}}
     storageClass: {{ .Values.volume.storageClassName}}
   {{-  end }}
+  {{- if or (kindIs "bool" $authEnabled) (kindIs "bool" $authCacheEnabled) }}
+  certification:
+    {{- if kindIs "bool" $authEnabled }}
+    enabled: {{ $authEnabled }}
+    {{- end }}
+    {{- if kindIs "bool" $authCacheEnabled }}
+    cache_enabled: {{ $authCacheEnabled }}
+    {{- end }}
+  {{- end }}
   config: |
 {{- if .Values.config }}
 {{ .Values.config | indent 4 }}

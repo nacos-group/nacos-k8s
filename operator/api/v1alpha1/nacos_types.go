@@ -58,10 +58,10 @@ type NacosSpec struct {
 }
 
 type Certification struct {
-	Enabled            bool   `json:"enabled,omitempty"`
+	Enabled            *bool  `json:"enabled,omitempty"`
 	Token              string `json:"token,omitempty"`
 	TokenExpireSeconds string `json:"token_expire_seconds,omitempty"`
-	CacheEnabled       bool   `json:"cache_enabled,omitempty"`
+	CacheEnabled       *bool  `json:"cache_enabled,omitempty"`
 }
 
 type K8sWrapper struct {

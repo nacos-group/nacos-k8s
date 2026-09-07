@@ -171,6 +171,18 @@ spec:
     mysqlPort: "3306"
     mysqlPassword: "123456"
 ```
+### Authentication configuration
+
+`spec.certification.enabled` and `spec.certification.cache_enabled` use tri-state semantics. When omitted, the operator does not write the corresponding environment variable and the selected Nacos image default is preserved. Explicit `true` and `false` values are both passed to Nacos. Starting with Nacos 3.3, set `enabled: false` explicitly before an upgrade only when Client API authentication must remain disabled; Admin and Console authentication are unaffected.
+
+```yaml
+spec:
+  certification:
+    enabled: false
+```
+
+The Nacos chart under `chart/nacos` exposes the overrides as `certification.enabled` and `certification.cacheEnabled`.
+
 ### Custom configuration
 1. Configure through environment variables, compatible with nacos-docker project, https://github.com/nacos-group/nacos-docker
 
