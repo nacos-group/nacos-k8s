@@ -645,6 +645,18 @@ spec:
                           type: array
                       type: object
                   type: object
+                certification:
+                  description: 开启认证
+                  properties:
+                    cache_enabled:
+                      type: boolean
+                    enabled:
+                      type: boolean
+                    token:
+                      type: string
+                    token_expire_seconds:
+                      type: string
+                  type: object
                 config:
                   description: 配置文件
                   type: string

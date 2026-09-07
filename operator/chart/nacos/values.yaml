@@ -21,6 +21,11 @@ volume:
 database:
   type: embedded
 
+certification:
+  # null inherits the selected Nacos image default; true and false are explicit overrides.
+  enabled: null
+  cacheEnabled: null
+
 resources:
   limits:
     cpu: 1000m
