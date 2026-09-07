@@ -32,10 +32,20 @@ nacos:
   serverPort: 8848
   consolePort: 8080
   mcpPort: 9080
-  # IMPORTANT: Change this token in production! Must be a base64-encoded string >= 32 bytes.
-  authToken: VGhpc0lzQ3VzdG9tU2VjcmV0S2V5MEluSXRzVmVyeVNhZmU=
-  identityKey: serverIdentity
-  identityValue: security
+  auth:
+    # null inherits the image default. true and false are rendered explicitly.
+    enabled: null
+    # Use an existing Secret in production. When empty, the chart creates one
+    # and reuses its generated values during Helm upgrades.
+    existingSecret: ""
+    tokenSecretKey: token
+    identityKeySecretKey: identity-key
+    identityValueSecretKey: identity-value
+  # Deprecated inline credential values. Prefer nacos.auth.existingSecret.
+  # authToken must be a Base64-encoded value whose decoded form is at least 32 bytes.
+  authToken: ""
+  identityKey: ""
+  identityValue: ""
   probe:
     startupDelaySeconds: 180
   health:
@@ -109,6 +119,5 @@ nodeSelector: { }
 tolerations: [ ]
 
 affinity: { }
-
 
 
