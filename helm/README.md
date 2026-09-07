@@ -22,29 +22,58 @@ If you use a custom database, please initialize the database script yourself fir
 To install the chart with `release name`:
 
 ```shell
-$ helm install `release name` ./ --set nacos.authToken="{base64 string}",nacos.identityKey={key},nacos.identityValue={value}
+$ kubectl create secret generic nacos-auth \
+    --from-literal=token="${NACOS_AUTH_TOKEN}" \
+    --from-literal=identity-key="${NACOS_AUTH_IDENTITY_KEY}" \
+    --from-literal=identity-value="${NACOS_AUTH_IDENTITY_VALUE}"
+$ helm install `release name` ./ --set nacos.auth.existingSecret=nacos-auth
 ```
 
-The command deploys Nacos on the Kubernetes cluster in the default configuration. It will run without a mysql chart and persistent volume. The [configuration](#configuration) section lists the parameters that can be configured during installation. 
+The command deploys Nacos on the Kubernetes cluster in the default configuration. It will run without a mysql chart and persistent volume. The [configuration](#configuration) section lists the parameters that can be configured during installation.
+
+When `nacos.auth.existingSecret` is empty, the chart creates a release-scoped Secret with generated credentials and reuses those values on subsequent Helm upgrades. Supplying an existing Secret is recommended for production so that credentials can be managed and backed up independently.
+
+When upgrading from chart `1.0.0` or earlier, use `--reuse-values` for the first upgrade if the release still relies on the legacy inline `nacos.authToken`, `nacos.identityKey`, and `nacos.identityValue` values. The chart copies those retained values into its managed Secret. Alternatively, create an external Secret first and set `nacos.auth.existingSecret` during the upgrade.
+
+The chart does not set `NACOS_AUTH_ENABLE` unless `nacos.auth.enabled` is explicitly `true` or `false`. Therefore, an unset value inherits the selected image's behavior: Nacos 3.3 and later enable Client API authentication by default, while earlier images keep their own defaults.
+
+To keep Client API authentication disabled temporarily while upgrading existing clients to Nacos 3.3, set an explicit override:
+
+```shell
+$ helm upgrade `release name` ./ --reuse-values --set nacos.auth.enabled=false
+```
+
+This switch controls only Client API authentication. Admin and Console API authentication remain independent, and the authentication Secret is still mounted when Client API authentication is disabled.
 
 ### Service & Configuration Management
 
+Log in first and copy `accessToken` from the response when Client API authentication is enabled:
+
+```shell
+curl -X POST 'http://$NODE_IP:$NODE_PORT/nacos/v3/auth/user/login' \
+  -d 'username=nacos' -d "password=${NACOS_PASSWORD}"
+```
+
 #### Service registration
 ```shell
-curl -X POST 'http://$NODE_IP:$NODE_PORT/nacos/v2/ns/instance?serviceName=nacos.naming.serviceName&ip=20.18.7.10&port=8080'
+curl -X POST 'http://$NODE_IP:$NODE_PORT/nacos/v3/client/ns/instance?serviceName=nacos.naming.serviceName&ip=20.18.7.10&port=8080' \
+  -H "accessToken: ${NACOS_ACCESS_TOKEN}"
 ```
 
 #### Service discovery
 ```shell
-curl -X GET 'http://$NODE_IP:$NODE_PORT/nacos/v2/ns/instance/list?serviceName=nacos.naming.serviceName'
+curl -X GET 'http://$NODE_IP:$NODE_PORT/nacos/v3/client/ns/instance/list?serviceName=nacos.naming.serviceName' \
+  -H "accessToken: ${NACOS_ACCESS_TOKEN}"
 ```
 #### Publish config
 ```shell
-curl -X POST "http://$NODE_IP:$NODE_PORT/nacos/v2/cs/config?dataId=nacos.cfg.dataId&group=test&content=helloWorld"
+curl -X POST "http://$NODE_IP:$NODE_PORT/nacos/v3/admin/cs/config?dataId=nacos.cfg.dataId&groupName=test&content=helloWorld" \
+  -H "accessToken: ${NACOS_ACCESS_TOKEN}"
 ```
 #### Get config
 ```shell
-curl -X GET "http://$NODE_IP:$NODE_PORT/nacos/v2/cs/config?dataId=nacos.cfg.dataId&group=test"
+curl -X GET "http://$NODE_IP:$NODE_PORT/nacos/v3/client/cs/config?dataId=nacos.cfg.dataId&groupName=test" \
+  -H "accessToken: ${NACOS_ACCESS_TOKEN}"
 ```
 
 
@@ -85,9 +114,14 @@ The following table lists the configurable parameters of the Nacos chart and the
 | `nacos.serverPort`                              | Nacos pod's port                                                                                           | `8848`                                                                                          |
 | `nacos.consolePort`                             | Nacos console main port                                                                                    | `8080`                                                                                          |
 | `nacos.mcpPort`                                 | Nacos mcp registry port                                                                                    | `9080`                                                                                          |
-| `nacos.authToken`                               | Nacos auth plugin token secret key                                                                         | *Must* be setting manually                                                                      |
-| `nacos.identityKey`                             | Nacos auth server identity key                                                                             | *Must* be setting manually                                                                      |
-| `nacos.identityValue`                           | Nacos auth server identity value                                                                           | *Must* be setting manually                                                                      |
+| `nacos.auth.enabled`                            | Client API authentication override; `null` inherits the image default                                      | `null`                                                                                          |
+| `nacos.auth.existingSecret`                     | Existing Secret containing the token and server identity; generated when empty                             |                                                                                                 |
+| `nacos.auth.tokenSecretKey`                     | Key containing the Base64-encoded Nacos token secret                                                       | `token`                                                                                         |
+| `nacos.auth.identityKeySecretKey`               | Key containing the Nacos server identity key                                                               | `identity-key`                                                                                  |
+| `nacos.auth.identityValueSecretKey`             | Key containing the Nacos server identity value                                                             | `identity-value`                                                                                |
+| `nacos.authToken`                               | Deprecated inline token value; prefer `nacos.auth.existingSecret`                                          |                                                                                                 |
+| `nacos.identityKey`                             | Deprecated inline server identity key; prefer `nacos.auth.existingSecret`                                  |                                                                                                 |
+| `nacos.identityValue`                           | Deprecated inline server identity value; prefer `nacos.auth.existingSecret`                                |                                                                                                 |
 | `nacos.storage.type`                            | Nacos data storage method `mysql` or `embedded`. The `embedded` supports either standalone or cluster mode | `embedded`                                                                                      |
 | `nacos.storage.db.host`                         | mysql  host                                                                                                |                                                                                                 |
 | `nacos.storage.db.name`                         | mysql  database name                                                                                       |                                                                                                 |

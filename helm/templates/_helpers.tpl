@@ -32,6 +32,32 @@ Create chart name and version as used by the chart label.
 {{- end -}}
 
 {{/*
+Return the Secret containing the Nacos token and server identity.
+*/}}
+{{- define "nacos.auth.secretName" -}}
+{{- $auth := default (dict) .Values.nacos.auth -}}
+{{- $existingSecret := default "" (get $auth "existingSecret") -}}
+{{- if $existingSecret -}}
+{{- $existingSecret -}}
+{{- else -}}
+{{- printf "%s-auth" (include "nacos.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Hash auth-related values that require a StatefulSet rollout when changed.
+*/}}
+{{- define "nacos.auth.configChecksum" -}}
+{{- $auth := default (dict) .Values.nacos.auth -}}
+{{- $config := dict
+    "auth" $auth
+    "authToken" .Values.nacos.authToken
+    "identityKey" .Values.nacos.identityKey
+    "identityValue" .Values.nacos.identityValue -}}
+{{- $config | toJson | sha256sum -}}
+{{- end -}}
+
+{{/*
 Common labels
 */}}
 {{- define "nacos.labels" -}}

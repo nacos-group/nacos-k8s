@@ -1,3 +1,4 @@
+{{- $auth := default (dict) .Values.nacos.auth -}}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -26,6 +27,8 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "nacos.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        checksum/auth-config: {{ include "nacos.auth.configChecksum" . | quote }}
     spec:
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -121,12 +124,25 @@ spec:
               value: {{ .Values.nacos.serverPort | quote }}
             - name: PREFER_HOST_MODE
               value: {{ .Values.nacos.preferHostMode | quote }}
+            {{- if kindIs "bool" (get $auth "enabled") }}
+            - name: NACOS_AUTH_ENABLE
+              value: {{ get $auth "enabled" | quote }}
+            {{- end }}
             - name: NACOS_AUTH_TOKEN
-              value: {{ .Values.nacos.authToken | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nacos.auth.secretName" . }}
+                  key: {{ default "token" (get $auth "tokenSecretKey") | quote }}
             - name: NACOS_AUTH_IDENTITY_KEY
-              value: {{ .Values.nacos.identityKey | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nacos.auth.secretName" . }}
+                  key: {{ default "identity-key" (get $auth "identityKeySecretKey") | quote }}
             - name: NACOS_AUTH_IDENTITY_VALUE
-              value: {{ .Values.nacos.identityValue | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nacos.auth.secretName" . }}
+                  key: {{ default "identity-value" (get $auth "identityValueSecretKey") | quote }}
             {{- if eq .Values.global.mode "standalone" }}
             - name: MODE
               value: "standalone"
@@ -201,4 +217,3 @@ spec:
       spec:
   {{- toYaml .Values.persistence.data | nindent 8 }}
   {{- end }}
-
