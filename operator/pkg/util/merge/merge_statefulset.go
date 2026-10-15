@@ -59,13 +59,13 @@ func StatefulSetSpecs(defaultSpec, overrideSpec appsv1.StatefulSetSpec) appsv1.S
 }
 
 func LabelSelectors(originalLabelSelector, overrideLabelSelector *metav1.LabelSelector) *metav1.LabelSelector {
-	// we have only specified a label selector in the override
+	// we have only specified a label selector in the original
 	if overrideLabelSelector == nil {
 		return originalLabelSelector
 	}
-	// we have only specified a label selector in the original
+	// we have only specified a label selector in the override
 	if originalLabelSelector == nil {
-		return originalLabelSelector
+		return overrideLabelSelector
 	}
 
 	// we have specified both, so we must merge them
