@@ -71,15 +71,14 @@ func (s *StatefulSetService) GetStatefulSetReadPod(namespace, name string) ([]co
 	if err != nil {
 		return podlist, err
 	}
-	num := 0
 	for _, pod := range podList.Items {
-		if len(pod.Status.Conditions) != 4 {
-			continue
-		}
-		if pod.Status.Conditions[1].Type == "Ready" &&
-			pod.Status.Conditions[1].Status == "True" {
-			num = num + 1
-			podlist = append(podlist, pod)
+		for _, condition := range pod.Status.Conditions {
+			if condition.Type == corev1.PodReady {
+				if condition.Status == corev1.ConditionTrue {
+					podlist = append(podlist, pod)
+				}
+				break
+			}
 		}
 	}
 	return podlist, nil
