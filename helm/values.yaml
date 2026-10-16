@@ -15,7 +15,7 @@ global:
 nacos:
   image:
     repository: nacos/nacos-server
-    tag: v3.2.3
+    tag: v3.2.4
     pullPolicy: IfNotPresent
   # majorVersion: ""  # Override version detection when using custom tags like "latest".
                        # Set to "2" for Nacos 2.x or "3" for Nacos 3.x.

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Helm smoke test for nacos-k8s.
-# Usage: NACOS_VERSION=v3.2.3 MODE=standalone STORAGE=embedded ./hack/ci/helm-smoke-test.sh
+# Usage: NACOS_VERSION=v3.2.4 MODE=standalone STORAGE=embedded ./hack/ci/helm-smoke-test.sh
 #
 # Required env vars:
-#   NACOS_VERSION  - Nacos image tag (e.g. v2.5.3, v3.2.3)
+#   NACOS_VERSION  - Nacos image tag (e.g. v2.5.4, v3.2.4)
 #   MODE           - standalone or cluster
 # Optional:
 #   STORAGE        - embedded (default) or mysql
@@ -53,7 +53,7 @@ cleanup_local_files() {
 
 trap cleanup_local_files EXIT
 
-# Determine major version (2 or 3) from tag like v2.5.3 or v3.2.3
+# Determine major version (2 or 3) from tag like v2.5.4 or v3.2.4
 MAJOR_VERSION="${NACOS_VERSION#v}"
 MAJOR_VERSION="${MAJOR_VERSION%%.*}"
 

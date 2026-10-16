@@ -67,7 +67,7 @@ spec:
       containers:
         - name: nacos
           imagePullPolicy: IfNotPresent
-          image: nacos/nacos-server:v3.2.3
+          image: nacos/nacos-server:v3.2.4
           resources:
             requests:
               memory: "2Gi"
