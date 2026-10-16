@@ -157,6 +157,11 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
             {{- end }}
             {{- if eq .Values.nacos.storage.type "mysql" }}
             - name: SPRING_DATASOURCE_PLATFORM
