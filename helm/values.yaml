@@ -50,8 +50,20 @@ nacos:
     startupDelaySeconds: 180
   health:
     enabled: false
+  # Additional environment variables for the Nacos container, appended after
+  # the chart-managed ones. An entry with the same name overrides the chart value.
+  extraEnv: []
+  # - name: NACOS_CONFIG_NAMESPACE_COMPATIBLE_MODE
+  #   value: "false"
   storage:
     type: embedded
+    embedded:
+      # Nacos 3.0-3.2 cluster mode only. The namespace migration pre-check at
+      # startup queries through JRaft and gives up after 3 retries (~4s) by
+      # default, which is often before the leader is elected, so all members
+      # restart in a loop. Rendered as NACOS_NAMESPACE_MIGRATE_RETRY_TIMES.
+      # Nacos 3.3+ removes the migration and ignores it. Set to 0 to omit.
+      migrateRetryTimes: 60
 #    type: mysql
 #    db:
 #      host: localhost

@@ -199,7 +199,15 @@ spec:
             {{else}}
             - name: EMBEDDED_STORAGE
               value: embedded
+            {{- $migrateRetryTimes := dig "embedded" "migrateRetryTimes" 0 .Values.nacos.storage }}
+            {{- if and (eq .Values.global.mode "cluster") (eq (include "nacos.isV3" .) "true") $migrateRetryTimes }}
+            - name: NACOS_NAMESPACE_MIGRATE_RETRY_TIMES
+              value: {{ $migrateRetryTimes | quote }}
+            {{- end }}
           {{end}}
+            {{- with .Values.nacos.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           volumeMounts:
             - name: data
               mountPath: /home/nacos/plugins/peer-finder
