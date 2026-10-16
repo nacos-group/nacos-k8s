@@ -40,6 +40,37 @@
         },
         "identityValue": {
           "type": "string"
+        },
+        "extraEnv": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "description": "Additional environment variables for the Nacos container"
+        },
+        "storage": {
+          "type": "object",
+          "properties": {
+            "embedded": {
+              "type": "object",
+              "properties": {
+                "migrateRetryTimes": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Nacos 3.0-3.2 cluster mode: namespace migration pre-check retries; 0 omits the variable"
+                }
+              }
+            }
+          }
         }
       }
     }

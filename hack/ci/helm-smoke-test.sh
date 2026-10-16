@@ -472,7 +472,9 @@ verify_v3_auth_behavior() {
 
 # --- Diagnostics (called on failure) ---
 collect_diagnostics() {
-  local diag_dir="${DIAGNOSTICS_DIR:-/tmp/diagnostics}"
+  # Per-storage subdirectory: the release is removed after a failure, so the
+  # workflow-level collection step may no longer see these pods.
+  local diag_dir="${DIAGNOSTICS_DIR:-/tmp/diagnostics}/${STORAGE}"
   mkdir -p "${diag_dir}"
 
   echo ">>> Collecting diagnostics to ${diag_dir}..."
@@ -488,8 +490,18 @@ collect_diagnostics() {
   echo ">>> Diagnostics saved to ${diag_dir}"
 }
 
+# --- Cleanup for next round (when running multiple storage types) ---
+# Also runs on failure, so a failed embedded round does not leave the release
+# behind and break the following mysql round with a release name conflict.
+cleanup_release() {
+  "${HELM_BIN}" uninstall "${RELEASE_NAME}" --wait 2>/dev/null || true
+  if [[ "${STORAGE}" == "mysql" ]]; then
+    cleanup_mysql
+  fi
+}
+
 # --- Main ---
-trap 'collect_diagnostics' ERR
+trap 'collect_diagnostics; cleanup_release' ERR
 
 if [[ "${STORAGE}" == "mysql" ]]; then
   setup_mysql
@@ -505,8 +517,4 @@ verify_v3_auth_behavior
 echo ""
 echo "=== PASSED: ${MODE} / ${STORAGE} / ${NACOS_VERSION} ==="
 
-# Cleanup for next round (when running multiple storage types)
-"${HELM_BIN}" uninstall "${RELEASE_NAME}" --wait 2>/dev/null || true
-if [[ "${STORAGE}" == "mysql" ]]; then
-  cleanup_mysql
-fi
+cleanup_release
