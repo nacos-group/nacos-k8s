@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        nacos-version: [v2.5.3, v3.2.3]
+        nacos-version: [v2.5.4, v3.2.4]
         k8s-version: [v1.34.8, v1.36.1]
         mode: [standalone, cluster]
     steps:
@@ -64,7 +64,7 @@ jobs:
       - name: Run smoke test (embedded)
         # Known flaky: Nacos 3.x cluster + embedded has a race condition
         # in ConfigMigrateService during JRaft leader election (alibaba/nacos#13762)
-        continue-on-error: ${{ matrix.mode == 'cluster' && matrix.nacos-version == 'v3.2.3' }}
+        continue-on-error: ${{ matrix.mode == 'cluster' && matrix.nacos-version == 'v3.2.4' }}
         run: |
           NACOS_VERSION=${{ matrix.nacos-version }} \
           MODE=${{ matrix.mode }} \
