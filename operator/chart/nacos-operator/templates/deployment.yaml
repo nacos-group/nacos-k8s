@@ -35,6 +35,9 @@ spec:
           command: ["/manager"]
           args: ["--enable-leader-election"]
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: ENABLE_IPV6
+              value: "{{ .Values.enableIPv6 | default false }}"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

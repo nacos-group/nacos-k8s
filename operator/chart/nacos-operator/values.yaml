@@ -4,6 +4,8 @@
 
 replicaCount: 1
 
+enableIPv6: false
+
 image:
   repository: nacos/nacos-operator
   pullPolicy: Always
