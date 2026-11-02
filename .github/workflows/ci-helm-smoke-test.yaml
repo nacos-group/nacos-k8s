@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        nacos-version: [v2.5.4, v3.2.4]
+        nacos-version: [v2.5.5, v3.3.0]
         k8s-version: [v1.34.8, v1.36.1]
         mode: [standalone, cluster]
     steps:
@@ -104,15 +104,15 @@ jobs:
         run: kind delete cluster --name ci
 
   helm-auth-runtime-test:
-    # Add an AUTH_MODE=unset case after a Nacos 3.3+ image is published. It
-    # should expect Client API authentication to be enabled by image default.
-    name: "auth ${{ matrix.auth-mode }} | nacos v3.2.4 | k8s v1.34.8"
+    # unset: no NACOS_AUTH_ENABLE is rendered, and Nacos 3.3+ is expected to
+    # enable Client API authentication by image default.
+    name: "auth ${{ matrix.auth-mode }} | nacos v3.3.0 | k8s v1.34.8"
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        auth-mode: [true, false]
+        auth-mode: [unset, true, false]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -136,12 +136,12 @@ jobs:
 
       - name: Pre-pull Nacos image
         run: |
-          docker pull nacos/nacos-server:v3.2.4
-          kind load docker-image nacos/nacos-server:v3.2.4 --name ci
+          docker pull nacos/nacos-server:v3.3.0
+          kind load docker-image nacos/nacos-server:v3.3.0 --name ci
 
       - name: Run authentication behavior test
         run: |
-          NACOS_VERSION=v3.2.4 \
+          NACOS_VERSION=v3.3.0 \
           MODE=standalone \
           STORAGE=embedded \
           AUTH_MODE=${{ matrix.auth-mode }} \

@@ -49,7 +49,7 @@ render v3-cluster-embedded --set global.mode=cluster
 render v3-cluster-embedded-disabled --set global.mode=cluster --set nacos.storage.embedded.migrateRetryTimes=0
 render v3-standalone-embedded
 render v3-cluster-mysql --set global.mode=cluster --set nacos.storage.type=mysql
-render v2-cluster-embedded --set global.mode=cluster --set nacos.image.tag=v2.5.4
+render v2-cluster-embedded --set global.mode=cluster --set nacos.image.tag=v2.5.5
 render extra-env --set global.mode=cluster \
   --set 'nacos.extraEnv[0].name=NACOS_CONFIG_NAMESPACE_COMPATIBLE_MODE' \
   --set-string 'nacos.extraEnv[0].value=false'

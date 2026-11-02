@@ -45,6 +45,15 @@ $ helm upgrade `release name` ./ --reuse-values --set nacos.auth.enabled=false
 
 This switch controls only Client API authentication. Admin and Console API authentication remain independent, and the authentication Secret is still mounted when Client API authentication is disabled.
 
+### Upgrading to Nacos 3.3
+
+Besides the Client API authentication default described above, check the following before upgrading an existing release to Nacos 3.3 (see the [Nacos 3.3.0 release notes](https://github.com/alibaba/nacos/releases/tag/3.3.0) for details):
+
+- Nacos 3.3 removes the legacy Config migration. Releases still on Nacos 2.x must be upgraded to an earlier 3.x version (3.0–3.2) first, and then to 3.3.
+- Embedded storage moves to Derby 10.16.1.1. Back up persisted data before upgrading a release that uses embedded storage.
+- At startup, Nacos 3.3 tries to download its built-in AI skills from GitHub. In environments without access to GitHub this only logs errors and does not affect startup.
+- `nacos.storage.embedded.migrateRetryTimes` only applies to Nacos 3.0–3.2 and is ignored by Nacos 3.3.
+
 ### Service & Configuration Management
 
 Log in first and copy `accessToken` from the response when Client API authentication is enabled:
@@ -104,7 +113,7 @@ The following table lists the configurable parameters of the Nacos chart and the
 | `resources.requests.memory`                     | nacos requests memory resource                                                                             | `2G`                                                                                            |
 | `nacos.replicaCount`                            | Number of desired nacos pods, the number should be 1 as run standalone mode                                | `1`                                                                                             |
 | `nacos.image.repository`                        | Nacos container image name                                                                                 | `nacos/nacos-server`                                                                            |
-| `nacos.image.tag`                               | Nacos container image tag                                                                                  | `v3.2.4`                                                                                        |
+| `nacos.image.tag`                               | Nacos container image tag                                                                                  | `v3.3.0`                                                                                        |
 | `nacos.image.pullPolicy`                        | Nacos container image pull policy                                                                          | `IfNotPresent`                                                                                  |
 | `nacos.plugin.enable`                           | Nacos cluster plugin that is auto scale                                                                    | `true`                                                                                          |
 | `nacos.plugin.image.repository`                 | Nacos cluster plugin image name                                                                            | `nacos/nacos-peer-finder-plugin`                                                                |
