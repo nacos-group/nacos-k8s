@@ -13,7 +13,7 @@ This file provides guidance to AI coding agents working with the nacos-k8s repos
 
 nacos-k8s provides Kubernetes deployment solutions for [Nacos](https://nacos.io/) (Dynamic Naming and Configuration Service).
 
-**Current Version**: Nacos 3.2.4 (also supports 2.x via Helm chart version detection)
+**Current Version**: Nacos 3.3.0 (also supports 2.x via Helm chart version detection)
 
 **Deployment Modes**:
 - **Helm chart** (primary, actively maintained) — `helm/`
@@ -39,20 +39,20 @@ nacos-k8s provides Kubernetes deployment solutions for [Nacos](https://nacos.io/
 
 ```bash
 # Render templates locally
-helm template test ./helm --set nacos.image.tag=v3.2.4
+helm template test ./helm --set nacos.image.tag=v3.3.0
 
 # Lint chart
 helm lint ./helm
 
 # Run CI smoke test locally (requires Kind cluster)
-NACOS_VERSION=v3.2.4 MODE=standalone STORAGE=embedded ./hack/ci/helm-smoke-test.sh
+NACOS_VERSION=v3.3.0 MODE=standalone STORAGE=embedded ./hack/ci/helm-smoke-test.sh
 
 # Full CI matrix runs on every PR via GitHub Actions
 ```
 
 ## CI Structure
 
-- `.github/workflows/ci-helm-smoke-test.yaml` — matrix: Nacos (v2.5.4, v3.2.4) × K8s (v1.34.8, v1.36.1) × Mode (standalone, cluster)
+- `.github/workflows/ci-helm-smoke-test.yaml` — matrix: Nacos (v2.5.5, v3.3.0) × K8s (v1.34.8, v1.36.1) × Mode (standalone, cluster)
 - `hack/ci/helm-smoke-test.sh` — core test script
 - `hack/ci/values-nacos-{2x,3x}.yaml` — version-specific Helm values
 - `hack/ci/mysql.yaml` — lightweight MySQL for CI
@@ -70,4 +70,4 @@ NACOS_VERSION=v3.2.4 MODE=standalone STORAGE=embedded ./hack/ci/helm-smoke-test.
 
 - Target branch: `master`
 - Squash merge preferred
-- CI must pass (3.x cluster + embedded may be flaky — see alibaba/nacos#13762)
+- CI must pass

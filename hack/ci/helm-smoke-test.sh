@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Helm smoke test for nacos-k8s.
-# Usage: NACOS_VERSION=v3.2.4 MODE=standalone STORAGE=embedded ./hack/ci/helm-smoke-test.sh
+# Usage: NACOS_VERSION=v3.3.0 MODE=standalone STORAGE=embedded ./hack/ci/helm-smoke-test.sh
 #
 # Required env vars:
-#   NACOS_VERSION  - Nacos image tag (e.g. v2.5.4, v3.2.4)
+#   NACOS_VERSION  - Nacos image tag (e.g. v2.5.5, v3.3.0)
 #   MODE           - standalone or cluster
 # Optional:
 #   STORAGE        - embedded (default) or mysql
@@ -53,9 +53,12 @@ cleanup_local_files() {
 
 trap cleanup_local_files EXIT
 
-# Determine major version (2 or 3) from tag like v2.5.4 or v3.2.4
+# Determine major version (2 or 3) from tag like v2.5.5 or v3.3.0
 MAJOR_VERSION="${NACOS_VERSION#v}"
 MAJOR_VERSION="${MAJOR_VERSION%%.*}"
+MINOR_VERSION="${NACOS_VERSION#v}"
+MINOR_VERSION="${MINOR_VERSION#*.}"
+MINOR_VERSION="${MINOR_VERSION%%.*}"
 
 if [[ "${MAJOR_VERSION}" == "2" ]]; then
   VALUES_FILE="${SCRIPT_DIR}/values-nacos-2x.yaml"
@@ -312,8 +315,15 @@ smoke_verify() {
   fi
 }
 
+# Nacos 3.3+ enables Client API authentication when nacos.core.auth.enabled is absent.
+image_enables_client_auth_by_default() {
+  [[ "${MAJOR_VERSION}" == "3" && "${MINOR_VERSION}" -ge 3 ]]
+}
+
 expected_client_auth_state() {
   if [[ "${AUTH_MODE}" == "true" ]]; then
+    echo enabled
+  elif [[ "${AUTH_MODE}" == "unset" ]] && image_enables_client_auth_by_default; then
     echo enabled
   else
     echo disabled
@@ -327,7 +337,10 @@ request_code() {
 }
 
 verify_v3_auth_behavior() {
-  if [[ "${MAJOR_VERSION}" != "3" || "${AUTH_MODE}" == "unset" ]]; then
+  if [[ "${MAJOR_VERSION}" != "3" ]]; then
+    return
+  fi
+  if [[ "${AUTH_MODE}" == "unset" ]] && ! image_enables_client_auth_by_default; then
     return
   fi
 
