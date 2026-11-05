@@ -154,17 +154,13 @@ const (
 // check whether delete sts
 func checkSts(old *appsv1.StatefulSet, new *appsv1.StatefulSet) operator {
 
-	rsA, _ := json.Marshal(old.Spec.Template.Spec.Containers[0].Resources)
-	rsB, _ := json.Marshal(new.Spec.Template.Spec.Containers[0].Resources)
-
-	envA, _ := json.Marshal(old.Spec.Template.Spec.Containers[0].Env)
-	envB, _ := json.Marshal(new.Spec.Template.Spec.Containers[0].Env)
-
 	if checkVolumeClaimTemplates(old, new) {
 		return Delete
 	}
 
-	if !bytes.Equal(rsA, rsB) || *old.Spec.Replicas != *new.Spec.Replicas || !bytes.Equal(envA, envB) {
+	if replicasOrDefault(old.Spec.Replicas) != replicasOrDefault(new.Spec.Replicas) ||
+		!containersEqual(old.Spec.Template.Spec.Containers, new.Spec.Template.Spec.Containers) ||
+		!containersEqual(old.Spec.Template.Spec.InitContainers, new.Spec.Template.Spec.InitContainers) {
 		return Update
 	}
 

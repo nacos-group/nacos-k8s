@@ -17,10 +17,12 @@ COPY main.go main.go
 COPY api/ api/
 COPY controllers/ controllers/
 COPY pkg/ pkg/
-ADD https://raw.githubusercontent.com/alibaba/nacos/develop/plugin-default-impl/nacos-default-datasource-plugin/nacos-datasource-plugin-mysql/src/main/resources/META-INF/mysql-schema.sql config/sql/nacos-mysql.sql
+# Pinned to the official Nacos 2.4.3 schema (see config/sql/README.md).
+COPY config/sql/nacos-mysql.sql config/sql/nacos-mysql.sql
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} GO111MODULE=on go build  -a -v -o manager main.go
+# Keep compiler concurrency and GC memory use suitable for small build hosts.
+RUN GOMAXPROCS=1 GOGC=50 CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH:-amd64} GO111MODULE=on go build -mod=readonly -p 1 -o manager main.go
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details

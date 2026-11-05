@@ -36,7 +36,7 @@ var initScrit = `for element in %s
 do
   while true
   do
-    if ping "$element" -c 1 > /dev/stdout 2>&1; then
+    if ping -c 1 "$element" > /dev/stdout 2>&1; then
       echo "$element all domain ready"
       break
     else
@@ -456,12 +456,9 @@ func (e *KindClient) buildClientService(nacos *nacosgroupv1alpha1.Nacos) *v1.Ser
 			Selector: labels,
 		},
 	}
-	//client-service提供双栈
-	var ipf = make([]v1.IPFamily, 0)
-	ipf = append(ipf, v1.IPv4Protocol)
-	ipf = append(ipf, v1.IPv6Protocol)
-	svc.Spec.IPFamilies = ipf
-	var ipPli = v1.IPFamilyPolicyPreferDualStack
+	// Match the headless Service on IPv4-only clusters.
+	svc.Spec.IPFamilies = []v1.IPFamily{v1.IPv4Protocol}
+	var ipPli = v1.IPFamilyPolicySingleStack
 	svc.Spec.IPFamilyPolicy = &ipPli
 	myErrors.EnsureNormal(controllerutil.SetControllerReference(nacos, svc, e.scheme))
 	return svc
